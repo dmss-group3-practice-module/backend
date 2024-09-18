@@ -2,11 +2,8 @@ name: fEATs backend
 
 on:
   push:
-    branches:
-      - pipeline
   pull_request:
-    branches:
-      - pipeline
+
 jobs:
   ci:
     runs-on: ubuntu-latest

@@ -60,7 +60,7 @@ spotless {
 		// don't need to set target, it is inferred from java
 
 		// apply a specific flavor of google-java-format
-		googleJavaFormat()
+		googleJavaFormat('1.17.0')
 		// fix formatting of type annotations
 		formatAnnotations()
 	}

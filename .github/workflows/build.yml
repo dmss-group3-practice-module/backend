@@ -40,8 +40,6 @@ jobs:
       - uses: thecodemonkey/action-get-gradle-version@master
         id: version
 
-      - run: 'echo version ${{ steps.version.outputs.version }}'
-
       - name: Build Docker container with 'latest' tag
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/feats-backend:latest .
@@ -59,7 +57,5 @@ jobs:
       - name: Push Docker image (version) to Docker Hub
         run: |
           VERSION=$(echo "${{ steps.version.outputs.version }}" | sed "s/^['\"]\(.*\)['\"]$/\1/")
-          echo version $VERSION
-          docker images
           docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/feats-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/feats-backend:$VERSION
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/feats-backend:$VERSION

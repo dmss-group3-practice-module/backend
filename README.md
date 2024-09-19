@@ -33,3 +33,18 @@ This Documentation is still WIP.
 |── build.gradle                            Dependencies and plugins of project       
 └── ...
 ```
+
+## Continuous Integration
+
+The project is using [GitHub Actions](https://docs.github.com/en/actions) for the Continuous Integration (CI) pipeline. 
+
+Refer to `.github/workflows/build.yml` file for the detailed steps in the CI pipeline.
+
+The following diagram illustrates the overview of the CI workflow:
+
+```mermaid
+flowchart LR
+    A[Build] --> B[Run tests] --> C[Build Docker Containers] --> D[Deploy to DockerHub]  
+```
+
+**TODO**: add scanning stages to CI pipeline

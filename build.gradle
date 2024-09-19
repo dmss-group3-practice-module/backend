@@ -40,7 +40,6 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-<<<<<<< HEAD
 }
 
 
@@ -66,6 +65,3 @@ spotless {
 		formatAnnotations()
 	}
 }
-=======
-}
->>>>>>> aa82577 (ci: add docker to pipeline (#2))

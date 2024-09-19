@@ -27,7 +27,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -42,7 +42,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -57,7 +57,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -73,7 +73,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -89,7 +89,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -106,7 +106,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -123,7 +123,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -140,7 +140,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = null;
       boolean addUserResult = true;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
@@ -157,7 +157,7 @@ public class TestUserAccountService {
       UserAccount dbUserAccount = new UserAccount();
       boolean addUserResult = false;
 
-      when(userAccountDataAccess.getUserById(anyInt())).thenReturn(dbUserAccount);
+      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
       when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
 
       assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));

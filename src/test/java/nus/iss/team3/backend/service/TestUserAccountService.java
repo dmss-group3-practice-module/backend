@@ -134,6 +134,7 @@ public class TestUserAccountService {
   public void addUser_validAccount_validUsername_validPassword_validEmail_nullAccount() {
     {
       UserAccount inputUserAccount = new UserAccount();
+      inputUserAccount.setUserId("valid");
       inputUserAccount.setUserName("valid");
       inputUserAccount.setPassword("valid");
       inputUserAccount.setEmail("valid");

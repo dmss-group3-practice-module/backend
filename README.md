@@ -7,11 +7,16 @@ This Documentation is still WIP.
 1. Install Gradle plugin for your IDE.
 
 ## Commands
+
+#### Gradle
 `./gradlew clean` : remove the build files generated from the build command  
 `./gradlew build` : build the project  
 `./gradlew bootrun` : run the project  
-`./gradlew test` : run the tests 
+`./gradlew test` : run the tests
 
+#### Docker
+`docker build -t feats-backend .`: build a docker container named *feats-backend* with the *latest* tag  
+`docker run -d -p 8089:8089 feats-backend`: run the docker container on port 8089
 
 ## File Structure
 
@@ -44,7 +49,7 @@ The following diagram illustrates the overview of the CI workflow:
 
 ```mermaid
 flowchart LR
-    A[Build] --> B[Run tests] --> C[Build Docker Containers] --> D[Deploy to DockerHub]  
+    A[Build] --> B[Run tests] --> C[Build Docker Containers] --> D[Deploy to DockerHub]
 ```
 
 **TODO**: add scanning stages to CI pipeline

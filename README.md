@@ -1,20 +1,23 @@
 # Backend (Practice Module)
 
-
 This Documentation is still WIP.
 
 ## Getting Started
+
 1. Install Gradle plugin for your IDE.
 
 ## Commands
 
 #### Gradle
+
 `./gradlew clean` : remove the build files generated from the build command  
+`./gradlew spotlessapply` : format your codebase according to google java format  
 `./gradlew build` : build the project  
 `./gradlew bootrun` : run the project  
 `./gradlew test` : run the tests
 
 #### Docker
+
 `docker build -t feats-backend .`: build a docker container named *feats-backend* with the *latest* tag  
 `docker run -d -p 8089:8089 feats-backend`: run the docker container on port 8089
 
@@ -33,7 +36,9 @@ This Documentation is still WIP.
 |  |      ├──🗂️ entity                      Contains the Entity Object. Each entity represents a database table, logical grouping of multiple tables or entity required for communicating between different modules of the system 
 |  |      ├──🗂️ service                     Contains the logic to handle the interaction between different entities in the system
 |  |      ├──🗂️ util                        Contains Utils functions that support the main system
-|  |      └── BackendApplication.java              
+|  |      └── BackendApplication.java
+|  |  └──🗂️ java
+|  |    └── application.properties          Contains the properties the application requires
 ├── README.md
 |── build.gradle                            Dependencies and plugins of project       
 └── ...
@@ -41,7 +46,7 @@ This Documentation is still WIP.
 
 ## Continuous Integration
 
-The project is using [GitHub Actions](https://docs.github.com/en/actions) for the Continuous Integration (CI) pipeline. 
+The project is using [GitHub Actions](https://docs.github.com/en/actions) for the Continuous Integration (CI) pipeline.
 
 Refer to `.github/workflows/build.yml` file for the detailed steps in the CI pipeline.
 

@@ -1,26 +1,23 @@
+/* (C)2024 */
 package nus.iss.team3.backend.service;
 
-import nus.iss.team3.backend.entity.UserAccount;
-
 import java.util.List;
+import nus.iss.team3.backend.entity.UserAccount;
 
 /**
  * Interface for userAccountService, contains logic involving userAccounts.
  *
- * @author Desmond Tan
+ * @author Desmond Tan Zhi Heng
  */
 public interface IUserAccountService {
 
-    public boolean addUser(UserAccount userAccount);
+  public boolean addUser(UserAccount userAccount);
 
-    public boolean updateUser(UserAccount userAccount);
+  public boolean updateUser(UserAccount userAccount);
 
-    public boolean deleteUser(String userName);
+  public boolean deleteUserById(String userName);
 
-    public UserAccount getUser(String userName);
+  public UserAccount getUserById(String userName);
 
-    public List<UserAccount> getAllUser();
-
-
-
+  public List<UserAccount> getAllUser();
 }

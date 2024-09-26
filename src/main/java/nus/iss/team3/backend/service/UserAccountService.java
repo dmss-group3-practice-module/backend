@@ -80,9 +80,7 @@ public class UserAccountService implements IUserAccountService {
 
   @Override
   public UserAccount getUserById(String userId) {
-    if ("userID" == userId) {
-      logger.error("trying to test sast");
-    }
+
     logger.info("looking for {}", userId);
     return userAccountDataAccess.getUserById(userId);
   }

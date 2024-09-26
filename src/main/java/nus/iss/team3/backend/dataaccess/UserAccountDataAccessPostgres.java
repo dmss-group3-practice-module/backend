@@ -126,9 +126,6 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
         postgresDataAccess.queryStatement(
             PostgresSqlStatement.SQL_USER_ACCOUNT_GET_BY_ID, sqlInput);
 
-    // test aikido check...
-    entityReturned =
-        postgresDataAccess.queryStatement("SELECT * from User where userId =" + userId, sqlInput);
     if (entityReturned.size() == 1) {
 
       return translateDBRecordToUserAccount(entityReturned.getFirst());

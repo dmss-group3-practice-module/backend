@@ -1,1 +1,17 @@
 # SCA scan by Aikido under SAST scan
+name: SCA Workflow
+
+on:
+  push:
+  pull_request:
+
+
+jobs:
+  sca:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SVA scan
+        shell: bash
+        run: |
+          echo "SCA scan done using Aikido configurated under SAST scan."

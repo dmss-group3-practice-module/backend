@@ -80,6 +80,7 @@ public class UserAccountService implements IUserAccountService {
 
   @Override
   public UserAccount getUserById(String userId) {
+
     logger.info("looking for {}", userId);
     return userAccountDataAccess.getUserById(userId);
   }

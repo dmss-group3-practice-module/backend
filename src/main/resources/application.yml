@@ -1,0 +1,60 @@
+##############################
+### profile settings access, can be overwritten when running the application jar,
+###    java -jar -Dspring.profiles.active=docker
+##############################
+spring:
+  profiles:
+    active: development
+---
+##############################
+### Application common settings
+##############################
+server:
+  port: 8089
+##############################
+### database access
+##############################
+spring:
+  application:
+    name: backend
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl: none
+    show-sql: true
+##############################
+### logging access
+##############################
+logging:
+  file:
+    name: logs/backend.log
+  level:
+    nus:
+      iss:
+        team3:
+          backend: DEBUG
+---
+##############################
+### individual environment setup
+##############################
+spring:
+  config:
+    activate:
+      on-profile: development
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydatabase
+    username: user
+    password: password
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres_db:5432/mydatabase
+    username: user
+    password: password
+---
+
+### to look at https://www.geeksforgeeks.org/spring-boot-application-properties/ for database connection

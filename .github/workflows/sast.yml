@@ -1,7 +1,6 @@
 name: SAST Workflow
 
 on:
-  push:
   pull_request:
 
 jobs:

@@ -1,7 +1,6 @@
 name: DAST Workflow
 
 on:
-  push:
   pull_request:
 
 jobs:

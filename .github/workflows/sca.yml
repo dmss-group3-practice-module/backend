@@ -2,7 +2,6 @@
 name: SCA Workflow
 
 on:
-  push:
   pull_request:
 
 

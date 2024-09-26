@@ -19,8 +19,8 @@ jobs:
           fail-on-dependency-scan: true
           fail-on-sast-scan: true
           fail-on-iac-scan: false
-          minimum-severity: 'CRITICAL'
+          minimum-severity: 'HIGH'
           timeout-seconds: 180
-          post-scan-status-comment: 'off'
-          post-sast-review-comments: 'off'
+          post-scan-status-comment: 'on'
+          post-sast-review-comments: 'on'
           github-token: ${{ secrets.GITHUB_TOKEN }}

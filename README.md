@@ -15,7 +15,7 @@ This Documentation is still WIP.
 `./gradlew spotlessapply` : format your codebase according to google java format  
 `./gradlew build` : build the project  
 `./gradlew bootrun` : run the project  
-`./gradlew test` : run the tests
+`./gradlew test` : run the tests  
 `./gradlew clean spotlessapply build bootrun` : clean, do spotlessapply, build and run together
 
 #### Docker
@@ -77,7 +77,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     A[Scanning]
-    A -->|SAST| B[1- Aikido Scan]
+    A -->|SAST| B[Aikido Scan]
     A -->|SCA| C[Aikido Scan]
     A -->|DAST| D[ZAP scan]
 ```

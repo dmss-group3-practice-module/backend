@@ -26,7 +26,7 @@ This Documentation is still WIP.
 ## Spring Profile
 
 Spring profiles are used to identify different settings for different environment.
-to apply profiles, run "java -jar -Dspring.profiles.active=docker"
+to apply profiles, run `java -jar -Dspring.profiles.active=docker`
 
 #### List of Profiles
 
@@ -37,9 +37,11 @@ to apply profiles, run "java -jar -Dspring.profiles.active=docker"
 
 ```
 🗂️── .github/workflows     
-|  └──🗂️ build.yml                          GitHub CI pipeline workflow  
-🗂️── build                                  Compiled files
-|  └──🗂️ zap-script.sh                      script to run zap scan.  
+|  └──🗂️ build.yml                          GitHub CI pipeline for building and pushing image  
+|  └──🗂️ dast.yml                           GitHub CI pipeline for DAST scanning with ZAP  
+|  └──🗂️ sast.yml                           GitHub CI pipeline for SAST and SCA scanning with Aikido  
+🗂️── scripts                                Compiled files
+|  └──🗂️ zap-script.sh                      script to run ZAP scan for DAST  
 🗂️── build                                  Compiled files
 🗂️── src                                    Source files
 |  ├──🗂️ main               
@@ -75,8 +77,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     A[Scanning]
-    A -->|SAST| B[1- Aikido Scan
-2. ????]
+    A -->|SAST| B[1- Aikido Scan]
     A -->|SCA| C[Aikido Scan]
     A -->|DAST| D[ZAP scan]
 ```

@@ -13,4 +13,4 @@ jobs:
       - name: SVA scan
         shell: bash
         run: |
-          echo "SCA scan done using Aikido configurated under SAST scan."
+          echo "SCA scan done using Aikido configured under SAST scan."

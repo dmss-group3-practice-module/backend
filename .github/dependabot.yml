@@ -3,12 +3,17 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     ignore:
       - dependency-name: "org.springframework.boot:spring-boot-starter"
         versions: ["2.5.0"]
+    groups:
+      all:
+        patterns:
+          - '*'
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"

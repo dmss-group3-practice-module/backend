@@ -23,10 +23,16 @@ public enum EUserAccountStatus {
     }
   }
 
-  private EUserAccountStatus(int code) {
+  EUserAccountStatus(int code) {
     this.code = code;
   }
 
+  /**
+   * Get the enum value based on the status code
+   *
+   * @param code The integer code of the status
+   * @return The corresponding EUserAccountStatus, or null if not found
+   */
   public static EUserAccountStatus valueOfCode(int code) {
     return BY_CODE.get(code);
   }

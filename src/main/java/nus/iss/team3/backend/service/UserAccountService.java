@@ -97,7 +97,6 @@ public class UserAccountService implements IUserAccountService {
    */
   private boolean validateUserAccount(UserAccount userAccount) {
     return userAccount == null
-        || StringUtilities.isStringNullOrBlank(userAccount.getUserId())
         || StringUtilities.isStringNullOrBlank(userAccount.getUserName())
         || StringUtilities.isStringNullOrBlank(userAccount.getPassword())
         || StringUtilities.isStringNullOrBlank(userAccount.getEmail());

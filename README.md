@@ -5,7 +5,10 @@ This Documentation is still WIP.
 ## Getting Started
 
 1. Install Gradle plugin for your IDE.
-2. Create .env file from .env.example with the sensitive data
+2. Create `.env` file from `.env.example` with the sensitive data
+3. Ensure [JDK 22](https://www.oracle.com/java/technologies/javase/jdk22-archive-downloads.html) is installed
+4. Clone the [deployment](https://github.com/dmss-group3-practice-module/deployment) repository and execute the `db-init.sql` script to create a `user_account` table
+5. Login into the team's postman workspace to access existing APIs
 
 ## Commands
 

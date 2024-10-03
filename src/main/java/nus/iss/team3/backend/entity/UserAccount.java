@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 // @Entity
 public class UserAccount {
 
-  private Long id;
+  private Integer id;
   private String name;
   private String password;
   private String displayName;
@@ -33,11 +33,11 @@ public class UserAccount {
 
   // Getters and setters for all fields
 
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -113,6 +113,9 @@ public class UserAccount {
         + ", name='"
         + name
         + '\''
+        + ", password='"
+        + password
+        + '\''
         + ", displayName='"
         + displayName
         + '\''
@@ -123,6 +126,10 @@ public class UserAccount {
         + status
         + ", role="
         + role
+        + ", createDateTime="
+        + createDateTime
+        + ", updateDateTime="
+        + updateDateTime
         + '}';
   }
 }

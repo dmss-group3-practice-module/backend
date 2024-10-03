@@ -71,7 +71,7 @@ public class UserAccountService implements IUserAccountService {
   }
 
   @Override
-  public boolean deleteUserById(Long id) {
+  public boolean deleteUserById(Integer id) {
     if (userAccountDataAccess.getUserById(id) == null) {
       logger.info("deleteUser failed, due to missing account for {}", id);
       return false;
@@ -80,7 +80,7 @@ public class UserAccountService implements IUserAccountService {
   }
 
   @Override
-  public UserAccount getUserById(Long id) {
+  public UserAccount getUserById(Integer id) {
     logger.info("looking for user with id {}", id);
     return userAccountDataAccess.getUserById(id);
   }

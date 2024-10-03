@@ -50,7 +50,7 @@ public class UserAccountController {
   }
 
   @DeleteMapping("/delete/{id}")
-  public ResponseEntity deleteUser(@PathVariable Long id) {
+  public ResponseEntity deleteUser(@PathVariable Integer id) {
     if (userAccountService.deleteUserById(id)) {
       logger.info("Deletion of User Account: {} completed", id);
       return new ResponseEntity(true, HttpStatus.OK);
@@ -60,20 +60,20 @@ public class UserAccountController {
   }
 
   @GetMapping("/get/{id}")
-  public UserAccount getUser(@PathVariable Long id) {
+  public ResponseEntity getUser(@PathVariable Integer id) {
     UserAccount user = userAccountService.getUserById(id);
     if (user != null) {
       logger.info("Retrieved User Account: {}", id);
     } else {
-      logger.info("User Account nt found: {}", id);
+      logger.info("User Account not found: {}", id);
     }
-    return user;
+    return new ResponseEntity(user, HttpStatus.OK);
   }
 
   @GetMapping("/getAll")
-  public List<UserAccount> getAllUser() {
+  public ResponseEntity getAllUser() {
     List<UserAccount> users = userAccountService.getAllUser();
     logger.info("Retrieved {} User Accounts", users.size());
-    return users;
+    return new ResponseEntity(users, HttpStatus.OK);
   }
 }

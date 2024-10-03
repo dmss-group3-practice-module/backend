@@ -102,8 +102,8 @@ public class PostgresSqlStatement {
           + INPUT_USER_ACCOUNT_ROLE
           + ", "
           + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
-          + " = :"
-          + "now())"
+          + " = "
+          + "now()"
           + " WHERE "
           + COLUMN_USER_ACCOUNT_ID
           + " = :"

@@ -13,11 +13,11 @@ public interface IUserAccountService {
 
   boolean addUser(UserAccount userAccount);
 
-  boolean deleteUserById(Long id);
+  boolean deleteUserById(Integer id);
 
   boolean updateUser(UserAccount userAccount);
 
-  UserAccount getUserById(Long id);
+  UserAccount getUserById(Integer id);
 
   List<UserAccount> getAllUser();
 }

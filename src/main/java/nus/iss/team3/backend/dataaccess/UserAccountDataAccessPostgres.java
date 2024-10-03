@@ -1,6 +1,8 @@
 /* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
+import static nus.iss.team3.backend.dataaccess.PostgresSqlStatement.*;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,12 +37,12 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   public boolean addUser(UserAccount userAccount) {
 
     Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put("name", userAccount.getName());
-    sqlInput.put("password", userAccount.getPassword());
-    sqlInput.put("displayName", userAccount.getDisplayName());
-    sqlInput.put("email", userAccount.getEmail());
-    sqlInput.put("status", userAccount.getStatus().code);
-    sqlInput.put("role", userAccount.getRole().code);
+    sqlInput.put(INPUT_USER_ACCOUNT_NAME, userAccount.getName());
+    sqlInput.put(INPUT_USER_ACCOUNT_PASSWORD, userAccount.getPassword());
+    sqlInput.put(INPUT_USER_ACCOUNT_DISPLAY_NAME, userAccount.getDisplayName());
+    sqlInput.put(INPUT_USER_ACCOUNT_EMAIL, userAccount.getEmail());
+    sqlInput.put(INPUT_USER_ACCOUNT_STATUS, userAccount.getStatus().code);
+    sqlInput.put(INPUT_USER_ACCOUNT_ROLE, userAccount.getRole().code);
 
     //    System.out.println("SQL Input: " + sqlInput);
 
@@ -62,13 +64,13 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   @Override
   public boolean updateUser(UserAccount userAccount) {
     Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put("id", userAccount.getId());
-    sqlInput.put("name", userAccount.getName());
-    sqlInput.put("password", userAccount.getPassword());
-    sqlInput.put("display_name", userAccount.getDisplayName());
-    sqlInput.put("email", userAccount.getEmail());
-    sqlInput.put("status", userAccount.getStatus().code);
-    sqlInput.put("role", userAccount.getRole().code);
+    sqlInput.put(INPUT_USER_ACCOUNT_ID, userAccount.getId());
+    sqlInput.put(INPUT_USER_ACCOUNT_NAME, userAccount.getName());
+    sqlInput.put(INPUT_USER_ACCOUNT_PASSWORD, userAccount.getPassword());
+    sqlInput.put(INPUT_USER_ACCOUNT_DISPLAY_NAME, userAccount.getDisplayName());
+    sqlInput.put(INPUT_USER_ACCOUNT_EMAIL, userAccount.getEmail());
+    sqlInput.put(INPUT_USER_ACCOUNT_STATUS, userAccount.getStatus().code);
+    sqlInput.put(INPUT_USER_ACCOUNT_ROLE, userAccount.getRole().code);
     //    sqlInput.put("update_datetime", ZonedDateTime.now());
 
     // insert ok if returned 1, any other values means insert failed!
@@ -77,18 +79,14 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     if (rowUpdated == 1) {
       logger.debug("account updated for {}", userAccount.getId());
       return true;
-    }
-    if (rowUpdated == 0) {
+    } else if (rowUpdated == 0) {
       logger.debug("account update for {} failed, no account found", userAccount.getId());
-      // no record for Id found
       return false;
-    }
-    if (rowUpdated > 1) {
+    } else {
       logger.error(
-          "account update for {} happened but multi rows updated, please review",
-          userAccount.getId());
+          "account update for {} affected multiple rows: {}", userAccount.getId(), rowUpdated);
+      throw new RuntimeException("Multiple rows affected during update");
     }
-    return false;
   }
 
   /**
@@ -96,7 +94,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
    * @return whether the deletion of the account was successful
    */
   @Override
-  public boolean deleteUserById(Long id) {
+  public boolean deleteUserById(Integer id) {
 
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, id);
@@ -123,7 +121,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
    * @return the content of the account that was retrieved
    */
   @Override
-  public UserAccount getUserById(Long id) {
+  public UserAccount getUserById(Integer id) {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, id);
 
@@ -173,6 +171,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     List<Map<String, Object>> entityReturned =
         postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_USER_ACCOUNT_GET_ALL, null);
 
+    System.out.println(entityReturned);
     if (entityReturned == null) {
       logger.error("Error retrieving user account from database.");
       return new ArrayList<>();
@@ -181,6 +180,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     for (Map<String, Object> entity : entityReturned) {
       returnList.add(translateDBRecordToUserAccount(entity));
     }
+    System.out.println(returnList);
     return returnList;
   }
 
@@ -188,34 +188,49 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   private UserAccount translateDBRecordToUserAccount(Map<String, Object> entity) {
     UserAccount returnItem = new UserAccount();
 
-    if (entity.containsKey("id") && (entity.get("id") instanceof Long)) {
-      returnItem.setId((Long) entity.get("id"));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_ID)
+        && (entity.get(COLUMN_USER_ACCOUNT_ID) instanceof Integer)) {
+      returnItem.setId((Integer) entity.get(COLUMN_USER_ACCOUNT_ID));
     }
-    if (entity.containsKey("name") && (entity.get("name") instanceof String)) {
-      returnItem.setName((String) entity.get("name"));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_NAME)
+        && (entity.get(COLUMN_USER_ACCOUNT_NAME) instanceof String)) {
+      returnItem.setName((String) entity.get(COLUMN_USER_ACCOUNT_NAME));
     }
-    if (entity.containsKey("password") && (entity.get("password") instanceof String)) {
-      returnItem.setPassword((String) entity.get("password"));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_PASSWORD)
+        && (entity.get(COLUMN_USER_ACCOUNT_PASSWORD) instanceof String)) {
+      returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
     }
-    if (entity.containsKey("display_name") && (entity.get("display_name") instanceof String)) {
-      returnItem.setDisplayName((String) entity.get("display_name"));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_DISPLAY_NAME)
+        && (entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME) instanceof String)) {
+      returnItem.setDisplayName((String) entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
     }
-    if (entity.containsKey("email") && (entity.get("email") instanceof String)) {
-      returnItem.setEmail((String) entity.get("email"));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_EMAIL)
+        && (entity.get(COLUMN_USER_ACCOUNT_EMAIL) instanceof String)) {
+      returnItem.setEmail((String) entity.get(COLUMN_USER_ACCOUNT_EMAIL));
     }
-    if (entity.containsKey("status") && (entity.get("status") instanceof Integer)) {
-      returnItem.setStatus(EUserAccountStatus.valueOfCode((Integer) entity.get("status")));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_STATUS)
+        && (entity.get(COLUMN_USER_ACCOUNT_STATUS) instanceof Integer)) {
+      returnItem.setStatus(
+          EUserAccountStatus.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_STATUS)));
     }
-    if (entity.containsKey("role") && (entity.get("role") instanceof Integer)) {
-      returnItem.setRole(EUserRole.valueOfCode((Integer) entity.get("role")));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_ROLE)
+        && (entity.get(COLUMN_USER_ACCOUNT_ROLE) instanceof Integer)) {
+      returnItem.setRole(EUserRole.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_ROLE)));
     }
-    if (entity.containsKey("create_datetime")
-        && (entity.get("create_datetime") instanceof ZonedDateTime)) {
-      returnItem.setCreateDateTime((ZonedDateTime) entity.get("create_datetime"));
+
+    logger.info("create datetime  is {}", entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME));
+    logger.info("update datetime  is {}", entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME));
+    logger.info(
+        "update datetime class  is {}", entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME).getClass());
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_CREATE_DATETIME)
+        && (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp)) {
+      // TODO: convert java.sql.Timestamp to ZonedDateTime
+      returnItem.setCreateDateTime((ZonedDateTime) entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME));
     }
-    if (entity.containsKey("update_datetime")
-        && (entity.get("update_datetime") instanceof ZonedDateTime)) {
-      returnItem.setUpdateDateTime((ZonedDateTime) entity.get("update_datetime"));
+    if (entity.containsKey(COLUMN_USER_ACCOUNT_UPDATE_DATETIME)
+        && (entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME) instanceof java.sql.Timestamp)) {
+      // TODO: convert java.sql.Timestamp to ZonedDateTime
+      returnItem.setUpdateDateTime((ZonedDateTime) entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME));
     }
 
     return returnItem;

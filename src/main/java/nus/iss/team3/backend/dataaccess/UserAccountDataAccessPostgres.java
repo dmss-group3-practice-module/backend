@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.IPostgresDataAccess;
 import nus.iss.team3.backend.entity.EUserAccountStatus;
-import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.entity.EUserRole;
+import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     sqlInput.put("status", userAccount.getStatus().code);
     sqlInput.put("role", userAccount.getRole().code);
 
-//    System.out.println("SQL Input: " + sqlInput);
+    //    System.out.println("SQL Input: " + sqlInput);
 
     // insert ok if returned 1, any other values means insert failed!
     int rowUpdated =

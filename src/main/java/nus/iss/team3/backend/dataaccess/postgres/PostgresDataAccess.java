@@ -54,6 +54,7 @@ public class PostgresDataAccess implements IPostgresDataAccess {
 
     } catch (DataAccessException e) {
       logger.error("Error when executing update statement: {}", sql);
+      logger.error("Error when executing update statement: {}", e.getMessage());
       return -1;
     }
   }

@@ -7,6 +7,8 @@ import nus.iss.team3.backend.service.IUserAccountService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,47 +30,50 @@ public class UserAccountController {
   }
 
   @PostMapping("/add")
-  public boolean addUser(@RequestBody UserAccount userAccount) {
+  public ResponseEntity addUser(@RequestBody UserAccount userAccount) {
     if (userAccountService.addUser(userAccount)) {
-      logger.info("Creation of User Account: {} completed", userAccount.getUserName());
-      return true;
+      logger.info("Creation of User Account: {} completed", userAccount.getName());
+      return new ResponseEntity(true, HttpStatus.OK);
     }
-    logger.info("Creation of User Account: {} failed", userAccount.getUserName());
-
-    return false;
+    logger.info("Creation of User Account: {} failed", userAccount.getName());
+    return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @PostMapping("/update")
-  public boolean updateUser(@RequestBody UserAccount userAccount) {
+  public ResponseEntity updateUser(@RequestBody UserAccount userAccount) {
     if (userAccountService.updateUser(userAccount)) {
-      logger.info("Update of User Account: {} completed", userAccount.getUserName());
-      return true;
+      logger.info("Update of User Account: {} completed", userAccount.getName());
+      return new ResponseEntity(true, HttpStatus.OK);
     }
-    logger.info("Update of User Account: {} failed", userAccount.getUserName());
-
-    return false;
+    logger.info("Update of User Account: {} failed", userAccount.getName());
+    return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @PostMapping("/delete")
-  public boolean deleteUser(@RequestBody String userId) {
-    if (userAccountService.deleteUserById(userId)) {
-      logger.info("Deletion of User Account: {} completed", userId);
-      return true;
+  @DeleteMapping("/delete/{id}")
+  public ResponseEntity deleteUser(@PathVariable Long id) {
+    if (userAccountService.deleteUserById(id)) {
+      logger.info("Deletion of User Account: {} completed", id);
+      return new ResponseEntity(true, HttpStatus.OK);
     }
-    logger.info("Deletion of User Account: {} failed", userId);
-
-    return false;
+    logger.info("Deletion of User Account: {} failed", id);
+    return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @PostMapping("/get")
-  public UserAccount getUser(@RequestBody String userId) {
-
-    return userAccountService.getUserById(userId);
+  @GetMapping("/get/{id}")
+  public UserAccount getUser(@PathVariable Long id) {
+    UserAccount user = userAccountService.getUserById(id);
+    if (user != null) {
+      logger.info("Retrieved User Account: {}", id);
+    } else {
+      logger.info("User Account nt found: {}", id);
+    }
+    return user;
   }
 
   @GetMapping("/getAll")
   public List<UserAccount> getAllUser() {
-
-    return userAccountService.getAllUser();
+    List<UserAccount> users = userAccountService.getAllUser();
+    logger.info("Retrieved {} User Accounts", users.size());
+    return users;
   }
 }

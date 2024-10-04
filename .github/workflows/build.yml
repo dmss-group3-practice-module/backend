@@ -39,25 +39,31 @@ jobs:
         run: ./gradlew test
 
       - name: Install doctl
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - uses: thecodemonkey/action-get-gradle-version@master
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: version
 
       - name: Build Docker container with 'latest' tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           docker build -t ${{ secrets.REGISTRY_NAME }}/feats-backend:latest .
 
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: doctl registry login --expiry-seconds 1200
 
       - name: Push Docker image (latest) to DigitalOcean Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           docker push ${{ secrets.REGISTRY_NAME }}/feats-backend:latest
 
       - name: Push Docker image (version) to DigitalOcean Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           VERSION=$(echo "${{ steps.version.outputs.version }}" | sed "s/^['\"]\(.*\)['\"]$/\1/")
           docker tag ${{ secrets.REGISTRY_NAME }}/feats-backend:latest ${{ secrets.REGISTRY_NAME }}/feats-backend:$VERSION

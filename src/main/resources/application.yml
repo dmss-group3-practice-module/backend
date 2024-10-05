@@ -58,5 +58,25 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
 ---
+##############################
+### DigitalOcean environment setup
+##############################
+spring:
+  config:
+    activate:
+      on-profile: k8test
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_K8_TEST_IP}:${POSTGRES_K8_TEST_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_K8_TEST_USER}
+    password: ${POSTGRES_K8_TEST_PASSWORD}
+---
+spring:
+  config:
+    activate:
+      on-profile: k8prod
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_K8_PROD_IP}:${POSTGRES_K8_PROD_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_K8_PROD_USER}
+    password: ${POSTGRES_K8_PROD_PASSWORD}
 
 ### to look at https://www.geeksforgeeks.org/spring-boot-application-properties/ for database connection

@@ -3,7 +3,7 @@ package nus.iss.team3.backend.dataaccess;
 
 import static nus.iss.team3.backend.dataaccess.PostgresSqlStatement.*;
 
-import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +41,8 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     sqlInput.put(INPUT_USER_ACCOUNT_PASSWORD, userAccount.getPassword());
     sqlInput.put(INPUT_USER_ACCOUNT_DISPLAY_NAME, userAccount.getDisplayName());
     sqlInput.put(INPUT_USER_ACCOUNT_EMAIL, userAccount.getEmail());
-    sqlInput.put(INPUT_USER_ACCOUNT_STATUS, userAccount.getStatus().code);
-    sqlInput.put(INPUT_USER_ACCOUNT_ROLE, userAccount.getRole().code);
+    sqlInput.put(INPUT_USER_ACCOUNT_STATUS, userAccount.getStatus().getCode());
+    sqlInput.put(INPUT_USER_ACCOUNT_ROLE, userAccount.getRole().getCode());
 
     //    System.out.println("SQL Input: " + sqlInput);
 
@@ -108,7 +108,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     }
     if (rowUpdated == 0) {
       logger.debug("account delete for {} failed, no account found", id);
-      // no record for Id found
+      // no record for id found
     }
     if (rowUpdated > 1) {
       logger.error("account delete for {} happened but multi rows was deleted, please review", id);
@@ -180,7 +180,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
     for (Map<String, Object> entity : entityReturned) {
       returnList.add(translateDBRecordToUserAccount(entity));
     }
-    System.out.println(returnList);
+    //    System.out.println(returnList);
     return returnList;
   }
 
@@ -224,13 +224,16 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
         "update datetime class  is {}", entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME).getClass());
     if (entity.containsKey(COLUMN_USER_ACCOUNT_CREATE_DATETIME)
         && (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp)) {
-      // TODO: convert java.sql.Timestamp to ZonedDateTime
-      returnItem.setCreateDateTime((ZonedDateTime) entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME));
+      java.sql.Timestamp timestamp =
+          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME);
+      returnItem.setCreateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
+
     if (entity.containsKey(COLUMN_USER_ACCOUNT_UPDATE_DATETIME)
         && (entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME) instanceof java.sql.Timestamp)) {
-      // TODO: convert java.sql.Timestamp to ZonedDateTime
-      returnItem.setUpdateDateTime((ZonedDateTime) entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME));
+      java.sql.Timestamp timestamp =
+          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME);
+      returnItem.setUpdateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
 
     return returnItem;

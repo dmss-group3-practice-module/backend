@@ -15,6 +15,7 @@ public enum EUserAccountStatus {
   BANNED(0);
 
   public final int code;
+
   private static final Map<Integer, EUserAccountStatus> BY_CODE = new HashMap<>();
 
   static {
@@ -27,6 +28,10 @@ public enum EUserAccountStatus {
     this.code = code;
   }
 
+  public int getCode() {
+    return code;
+  }
+
   /**
    * Get the enum value based on the status code
    *
@@ -34,6 +39,10 @@ public enum EUserAccountStatus {
    * @return The corresponding EUserAccountStatus, or null if not found
    */
   public static EUserAccountStatus valueOfCode(int code) {
-    return BY_CODE.get(code);
+    EUserAccountStatus status = BY_CODE.get(code);
+    if (status == null) {
+      throw new IllegalArgumentException("Invalid user account status code: " + code);
+    }
+    return status;
   }
 }

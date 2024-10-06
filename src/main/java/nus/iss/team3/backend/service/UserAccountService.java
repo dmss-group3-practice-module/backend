@@ -39,6 +39,10 @@ public class UserAccountService implements IUserAccountService {
     userAccount.setCreateDateTime(ZonedDateTime.now());
     userAccount.setUpdateDateTime(ZonedDateTime.now());
 
+    // 添加日志，以便调试
+    logger.info(
+        "Adding user with status: {} and role: {}", userAccount.getStatus(), userAccount.getRole());
+
     return userAccountDataAccess.addUser(userAccount);
   }
 

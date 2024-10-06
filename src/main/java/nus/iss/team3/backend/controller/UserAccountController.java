@@ -31,12 +31,29 @@ public class UserAccountController {
 
   @PostMapping("/add")
   public ResponseEntity addUser(@RequestBody UserAccount userAccount) {
-    if (userAccountService.addUser(userAccount)) {
-      logger.info("Creation of User Account: {} completed", userAccount.getName());
-      return new ResponseEntity(true, HttpStatus.OK);
+    try {
+      // 添加日志，显示接收到的原始值
+      logger.info(
+          "Received user account with status code: {} and role code: {}",
+          userAccount.getStatus(),
+          userAccount.getRole());
+      /*不需要再手动转换，因为在UserAccount类中添加了新的setter方法
+      EUserAccountStatus status = EUserAccountStatus.valueOfCode(userAccount.getStatus().code);
+      EUserRole role = EUserRole.valueOfCode(userAccount.getRole().code);
+
+      userAccount.setStatus(status);
+      userAccount.setRole(role);*/
+
+      if (userAccountService.addUser(userAccount)) {
+        logger.info("Creation of User Account: {} completed", userAccount.getName());
+        return new ResponseEntity(true, HttpStatus.OK);
+      }
+      logger.info("Creation of User Account: {} failed", userAccount.getName());
+      return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (IllegalArgumentException e) {
+      logger.error("Invalid status or role code", e);
+      return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    logger.info("Creation of User Account: {} failed", userAccount.getName());
-    return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @PostMapping("/update")
@@ -64,10 +81,11 @@ public class UserAccountController {
     UserAccount user = userAccountService.getUserById(id);
     if (user != null) {
       logger.info("Retrieved User Account: {}", id);
+      return new ResponseEntity(user, HttpStatus.OK);
     } else {
       logger.info("User Account not found: {}", id);
+      return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return new ResponseEntity(user, HttpStatus.OK);
   }
 
   @GetMapping("/getAll")

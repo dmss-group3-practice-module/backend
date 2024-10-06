@@ -24,11 +24,19 @@ public class UserAccount {
 
   public UserAccount() {}
 
-  public UserAccount(String name, String password, String displayName, String email) {
+  public UserAccount(
+      String name,
+      String password,
+      String displayName,
+      String email,
+      EUserAccountStatus status,
+      EUserRole role) {
     this.name = name;
     this.password = password;
     this.displayName = displayName;
     this.email = email;
+    this.status = status;
+    this.role = role;
   }
 
   // Getters and setters for all fields
@@ -87,6 +95,15 @@ public class UserAccount {
 
   public void setRole(EUserRole role) {
     this.role = role;
+  }
+
+  // Add these new methods
+  public void setStatus(int statusCode) {
+    this.status = EUserAccountStatus.valueOfCode(statusCode);
+  }
+
+  public void setRole(int roleCode) {
+    this.role = EUserRole.valueOfCode(roleCode);
   }
 
   public ZonedDateTime getCreateDateTime() {

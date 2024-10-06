@@ -73,8 +73,11 @@ Refer to `.github/workflows/build.yml` file for the detailed steps in the CI pip
 The following diagram illustrates the overview of the CI workflow:
 
 ```mermaid
-flowchart LR
-    A[Build] --> B[Run tests] --> C[Build Docker Containers] --> D[Deploy to DockerHub]
+flowchart TB
+    A[Build] --> B[Run tests]
+    B --> C[Build Docker Containers]
+    C --> D[Push Image to DigitalOcean Container Registry]
+    D --> E[Update image version]
 ```
 
 ```mermaid
@@ -87,4 +90,4 @@ flowchart LR
 
 ## Continuous Deployment
 
-**TODO**: soon =D
+Continuous Deployment is done using [ArgoCD](https://argo-cd.readthedocs.io/en/stable/). The CI pipeline will end with updating the application's image version onto the kubernetes yaml file found in the [deployment repo](https://github.com/dmss-group3-practice-module/deployment). There will be an ArgoCD agent in the kubernetes cluster on hosted on DigitalOcean which listens to version changes in the `deployment` repository. 

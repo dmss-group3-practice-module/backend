@@ -1,62 +1,74 @@
 package nus.iss.team3.backend.controller;
 
+import java.util.List;
+import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.IIngredientService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 /**
  * Controller class to handle web call for ingredient related queries
  *
  * @author Liu Kun
  */
-
 @RestController
-@RequestMapping("/api/ingredients")
+@RequestMapping("ingredients")
 public class IngredientController {
-    
+
+    private static final Logger logger = LogManager.getLogger(IngredientController.class);
+
     @Autowired
     private IIngredientService ingredientService;
 
-    // 添加配料
-    @PostMapping
-    public ResponseEntity<Ingredient> addIngredient(@RequestBody Ingredient ingredient) {
-        Ingredient newIngredient = ingredientService.addIngredient(ingredient);
-        return new ResponseEntity<>(newIngredient, HttpStatus.CREATED);
+    @GetMapping("/")
+    public String ingredientPage() {
+        return "ingredient page enabled";
     }
 
-    // 删除配料
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteIngredient(@PathVariable Long id) {
-        ingredientService.deleteIngredient(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @PostMapping("/add")
+    public boolean addIngredient(@RequestBody Ingredient ingredient) {
+        if (ingredientService.addIngredient(ingredient)) {
+            logger.info("Creation of Ingredient: {} completed", ingredient.getIngredientName());
+            return true;
+        }
+        logger.info("Creation of Ingredient: {} failed", ingredient.getIngredientName());
+        return false;
     }
 
-    // 更新配料
-    @PutMapping("/{id}")
-    public ResponseEntity<Ingredient> updateIngredient(@PathVariable Long id, @RequestBody Ingredient ingredient) {
-        Ingredient updatedIngredient = ingredientService.updateIngredient(id, ingredient);
-        return new ResponseEntity<>(updatedIngredient, HttpStatus.OK);
+    @PostMapping("/update")
+    public boolean updateIngredient(@RequestBody Ingredient ingredient) {
+        if (ingredientService.updateIngredient(ingredient)) {
+        logger.info("Update of User Account: {} completed", ingredient.getIngredientName());
+    return true;
+    }
+        logger.info("Update of User Account: {} failed", ingredient.getIngredientName());
+
+        return false;
     }
 
-    // 获取单个配料
-    @GetMapping("/{id}")
-    public ResponseEntity<Ingredient> getIngredient(@PathVariable Long id) {
-        Ingredient ingredient = ingredientService.getIngredient(id);
-        return new ResponseEntity<>(ingredient, HttpStatus.OK);
+    @PostMapping("/delete")
+    public boolean deleteIngredient(@RequestBody String ingredientId) {
+      if (ingredientService.deleteIngredientById(ingredientId)) {
+        logger.info("Deletion of Ingredient: {} completed", ingredientId);
+        return true;
+      }
+      logger.info("Deletion of Ingredient: {} failed", ingredientId);
+  
+      return false;
     }
 
-    // 获取所有配料
-    @GetMapping
-    public ResponseEntity<List<Ingredient>> getAllIngredients() {
-        List<Ingredient> ingredients = ingredientService.getAllIngredients();
-        return new ResponseEntity<>(ingredients, HttpStatus.OK);
+    @PostMapping("/get")
+    public Ingredient getIngredient(@RequestBody String ingredientId) {
+        return ingredientService.getIngredientById(ingredientId);
+    }
+
+    @GetMapping("/getAll")
+    public List<Ingredient> getAllIngredients() {
+        return ingredientService.getAllIngredients();
     }
 }
+    

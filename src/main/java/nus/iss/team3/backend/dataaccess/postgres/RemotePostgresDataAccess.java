@@ -1,4 +1,4 @@
-package nus.iss.team3.backend.dataaccess;
+package nus.iss.team3.backend.dataaccess.postgres;
 
 import java.io.IOException;
 import java.io.InputStream;

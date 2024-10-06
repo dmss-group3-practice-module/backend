@@ -1,60 +1,93 @@
+/* (C)2024 */
 package nus.iss.team3.backend.entity;
 
 import java.util.Date;
 
+/**
+ * Contains records that is related to a Ingredient, - ingredientId : must be
+ * unique,
+ *
+ * @author Liu Kun
+ */
+// @Entity
 public class Ingredient {
-    private Long itemId;
-    private String itemName;
-    private String owner;
-    private Integer quantity;
-    private Date expiryDate;
+    private String ingredientId;
+    private String ingredientName;
+    private String userId;
+    private Integer ingredientQuantity;
+    private Boolean ingredientStatus;
+    private Date ingredientExpiryDate;
 
-    public Long getItemId() {
-        return itemId;
+    public Ingredient() {
+    }
+
+    public Ingredient(String ingredientId, String ingredientName, String userId, Integer quantity,
+            Boolean ingredientStatus, Date expiryDate) {
+        this.ingredientId = ingredientId;
+        this.ingredientName = ingredientName;
+        this.userId = userId;
+        this.ingredientQuantity = ingredientQuantity;
+        this.ingredientStatus = ingredientStatus;
+        this.ingredientExpiryDate = ingredientExpiryDate;
+    }
+
+    public String getIngredientId() {
+        return ingredientId;
     }
     // 不需要setItemId吧？
 
-    public String getItemName() {
-        return itemName;
+    public String getIngredientName() {
+        return ingredientName;
     }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
+    public void setIngredientName(String ingredientName) {
+        this.ingredientName = ingredientName;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getIngredientOwner() {
+        return userId;
     }
 
     // 不需要setOwner吧？
 
-    public Integer getQuantity() {
-        return quantity;
+    public Integer getIngredientQuantity() {
+        return ingredientQuantity;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setIngredientQuantity(Integer ingredientQuantity) {
+        this.ingredientQuantity = ingredientQuantity;
     }
 
-    public Date getExpiryDate() {
-        return expiryDate;
+    public Boolean getIngredientStatus() {
+        return ingredientStatus;
     }
 
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
+    public void setIngredientStatus(Boolean ingredientStatus) {
+        this.ingredientStatus = ingredientStatus;
+    }
+
+    public Date getIngredientExpiryDate() {
+        return ingredientExpiryDate;
+    }
+
+    public void setIngredientExpiryDate(Date ingredientExpiryDate) {
+        this.ingredientExpiryDate = ingredientExpiryDate;
     }
 
     @Override
     public String toString() {
         return "Ingredient{"
-                + "itemName='"
-                + itemName
+                + "ingredientName='"
+                + ingredientName
                 + '\''
                 + ", quantity='"
-                + quantity
+                + ingredientQuantity
                 + '\''
                 + ", expiryDate='"
-                + expiryDate
+                + ingredientExpiryDate
+                + '\''
+                + ", ingredientStatus='"
+                + ingredientStatus
                 + '\''
                 + '}';
     }

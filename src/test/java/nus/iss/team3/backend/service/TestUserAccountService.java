@@ -27,33 +27,24 @@ public class TestUserAccountService {
   @Test
   public void addUser_nullAccount() {
     UserAccount inputUserAccount = null;
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
   public void addUser_validAccount_nullName() {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName(null);
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
   public void addUser_validAccount_emptyName() {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName("");
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -61,11 +52,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName("valid");
     inputUserAccount.setPassword(null);
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -73,11 +61,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName("valid");
     inputUserAccount.setPassword("");
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -86,11 +71,8 @@ public class TestUserAccountService {
     inputUserAccount.setName("valid");
     inputUserAccount.setPassword("valid");
     inputUserAccount.setEmail(null);
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -99,11 +81,8 @@ public class TestUserAccountService {
     inputUserAccount.setName("valid");
     inputUserAccount.setPassword("valid");
     inputUserAccount.setEmail("");
-    boolean addUserResult = false;
 
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -115,12 +94,11 @@ public class TestUserAccountService {
     inputUserAccount.setEmail("valid@example.com");
     inputUserAccount.setStatus(EUserAccountStatus.ACTIVE);
     inputUserAccount.setRole(EUserRole.USER);
-    boolean addUserResult = true;
 
     when(userAccountDataAccess.getUserByEmail(anyString())).thenReturn(null);
-    when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
+    when(userAccountDataAccess.addUser(any())).thenReturn(true);
 
-    assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
+    assertTrue(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -145,6 +123,7 @@ public class TestUserAccountService {
   @Test
   public void updateUser_nullAccount() {
     UserAccount inputUserAccount = null;
+
     assertFalse(userAccountService.updateUser(inputUserAccount));
   }
 

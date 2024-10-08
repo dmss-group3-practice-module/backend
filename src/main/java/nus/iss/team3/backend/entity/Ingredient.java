@@ -1,94 +1,125 @@
 /* (C)2024 */
 package nus.iss.team3.backend.entity;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
- * Contains records that is related to a Ingredient, - ingredientId : must be
- * unique,
+ * Contains records that is related to a Ingredient, - ingredientId : must be unique,
  *
  * @author Liu Kun
  */
 // @Entity
 public class Ingredient {
-    private String ingredientId;
-    private String ingredientName;
-    private String userId;
-    private Integer ingredientQuantity;
-    private Boolean ingredientStatus;
-    private Date ingredientExpiryDate;
+  private int id;
+  private String name;
+  private int userId;
+  private String uom;
+  private Double quantity;
+  private Date expiryDate;
+  private Timestamp createTime;
+  private Timestamp updateTime;
 
-    public Ingredient() {
-    }
+  public Ingredient() {}
 
-    public Ingredient(String ingredientId, String ingredientName, String userId, Integer quantity,
-            Boolean ingredientStatus, Date expiryDate) {
-        this.ingredientId = ingredientId;
-        this.ingredientName = ingredientName;
-        this.userId = userId;
-        this.ingredientQuantity = ingredientQuantity;
-        this.ingredientStatus = ingredientStatus;
-        this.ingredientExpiryDate = ingredientExpiryDate;
-    }
+  public Ingredient(
+      int id,
+      String name,
+      int userId,
+      String uom,
+      Double quantity,
+      Date expiryDate,
+      Timestamp createTime,
+      Timestamp updateTime) {
+    this.id = id;
+    this.name = name;
+    this.userId = userId;
+    this.uom = uom;
+    this.quantity = quantity;
+    this.expiryDate = expiryDate;
+    this.createTime = createTime;
+    this.updateTime = updateTime;
+  }
 
-    public String getIngredientId() {
-        return ingredientId;
-    }
-    // 不需要setItemId吧？
+  public int getIngredientId() {
+    return id;
+  }
 
-    public String getIngredientName() {
-        return ingredientName;
-    }
+  public void setIngredientId(int id) {
+    this.id = id;
+  }
 
-    public void setIngredientName(String ingredientName) {
-        this.ingredientName = ingredientName;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getIngredientOwner() {
-        return userId;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    // 不需要setOwner吧？
+  public int getUserId() {
+    return userId;
+  }
 
-    public Integer getIngredientQuantity() {
-        return ingredientQuantity;
-    }
+  public String getUom() {
+    return uom;
+  }
 
-    public void setIngredientQuantity(Integer ingredientQuantity) {
-        this.ingredientQuantity = ingredientQuantity;
-    }
+  public void setUom(String uom) {
+    this.uom = uom;
+  }
 
-    public Boolean getIngredientStatus() {
-        return ingredientStatus;
-    }
+  public Double getQuantity() {
+    return quantity;
+  }
 
-    public void setIngredientStatus(Boolean ingredientStatus) {
-        this.ingredientStatus = ingredientStatus;
-    }
+  public void setQuantity(Double quantity) {
+    this.quantity = quantity;
+  }
 
-    public Date getIngredientExpiryDate() {
-        return ingredientExpiryDate;
-    }
+  public Date getExpiryDate() {
+    return expiryDate;
+  }
 
-    public void setIngredientExpiryDate(Date ingredientExpiryDate) {
-        this.ingredientExpiryDate = ingredientExpiryDate;
-    }
+  public void setExpiryDate(Date expiryDate) {
+    this.expiryDate = expiryDate;
+  }
 
-    @Override
-    public String toString() {
-        return "Ingredient{"
-                + "ingredientName='"
-                + ingredientName
-                + '\''
-                + ", quantity='"
-                + ingredientQuantity
-                + '\''
-                + ", expiryDate='"
-                + ingredientExpiryDate
-                + '\''
-                + ", ingredientStatus='"
-                + ingredientStatus
-                + '\''
-                + '}';
-    }
+  public Timestamp getCreateTime() {
+    return createTime;
+  }
+
+  public Timestamp getUpdateTime() {
+    return updateTime;
+  }
+
+  @Override
+  public String toString() {
+    return "Ingredient{"
+        + "id='"
+        + id
+        + '\''
+        + "name='"
+        + name
+        + '\''
+        + ", quantity='"
+        + quantity
+        + '\''
+        + ", user='"
+        + userId
+        + '\''
+        + ", uom='"
+        + uom
+        + '\''
+        + ", expiryDate='"
+        + expiryDate
+        + '\''
+        + ", createTime='"
+        + createTime
+        + '\''
+        + ", updateTime='"
+        + updateTime
+        + '\''
+        + '}';
+  }
 }

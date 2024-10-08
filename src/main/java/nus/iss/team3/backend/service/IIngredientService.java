@@ -14,11 +14,11 @@ public interface IIngredientService {
 
   public boolean updateIngredient(Ingredient ingredient);
 
-  public boolean deleteIngredientById(String ingredientId);
+  public boolean deleteIngredientById(Integer id);
 
-  public Ingredient getIngredientById(String ingredientId);
+  public Ingredient getIngredientById(Integer id);
 
-  public List<Ingredient> getIngredientsByUser(String userId);
+  public List<Ingredient> getIngredientsByUser(Integer userId);
 
-  public boolean deleteIngredientsByUser(String userId);
+  public boolean deleteIngredientsByUser(Integer userId);
 }

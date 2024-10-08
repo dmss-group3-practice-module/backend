@@ -14,11 +14,11 @@ public interface IIngredientDataAccess {
 
   public boolean updateIngredient(Ingredient ingredient);
 
-  public Ingredient getIngredientById(String ingredientId);
+  public Ingredient getIngredientById(int ingredientId);
 
-  public boolean deleteIngredientById(String ingredientId);
+  public boolean deleteIngredientById(int ingredientId);
 
-  public List<Ingredient> getIngredientsByUser(String userId);
+  public List<Ingredient> getIngredientsByUser(int userId);
 
-  public boolean deleteIngredientsByUser(String userId);
+  public boolean deleteIngredientsByUser(int userId);
 }

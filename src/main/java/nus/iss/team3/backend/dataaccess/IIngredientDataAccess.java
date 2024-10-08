@@ -9,20 +9,16 @@ import nus.iss.team3.backend.entity.Ingredient;
  *
  * @author Liu Kun
  */
-
 public interface IIngredientDataAccess {
-    public boolean addIngredient(Ingredient ingredient);
+  public boolean addIngredient(Ingredient ingredient);
 
-    public boolean updateIngredient(Ingredient ingredient);
+  public boolean updateIngredient(Ingredient ingredient);
 
-    public Ingredient getIngredientById(String ingredientId);
+  public Ingredient getIngredientById(String ingredientId);
 
-    public boolean deleteIngredientById(String ingredientId);
+  public boolean deleteIngredientById(String ingredientId);
 
-    public List<Ingredient> getIngredientsByUser(String userId);
+  public List<Ingredient> getIngredientsByUser(String userId);
 
-    public boolean deleteIngredientsByUser(String userId);
-
-    public List<Ingredient> getAllIngredients();
-
+  public boolean deleteIngredientsByUser(String userId);
 }

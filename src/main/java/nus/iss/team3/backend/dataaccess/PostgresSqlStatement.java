@@ -4,7 +4,7 @@ package nus.iss.team3.backend.dataaccess;
 /**
  * Contains the postgres connection required content
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, Liu Kun
  */
 public class PostgresSqlStatement {
 
@@ -209,121 +209,109 @@ public class PostgresSqlStatement {
           + TABLE_USER_ACCOUNT
           + ";";
 
-  //////////////////////////////
-  // Ingredient
-  public static final String INPUT_INGREDIENT_ID = "id";
-  public static final String INPUT_INGREDIENT_NAME = "name";
-  public static final String INPUT_USER_ID = "userId";
-  public static final String INPUT_INGREDIENT_UOM = "uom";
-  public static final String INPUT_INGREDIENT_QUANTITY = "quantity";
-  public static final String INPUT_INGREDIENT_EXPIRY_DATE = "expiryDate";
-  public static final String INPUT_INGREDIENT_CREATE_TIME = "createTime";
-  public static final String INPUT_INGREDIENT_UPDATE_TIME = "updateTime";
+    //////////////////////////////
+    // Ingredient
+    public static final String INPUT_INGREDIENT_ID = "id";
+    public static final String INPUT_INGREDIENT_NAME = "name";
+    public static final String INPUT_USER_ID = "userId";
+    public static final String INPUT_INGREDIENT_UOM = "uom";
+    public static final String INPUT_INGREDIENT_QUANTITY = "quantity";
+    public static final String INPUT_INGREDIENT_EXPIRY_DATE = "expiryDate";
+    public static final String INPUT_INGREDIENT_CREATE_TIME = "createTime";
+    public static final String INPUT_INGREDIENT_UPDATE_TIME = "updateTime";
 
-  public static final String TABLE_INGREDIENT = "user_ingredients";
+    public static final String TABLE_INGREDIENT = "user_ingredients";
 
-  public static final String COLUMN_INGREDIENT_ID = "id";
-  public static final String COLUMN_INGREDIENT_NAME = "name";
-  public static final String COLUMN_USER_ID = "user_id";
-  public static final String COLUMN_INGREDIENT_UOM = "uom";
-  public static final String COLUMN_INGREDIENT_QUANTITY = "quantity";
-  public static final String COLUMN_INGREDIENT_EXPIRY_DATE = "expiry_date";
-  public static final String COLUMN_INGREDIENT_CREATE_TIME = "create_datetime";
-  public static final String COLUMN_INGREDIENT_UPDATE_TIME = "update_datetime";
+    public static final String COLUMN_INGREDIENT_ID = "id";
+    public static final String COLUMN_INGREDIENT_NAME = "name";
+    public static final String COLUMN_USER_ID = "user_id";
+    public static final String COLUMN_INGREDIENT_UOM = "uom";
+    public static final String COLUMN_INGREDIENT_QUANTITY = "quantity";
+    public static final String COLUMN_INGREDIENT_EXPIRY_DATE = "expiry_date";
+    public static final String COLUMN_INGREDIENT_CREATE_TIME = "create_datetime";
+    public static final String COLUMN_INGREDIENT_UPDATE_TIME = "update_datetime";
 
-  public static final String SQL_INGREDIENT_ADD =
-      "INSERT INTO "
-          + TABLE_INGREDIENT
-          + "("
-          // + COLUMN_INGREDIENT_ID
-          // + ","
-          + COLUMN_INGREDIENT_NAME
-          + ","
-          + COLUMN_USER_ID
-          + ","
-          + COLUMN_INGREDIENT_UOM
-          + ","
-          + COLUMN_INGREDIENT_QUANTITY
-          + ","
-          + COLUMN_INGREDIENT_EXPIRY_DATE
-          + ","
-          + COLUMN_INGREDIENT_CREATE_TIME
-          + ","
-          + COLUMN_INGREDIENT_UPDATE_TIME
-          + ") VALUES (:"
-          // + INPUT_INGREDIENT_ID
-          // + ",:"
-          + INPUT_INGREDIENT_NAME
-          + ",:"
-          + INPUT_USER_ID
-          + ",:"
-          + INPUT_INGREDIENT_UOM
-          + ",:"
-          + INPUT_INGREDIENT_QUANTITY
-          + ",:"
-          + INPUT_INGREDIENT_EXPIRY_DATE
-          + ",:"
-          + INPUT_INGREDIENT_CREATE_TIME
-          + ",:"
-          + INPUT_INGREDIENT_UPDATE_TIME
-          + ");";
+    public static final String SQL_INGREDIENT_ADD = "INSERT INTO "
+            + TABLE_INGREDIENT
+            + "("
+            // + COLUMN_INGREDIENT_ID
+            // + ","
+            + COLUMN_INGREDIENT_NAME
+            + ","
+            + COLUMN_USER_ID
+            + ","
+            + COLUMN_INGREDIENT_UOM
+            + ","
+            + COLUMN_INGREDIENT_QUANTITY
+            + ","
+            + COLUMN_INGREDIENT_EXPIRY_DATE
+            + ","
+            + COLUMN_INGREDIENT_CREATE_TIME
+            + ","
+            + COLUMN_INGREDIENT_UPDATE_TIME
+            + ") VALUES (:"
+            // + INPUT_INGREDIENT_ID
+            // + ",:"
+            + INPUT_INGREDIENT_NAME
+            + ",:"
+            + INPUT_USER_ID
+            + ",:"
+            + INPUT_INGREDIENT_UOM
+            + ",:"
+            + INPUT_INGREDIENT_QUANTITY
+            + ",:"
+            + INPUT_INGREDIENT_EXPIRY_DATE
+            + ",now(),now());";
 
-  public static final String SQL_INGREDIENT_DELETE =
-      "DELETE FROM "
-          + TABLE_INGREDIENT
-          + " WHERE "
-          + COLUMN_INGREDIENT_ID
-          + " = :"
-          + INPUT_INGREDIENT_ID;
-  public static final String SQL_INGREDIENT_UPDATE =
-      "UPDATE "
-          + TABLE_INGREDIENT
-          + " SET "
-          + COLUMN_INGREDIENT_ID
-          + " = :"
-          + INPUT_INGREDIENT_ID
-          + ","
-          + COLUMN_INGREDIENT_NAME
-          + " = :"
-          + INPUT_INGREDIENT_NAME
-          + ", "
-          + COLUMN_USER_ID
-          + " = :"
-          + INPUT_USER_ID
-          + ", "
-          + COLUMN_INGREDIENT_UOM
-          + " = :"
-          + INPUT_INGREDIENT_UOM
-          + ", "
-          + COLUMN_INGREDIENT_QUANTITY
-          + " = :"
-          + INPUT_INGREDIENT_QUANTITY
-          + ", "
-          + COLUMN_INGREDIENT_EXPIRY_DATE
-          + " = :"
-          + INPUT_INGREDIENT_EXPIRY_DATE
-          + ", "
-          + COLUMN_INGREDIENT_CREATE_TIME
-          + " = :"
-          + INPUT_INGREDIENT_CREATE_TIME
-          + ", "
-          + COLUMN_INGREDIENT_UPDATE_TIME
-          + " = :"
-          + INPUT_INGREDIENT_UPDATE_TIME
-          + " WHERE "
-          + COLUMN_INGREDIENT_ID
-          + " = :"
-          + INPUT_INGREDIENT_ID
-          + ";";
-  public static final String SQL_INGREDIENT_GET_BY_ID =
-      "SELECT * FROM "
-          + TABLE_INGREDIENT
-          + " WHERE "
-          + COLUMN_INGREDIENT_ID
-          + " = :"
-          + INPUT_INGREDIENT_ID;
-  public static final String SQL_INGREDIENTS_GET_BY_USER =
-      "SELECT * FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
-  public static final String SQL_INGREDIENTS_DELETE_BY_USER =
-      "DELETE FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
+    public static final String SQL_INGREDIENT_DELETE = "DELETE FROM "
+            + TABLE_INGREDIENT
+            + " WHERE "
+            + COLUMN_INGREDIENT_ID
+            + " = :"
+            + INPUT_INGREDIENT_ID;
+    public static final String SQL_INGREDIENT_UPDATE = "UPDATE "
+            + TABLE_INGREDIENT
+            + " SET "
+            // + COLUMN_INGREDIENT_ID
+            // + " = :"
+            // + INPUT_INGREDIENT_ID
+            // + ","
+            + COLUMN_INGREDIENT_NAME
+            + " = :"
+            + INPUT_INGREDIENT_NAME
+            + ", "
+            + COLUMN_USER_ID
+            + " = :"
+            + INPUT_USER_ID
+            + ", "
+            + COLUMN_INGREDIENT_UOM
+            + " = :"
+            + INPUT_INGREDIENT_UOM
+            + ", "
+            + COLUMN_INGREDIENT_QUANTITY
+            + " = :"
+            + INPUT_INGREDIENT_QUANTITY
+            + ", "
+            + COLUMN_INGREDIENT_EXPIRY_DATE
+            + " = :"
+            + INPUT_INGREDIENT_EXPIRY_DATE
+            + ", "
+            + COLUMN_INGREDIENT_UPDATE_TIME
+            + " = :"
+            + "now()"
+            + " WHERE "
+            + COLUMN_INGREDIENT_ID
+            + " = :"
+            + INPUT_INGREDIENT_ID
+            + ";";
+    public static final String SQL_INGREDIENT_GET_BY_ID = "SELECT * FROM "
+            + TABLE_INGREDIENT
+            + " WHERE "
+            + COLUMN_INGREDIENT_ID
+            + " = :"
+            + INPUT_INGREDIENT_ID;
+    public static final String SQL_INGREDIENTS_GET_BY_USER = "SELECT * FROM " + TABLE_INGREDIENT + " WHERE "
+            + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
+    public static final String SQL_INGREDIENTS_DELETE_BY_USER = "DELETE FROM " + TABLE_INGREDIENT + " WHERE "
+            + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
 }

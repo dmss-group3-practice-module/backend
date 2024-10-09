@@ -1,6 +1,7 @@
 /* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
   private static final Logger logger = LogManager.getLogger(IngredientDataAccessPostgres.class);
 
-  @Autowired IPostgresDataAccess postgresDataAccess;
+  @Autowired
+  IPostgresDataAccess postgresDataAccess;
 
   /**
    * @param ingredient ingredient to be added
@@ -31,19 +33,16 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
   @Override
   public boolean addIngredient(Ingredient ingredient) {
     Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, ingredient.getIngredientId());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, ingredient.getName());
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ID, ingredient.getUserId());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_UOM, ingredient.getUom());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_EXPIRY_DATE, ingredient.getExpiryDate());
-    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_CREATE_TIME, ingredient.getCreateTime());
-    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_UPDATE_TIME, ingredient.getUpdateTime());
 
-    int result =
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_ADD, sqlInput);
+    int result = postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_ADD, sqlInput);
 
-    // logger.info("sql is {}, rowAdded is {}", sqlInput, PostgresSqlStatement.SQL_INGREDIENT_ADD);
+    // logger.info("sql is {}, rowAdded is {}", sqlInput,
+    // PostgresSqlStatement.SQL_INGREDIENT_ADD);
 
     if (result == 1) {
       logger.info("ingredient created for {}", ingredient.getIngredientId());
@@ -67,26 +66,19 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_UOM, ingredient.getUom());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_EXPIRY_DATE, ingredient.getExpiryDate());
-    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_CREATE_TIME, ingredient.getCreateTime());
-    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_UPDATE_TIME, ingredient.getUpdateTime());
-    int rowUpdated =
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_UPDATE, sqlInput);
-    if (rowUpdated == 1) {
+    int result = postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_UPDATE, sqlInput);
+    if (result == 1) {
       logger.info("ingredient updated for {}", ingredient.getIngredientId());
       return true;
-    }
-    if (rowUpdated == 0) {
-      logger.info(
-          "ingredient update for {} failed, no ingredient found", ingredient.getIngredientId());
+    } else if (result == 0) {
+      logger.debug("account update for {} failed, no account found", ingredient.getIngredientId());
       return false;
-    }
-    if (rowUpdated > 1) {
+    } else {
       logger.error(
-          "ingredient update for {} happened but multiple rows updated, please review",
-          ingredient.getIngredientId());
+          "account update for {} affected multiple rows: {}", ingredient.getIngredientId(), result);
+      throw new RuntimeException("Multiple rows affected during update");
     }
 
-    return false;
   }
 
   /**
@@ -98,25 +90,18 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, id);
 
-    int rowDeleted =
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_DELETE, sqlInput);
-    if (rowDeleted == 1) {
+    int result = postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_DELETE, sqlInput);
+    if (result == 1) {
       logger.info("ingredient deleted for {}", id);
       return true;
-    }
-
-    if (rowDeleted == 0) {
-      logger.info("ingredient deletion for {} failed, no ingredient found", id);
+    } else if (result == 0) {
+      logger.debug("account delete for {} failed, no account found", id);
       return false;
-    }
-
-    if (rowDeleted > 1) {
+    } else {
       logger.error(
-          "ingredient deletion for {} happened but multiple rows updated, please review", id);
+          "account delete for {} affected multiple rows: {}", id, result);
+      throw new RuntimeException("Multiple rows affected during delete");
     }
-
-    logger.info("ingredient deletion for {} failed", id);
-    return false;
   }
 
   /**
@@ -128,19 +113,21 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, id);
 
-    List<Map<String, Object>> entityReturned =
-        postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_INGREDIENT_GET_BY_ID, sqlInput);
+    List<Map<String, Object>> entityReturned = postgresDataAccess
+        .queryStatement(PostgresSqlStatement.SQL_INGREDIENT_GET_BY_ID, sqlInput);
+
+    // entity may be null, so I think here should add this condition
     if (entityReturned == null) {
       logger.error("no entity found for {}, please review", id);
-    } else {
-      if (entityReturned.size() == 1) {
-        return translateDBRecordToIngredient(entityReturned.getFirst());
-      }
-
-      if (entityReturned.size() > 1) {
-        logger.error("Multiple record found for {}, please review", id);
-      }
+      return new Ingredient();
     }
+
+    if (entityReturned.size() == 1) {
+      return translateDBRecordToIngredient(entityReturned.getFirst());
+    } else {
+      logger.error("record abnormal as {} for {}, please review", entityReturned.size(), id);
+    }
+
     return null;
   }
 
@@ -150,11 +137,11 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
    */
   @Override
   public List<Ingredient> getIngredientsByUser(int userId) {
-    List<Map<String, Object>> entityReturned =
-        postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_USER, null);
+    List<Map<String, Object>> entityReturned = postgresDataAccess
+        .queryStatement(PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_USER, null);
 
     if (entityReturned == null) {
-      logger.info("No ingredients found for user {}", userId);
+      logger.error("No ingredients found for user {}", userId);
       return new ArrayList<>();
     }
     List<Ingredient> returnList = new ArrayList<>();
@@ -169,40 +156,56 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ID, userId);
 
-    int rowDeleted =
-        postgresDataAccess.upsertStatement(
-            PostgresSqlStatement.SQL_INGREDIENTS_DELETE_BY_USER, sqlInput);
+    int result = postgresDataAccess.upsertStatement(
+        PostgresSqlStatement.SQL_INGREDIENTS_DELETE_BY_USER, sqlInput);
 
-    if (rowDeleted == 0) {
+    if (result == 0) {
       logger.info("ingredient deletion for {} failed, no ingredient found", userId);
     }
 
-    if (rowDeleted > 0) {
-      logger.info("ingredient deleted for {}", userId);
+    if (result > 0) {
+      logger.info("{} ingredient deleted for {}", result, userId);
       return true;
     }
 
     return false;
   }
 
+  // private functions
   private Ingredient translateDBRecordToIngredient(Map<String, Object> entity) {
     Ingredient returnItem = new Ingredient();
 
-    // if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_ID)
-    // && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID) instanceof String))
-    // {
-    // returnItem.setIngredientId((String)
-    // entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID));
-    // }
+    if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_ID)
+        && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID) instanceof Integer)) {
+      returnItem.setIngredientId((Integer) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID));
+    }
+
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_NAME)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME) instanceof String)) {
       returnItem.setName((String) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME));
     }
+
+    // userId can I set？
+    // if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ID)
+    // && (entity.get(PostgresSqlStatement.COLUMN_USER_ID) instanceof Integer)) {
+    // returnItem.setUserId((Integer)
+    // entity.get(PostgresSqlStatement.COLUMN_USER_ID));
+    // }
+
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY) instanceof Double)) {
       returnItem.setQuantity((Double) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY));
     }
 
+    if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_UOM)
+        && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_UOM) instanceof String)) {
+      returnItem.setUom((String) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_UOM));
+    }
+
+    if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE)
+        && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE) instanceof Date)) {
+      returnItem.setExpiryDate((Date) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE));
+    }
     return returnItem;
   }
 }

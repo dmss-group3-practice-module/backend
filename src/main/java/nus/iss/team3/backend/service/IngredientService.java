@@ -1,6 +1,7 @@
 /* (C)2024 */
 package nus.iss.team3.backend.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
 import nus.iss.team3.backend.entity.Ingredient;
@@ -20,11 +21,12 @@ public class IngredientService implements IIngredientService {
 
   private static final Logger logger = LogManager.getLogger(IngredientService.class);
 
-  @Autowired IIngredientDataAccess ingredientDataAccess;
+  @Autowired
+  IIngredientDataAccess ingredientDataAccess;
 
   @Override
   public boolean addIngredient(Ingredient ingredient) {
-    if (validateIngredient(ingredient)) {
+    if (!validateIngredient(ingredient)) {
       logger.info(
           "addIngredient failed, due to validation failed for ingredient {}",
           (ingredient == null ? "null object" : ingredient.getName()));
@@ -37,13 +39,17 @@ public class IngredientService implements IIngredientService {
           ingredient.getIngredientId());
       return false;
     }
+
+    ingredient.setCreateTime(ZonedDateTime.now());
+    ingredient.setUpdateTime(ZonedDateTime.now());
+
     return ingredientDataAccess.addIngredient(ingredient);
   }
 
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
-    logger.info("iid is {}", ingredient.getIngredientId());
-    if (validateIngredient(ingredient)) {
+    // logger.info("iid is {}", ingredient.getIngredientId());
+    if (!validateIngredient(ingredient)) {
       logger.info(
           "updateIngredient failed, due to validation failed for ingredient {}",
           (ingredient == null ? "null object" : ingredient.getName()));
@@ -56,18 +62,25 @@ public class IngredientService implements IIngredientService {
       return false;
     }
 
-    Ingredient otherIngredient =
-        ingredientDataAccess.getIngredientById(ingredient.getIngredientId());
-
-    if (otherIngredient == null) {
+    Ingredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getIngredientId());
+    if (existingIngredient == null) {
       logger.info("updateUser failed, due to missing account for {}", ingredient.getIngredientId());
       return false;
     }
+    
+    // todo
+    // need add other fields' condition
+
+    ingredient.setUpdateTime(ZonedDateTime.now());
     return ingredientDataAccess.updateIngredient(ingredient);
   }
 
   @Override
   public boolean deleteIngredientById(Integer id) {
+    if (ingredientDataAccess.getIngredientById(id) == null) {
+      logger.info("deleteUser failed, due to missing account for {}", id);
+      return false;
+    }
     return ingredientDataAccess.deleteIngredientById(id);
   }
 
@@ -93,11 +106,11 @@ public class IngredientService implements IIngredientService {
    * @return whether the string is null or blank.
    */
   private boolean validateIngredient(Ingredient ingredient) {
-    return ingredient == null
-        || ingredient.getIngredientId() < 0
-        || StringUtilities.isStringNullOrBlank(ingredient.getName())
-        || StringUtilities.isStringNullOrBlank(ingredient.getUom())
-        || Double.isNaN(ingredient.getQuantity())
-        || ingredient.getExpiryDate() == null;
+    return ingredient != null
+        && ingredient.getIngredientId() >= 0
+        && !StringUtilities.isStringNullOrBlank(ingredient.getName())
+        && !StringUtilities.isStringNullOrBlank(ingredient.getUom())
+        && !Double.isNaN(ingredient.getQuantity())
+        && ingredient.getExpiryDate() != null;
   }
 }

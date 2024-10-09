@@ -1,11 +1,12 @@
 /* (C)2024 */
 package nus.iss.team3.backend.entity;
 
-import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
- * Contains records that is related to a Ingredient, - ingredientId : must be unique,
+ * Contains records that is related to a Ingredient, - ingredientId : must be
+ * unique,
  *
  * @author Liu Kun
  */
@@ -17,10 +18,11 @@ public class Ingredient {
   private String uom;
   private Double quantity;
   private Date expiryDate;
-  private Timestamp createTime;
-  private Timestamp updateTime;
+  private ZonedDateTime createTime;
+  private ZonedDateTime updateTime;
 
-  public Ingredient() {}
+  public Ingredient() {
+  }
 
   public Ingredient(
       int id,
@@ -29,8 +31,8 @@ public class Ingredient {
       String uom,
       Double quantity,
       Date expiryDate,
-      Timestamp createTime,
-      Timestamp updateTime) {
+      ZonedDateTime createTime,
+      ZonedDateTime updateTime) {
     this.id = id;
     this.name = name;
     this.userId = userId;
@@ -85,12 +87,20 @@ public class Ingredient {
     this.expiryDate = expiryDate;
   }
 
-  public Timestamp getCreateTime() {
+  public ZonedDateTime getCreateTime() {
     return createTime;
   }
 
-  public Timestamp getUpdateTime() {
+  public void setCreateTime(ZonedDateTime createTime) {
+    this.createTime = createTime;
+  }
+
+  public ZonedDateTime getUpdateTime() {
     return updateTime;
+  }
+
+  public void setUpdateTime(ZonedDateTime updateTime) {
+    this.updateTime = updateTime;
   }
 
   @Override

@@ -21,8 +21,7 @@ public class IngredientService implements IIngredientService {
 
   private static final Logger logger = LogManager.getLogger(IngredientService.class);
 
-  @Autowired
-  IIngredientDataAccess ingredientDataAccess;
+  @Autowired IIngredientDataAccess ingredientDataAccess;
 
   @Override
   public boolean addIngredient(Ingredient ingredient) {
@@ -62,12 +61,13 @@ public class IngredientService implements IIngredientService {
       return false;
     }
 
-    Ingredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getIngredientId());
+    Ingredient existingIngredient =
+        ingredientDataAccess.getIngredientById(ingredient.getIngredientId());
     if (existingIngredient == null) {
       logger.info("updateUser failed, due to missing account for {}", ingredient.getIngredientId());
       return false;
     }
-    
+
     // todo
     // need add other fields' condition
 
@@ -101,7 +101,7 @@ public class IngredientService implements IIngredientService {
   }
 
   /**
-   * Check whether the input Ingredient contians value for it to be accepted
+   * Check whether the input Ingredient contains value for it to be accepted
    *
    * @return whether the string is null or blank.
    */

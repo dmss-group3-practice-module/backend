@@ -1,8 +1,8 @@
 /* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +23,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
   private static final Logger logger = LogManager.getLogger(IngredientDataAccessPostgres.class);
 
-  @Autowired
-  IPostgresDataAccess postgresDataAccess;
+  @Autowired IPostgresDataAccess postgresDataAccess;
 
   /**
    * @param ingredient ingredient to be added
@@ -39,10 +38,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_EXPIRY_DATE, ingredient.getExpiryDate());
 
-    int result = postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_ADD, sqlInput);
-
-    // logger.info("sql is {}, rowAdded is {}", sqlInput,
-    // PostgresSqlStatement.SQL_INGREDIENT_ADD);
+    int result =
+        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_ADD, sqlInput);
 
     if (result == 1) {
       logger.info("ingredient created for {}", ingredient.getIngredientId());
@@ -66,7 +63,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_UOM, ingredient.getUom());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_EXPIRY_DATE, ingredient.getExpiryDate());
-    int result = postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_UPDATE, sqlInput);
+    int result =
+        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_UPDATE, sqlInput);
     if (result == 1) {
       logger.info("ingredient updated for {}", ingredient.getIngredientId());
       return true;
@@ -78,7 +76,6 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
           "account update for {} affected multiple rows: {}", ingredient.getIngredientId(), result);
       throw new RuntimeException("Multiple rows affected during update");
     }
-
   }
 
   /**
@@ -90,7 +87,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, id);
 
-    int result = postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_DELETE, sqlInput);
+    int result =
+        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_DELETE, sqlInput);
     if (result == 1) {
       logger.info("ingredient deleted for {}", id);
       return true;
@@ -98,8 +96,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
       logger.debug("account delete for {} failed, no account found", id);
       return false;
     } else {
-      logger.error(
-          "account delete for {} affected multiple rows: {}", id, result);
+      logger.error("account delete for {} affected multiple rows: {}", id, result);
       throw new RuntimeException("Multiple rows affected during delete");
     }
   }
@@ -113,8 +110,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, id);
 
-    List<Map<String, Object>> entityReturned = postgresDataAccess
-        .queryStatement(PostgresSqlStatement.SQL_INGREDIENT_GET_BY_ID, sqlInput);
+    List<Map<String, Object>> entityReturned =
+        postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_INGREDIENT_GET_BY_ID, sqlInput);
 
     // entity may be null, so I think here should add this condition
     if (entityReturned == null) {
@@ -137,8 +134,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
    */
   @Override
   public List<Ingredient> getIngredientsByUser(int userId) {
-    List<Map<String, Object>> entityReturned = postgresDataAccess
-        .queryStatement(PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_USER, null);
+    List<Map<String, Object>> entityReturned =
+        postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_USER, null);
 
     if (entityReturned == null) {
       logger.error("No ingredients found for user {}", userId);
@@ -156,8 +153,9 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ID, userId);
 
-    int result = postgresDataAccess.upsertStatement(
-        PostgresSqlStatement.SQL_INGREDIENTS_DELETE_BY_USER, sqlInput);
+    int result =
+        postgresDataAccess.upsertStatement(
+            PostgresSqlStatement.SQL_INGREDIENTS_DELETE_BY_USER, sqlInput);
 
     if (result == 0) {
       logger.info("ingredient deletion for {} failed, no ingredient found", userId);
@@ -204,7 +202,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE) instanceof Date)) {
-      returnItem.setExpiryDate((Date) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE));
+      returnItem.setExpiryDate(
+          (Date) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE));
     }
     return returnItem;
   }

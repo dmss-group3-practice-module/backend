@@ -5,8 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
- * Contains records that is related to a Ingredient, - ingredientId : must be
- * unique,
+ * Contains records that is related to a Ingredient, - ingredientId : must be unique,
  *
  * @author Liu Kun
  */
@@ -21,8 +20,7 @@ public class Ingredient {
   private ZonedDateTime createTime;
   private ZonedDateTime updateTime;
 
-  public Ingredient() {
-  }
+  public Ingredient() {}
 
   public Ingredient(
       int id,

@@ -25,87 +25,137 @@ public class UserAccountService implements IUserAccountService {
 
   @Override
   public boolean addUser(UserAccount userAccount) {
-    if (!validateUserAccount(userAccount)) {
-      logger.info(
-          "addUser failed, due to validation failed for account {}",
-          (userAccount == null ? "null object" : userAccount.getName()));
-      return false;
+    try {
+      validateUserAccount(userAccount);
+      if (!isUserNameAndEmailAvailable(userAccount, null)) {
+        logger.warn("Username or email already exists for: {}", userAccount.getName());
+        return false;
+      }
+      userAccount.setCreateDateTime(ZonedDateTime.now());
+      userAccount.setUpdateDateTime(ZonedDateTime.now());
+      boolean result = userAccountDataAccess.addUser(userAccount);
+      if (result) {
+        logger.info("User account created successfully for: {}", userAccount.getName());
+      } else {
+        logger.error("Failed to create user account for: {}", userAccount.getName());
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger.error("Failed to add user: {}", e.getMessage());
+      throw e;
     }
-    if (userAccountDataAccess.getUserByEmail(userAccount.getEmail()) != null) {
-      logger.info("addUser failed, due to existing account for Email: {}", userAccount.getEmail());
-      return false;
-    }
-
-    userAccount.setCreateDateTime(ZonedDateTime.now());
-    userAccount.setUpdateDateTime(ZonedDateTime.now());
-
-    // 添加日志，以便调试
-    logger.info(
-        "Adding user with status: {} and role: {}", userAccount.getStatus(), userAccount.getRole());
-
-    return userAccountDataAccess.addUser(userAccount);
   }
 
   @Override
   public boolean updateUser(UserAccount userAccount) {
-    if (!validateUserAccount(userAccount)) {
-      logger.info(
-          "updateUser failed, due to validation failed for account {}",
-          (userAccount == null ? "null object" : userAccount.getId()));
-      return false;
+    try {
+      validateUserAccount(userAccount);
+      if (userAccount.getId() == null) {
+        throw new IllegalArgumentException("updateUser failed, due to missing Id for account");
+      }
+      UserAccount existingAccount = userAccountDataAccess.getUserById(userAccount.getId());
+      if (existingAccount == null) {
+        logger.warn("User not found for update: {}", userAccount.getId());
+        return false;
+      }
+      if (!isUserNameAndEmailAvailable(userAccount, userAccount.getId())) {
+        return false;
+      }
+      // Only update password if a new one is provided
+      if (!StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
+        userAccount.setPassword(userAccount.getPassword());
+      } else {
+        userAccount.setPassword(existingAccount.getPassword());
+      }
+      boolean result = userAccountDataAccess.updateUser(userAccount);
+      if (result) {
+        logger.info("User account updated successfully for ID: {}", userAccount.getId());
+      } else {
+        logger.error("Failed to update user account for ID: {}", userAccount.getId());
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger.error("Failed to update user: {}", e.getMessage());
+      throw e;
     }
-    if (userAccount.getId() == null) {
-      logger.info("updateUser failed, due to missing Id for account");
-      return false;
-    }
-    UserAccount existingAccount = userAccountDataAccess.getUserById(userAccount.getId());
-    if (existingAccount == null) {
-      logger.info("updateUser failed, due to missing account for {}", userAccount.getId());
-      return false;
-    }
-    UserAccount accountWithSameEmail = userAccountDataAccess.getUserByEmail(userAccount.getEmail());
-    if (accountWithSameEmail != null && !accountWithSameEmail.getId().equals(userAccount.getId())) {
-      logger.info(
-          "updateUser failed, due to existing account for Email: {}", userAccount.getEmail());
-      return false;
-    }
-
-    userAccount.setUpdateDateTime(ZonedDateTime.now());
-    return userAccountDataAccess.updateUser(userAccount);
   }
 
   @Override
   public boolean deleteUserById(Integer id) {
-    if (userAccountDataAccess.getUserById(id) == null) {
-      logger.info("deleteUser failed, due to missing account for {}", id);
-      return false;
+    if (id == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
     }
-    return userAccountDataAccess.deleteUserById(id);
+    boolean result = userAccountDataAccess.deleteUserById(id);
+    if (result) {
+      logger.info("User account deleted successfully for ID: {}", id);
+    } else {
+      logger.warn("Failed to delete user account for ID: {}", id);
+    }
+    return result;
   }
 
   @Override
   public UserAccount getUserById(Integer id) {
-    logger.info("looking for user with id {}", id);
-    return userAccountDataAccess.getUserById(id);
+    if (id == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
+    UserAccount user = userAccountDataAccess.getUserById(id);
+    if (user == null) {
+      logger.warn("User not found for ID: {}", id);
+    }
+    return user;
   }
 
   @Override
-  public List<UserAccount> getAllUser() {
+  public List<UserAccount> getAllUsers() {
     return userAccountDataAccess.getAllUsers();
   }
 
-  /**
-   * Check whether the input useraccount contians value for it to be accepted
-   *
-   * @return whether the string is null or blank.
-   */
-  private boolean validateUserAccount(UserAccount userAccount) {
-    return userAccount != null
-        && !StringUtilities.isStringNullOrBlank(userAccount.getName())
-        && !StringUtilities.isStringNullOrBlank(userAccount.getPassword())
-        && !StringUtilities.isStringNullOrBlank(userAccount.getDisplayName())
-        && !StringUtilities.isStringNullOrBlank(userAccount.getEmail())
-        && userAccount.getStatus() != null
-        && userAccount.getRole() != null;
+  private boolean isUserNameAndEmailAvailable(UserAccount userAccount, Integer currentUserId) {
+    UserAccount existingUserWithName = userAccountDataAccess.getUserByName(userAccount.getName());
+    if (existingUserWithName != null && !existingUserWithName.getId().equals(currentUserId)) {
+      logger.warn("Username already exists: {}", userAccount.getName());
+      return false;
+    }
+    UserAccount existingUserWithEmail =
+        userAccountDataAccess.getUserByEmail(userAccount.getEmail());
+    if (existingUserWithEmail != null && !existingUserWithEmail.getId().equals(currentUserId)) {
+      logger.warn("Email already exists: {}", userAccount.getEmail());
+      return false;
+    }
+    return true;
+  }
+
+  private void validateUserAccount(UserAccount userAccount) {
+    if (userAccount == null) {
+      throw new IllegalArgumentException("User account cannot be null");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getName())) {
+      throw new IllegalArgumentException("Username cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
+      throw new IllegalArgumentException("Password cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getDisplayName())) {
+      throw new IllegalArgumentException("Display name cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getEmail())) {
+      throw new IllegalArgumentException("Email cannot be empty or blank");
+    } else if (!isValidEmail(userAccount.getEmail())) {
+      throw new IllegalArgumentException("Invalid email format");
+    }
+    if (userAccount.getStatus() == null) {
+      throw new IllegalArgumentException("User status cannot be null");
+    }
+    if (userAccount.getRole() == null) {
+      throw new IllegalArgumentException("User role cannot be null");
+    }
+  }
+
+  private boolean isValidEmail(String email) {
+    // a regex for email validation
+    String emailRegex =
+        "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    return email.matches(emailRegex);
   }
 }

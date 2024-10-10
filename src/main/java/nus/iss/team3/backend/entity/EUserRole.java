@@ -1,5 +1,7 @@
 package nus.iss.team3.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +28,19 @@ public enum EUserRole {
     this.code = code;
   }
 
+  @JsonValue
   public int getCode() {
     return code;
+  }
+
+  @JsonCreator
+  public static EUserRole fromValue(int code) {
+    for (EUserRole role : values()) {
+      if (role.code == code) {
+        return role;
+      }
+    }
+    throw new IllegalArgumentException("Invalid role code: " + code);
   }
 
   public static EUserRole valueOfCode(int code) {

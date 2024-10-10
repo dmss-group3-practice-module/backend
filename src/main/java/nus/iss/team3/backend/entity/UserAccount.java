@@ -24,21 +24,6 @@ public class UserAccount {
 
   public UserAccount() {}
 
-  public UserAccount(
-      String name,
-      String password,
-      String displayName,
-      String email,
-      EUserAccountStatus status,
-      EUserRole role) {
-    this.name = name;
-    this.password = password;
-    this.displayName = displayName;
-    this.email = email;
-    this.status = status;
-    this.role = role;
-  }
-
   // Getters and setters for all fields
 
   public Integer getId() {
@@ -140,9 +125,9 @@ public class UserAccount {
         + email
         + '\''
         + ", status="
-        + status
+        + status.code
         + ", role="
-        + role
+        + role.code
         + ", createDateTime="
         + createDateTime
         + ", updateDateTime="

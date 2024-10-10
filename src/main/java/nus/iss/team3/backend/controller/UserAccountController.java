@@ -24,74 +24,87 @@ public class UserAccountController {
 
   @Autowired IUserAccountService userAccountService;
 
-  @GetMapping("/")
-  public String userPage() {
-    return "user page enabled";
-  }
-
   @PostMapping("/add")
-  public ResponseEntity addUser(@RequestBody UserAccount userAccount) {
+  public ResponseEntity<?> addUser(@RequestBody UserAccount userAccount) {
     try {
-      // 添加日志，显示接收到的原始值
-      logger.info(
-          "Received user account with status code: {} and role code: {}",
-          userAccount.getStatus(),
-          userAccount.getRole());
-      /*不需要再手动转换，因为在UserAccount类中添加了新的setter方法
-      EUserAccountStatus status = EUserAccountStatus.valueOfCode(userAccount.getStatus().code);
-      EUserRole role = EUserRole.valueOfCode(userAccount.getRole().code);
-
-      userAccount.setStatus(status);
-      userAccount.setRole(role);*/
-
       if (userAccountService.addUser(userAccount)) {
         logger.info("Creation of User Account: {} completed", userAccount.getName());
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
       }
       logger.info("Creation of User Account: {} failed", userAccount.getName());
-      return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
     } catch (IllegalArgumentException e) {
-      logger.error("Invalid status or role code", e);
-      return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+      logger.error("Invalid input during creation of User Account: {}", userAccount.getName(), e);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      logger.error("Unexpected error", e);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @PostMapping("/update")
-  public ResponseEntity updateUser(@RequestBody UserAccount userAccount) {
-    if (userAccountService.updateUser(userAccount)) {
-      logger.info("Update of User Account: {} completed", userAccount.getName());
-      return new ResponseEntity(true, HttpStatus.OK);
+  public ResponseEntity<?> updateUser(@RequestBody UserAccount userAccount) {
+    try {
+      if (userAccountService.updateUser(userAccount)) {
+        logger.info("Update of User Account: {} completed", userAccount.getName());
+        return new ResponseEntity<>(true, HttpStatus.OK);
+      }
+      logger.info("Update of User Account: {} failed", userAccount.getName());
+      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (IllegalArgumentException e) {
+      logger.error("Invalid input during update of User Account: {}", userAccount.getName(), e);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      logger.error("Unexpected error", e);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    logger.info("Update of User Account: {} failed", userAccount.getName());
-    return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @DeleteMapping("/delete/{id}")
-  public ResponseEntity deleteUser(@PathVariable Integer id) {
-    if (userAccountService.deleteUserById(id)) {
-      logger.info("Deletion of User Account: {} completed", id);
-      return new ResponseEntity(true, HttpStatus.OK);
+  public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+    try {
+      if (userAccountService.deleteUserById(id)) {
+        logger.info("Deletion of User Account: {} completed", id);
+        return new ResponseEntity<>(true, HttpStatus.OK);
+      }
+      logger.info("Deletion of User Account: {} failed", id);
+      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (IllegalArgumentException e) {
+      logger.error("Invalid input during deletion of User Account: {}", id, e);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      logger.error("Unexpected error", e);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    logger.info("Deletion of User Account: {} failed", id);
-    return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @GetMapping("/get/{id}")
-  public ResponseEntity getUser(@PathVariable Integer id) {
-    UserAccount user = userAccountService.getUserById(id);
-    if (user != null) {
-      logger.info("Retrieved User Account: {}", id);
-      return new ResponseEntity(user, HttpStatus.OK);
-    } else {
+  public ResponseEntity<?> getUser(@PathVariable Integer id) {
+    try {
+      UserAccount user = userAccountService.getUserById(id);
+      if (user != null) {
+        logger.info("Retrieved User Account: {}", id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+      }
       logger.info("User Account not found: {}", id);
-      return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (IllegalArgumentException e) {
+      logger.error("Invalid input during retrieval of User Account: {}", id, e);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      logger.error("Unexpected error", e);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @GetMapping("/getAll")
-  public ResponseEntity getAllUser() {
-    List<UserAccount> users = userAccountService.getAllUser();
-    logger.info("Retrieved {} User Accounts", users.size());
-    return new ResponseEntity(users, HttpStatus.OK);
+  public ResponseEntity<List<UserAccount>> getAllUsers() {
+    try {
+      List<UserAccount> users = userAccountService.getAllUsers();
+      return new ResponseEntity<>(users, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Unexpected error during retrieval of all users", e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

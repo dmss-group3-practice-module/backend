@@ -14,11 +14,13 @@ public interface IUserAccountDataAccess {
 
   boolean addUser(UserAccount userAccount);
 
-  boolean deleteUserById(Integer id);
-
   boolean updateUser(UserAccount userAccount);
 
+  boolean deleteUserById(Integer id);
+
   UserAccount getUserById(Integer id);
+
+  UserAccount getUserByName(String name);
 
   UserAccount getUserByEmail(String email);
 

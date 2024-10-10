@@ -1,6 +1,7 @@
-/* (C)2024 */
 package nus.iss.team3.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,16 +29,21 @@ public enum EUserAccountStatus {
     this.code = code;
   }
 
+  @JsonValue
   public int getCode() {
     return code;
   }
 
-  /**
-   * Get the enum value based on the status code
-   *
-   * @param code The integer code of the status
-   * @return The corresponding EUserAccountStatus, or null if not found
-   */
+  @JsonCreator
+  public static EUserAccountStatus fromValue(int code) {
+    for (EUserAccountStatus status : values()) {
+      if (status.code == code) {
+        return status;
+      }
+    }
+    throw new IllegalArgumentException("Invalid status code: " + code);
+  }
+
   public static EUserAccountStatus valueOfCode(int code) {
     EUserAccountStatus status = BY_CODE.get(code);
     if (status == null) {

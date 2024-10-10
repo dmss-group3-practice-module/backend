@@ -64,7 +64,10 @@ public class PostgresSqlStatement {
           + INPUT_USER_ACCOUNT_STATUS
           + ",:"
           + INPUT_USER_ACCOUNT_ROLE
-          + ",now(),now());";
+          + ","
+          + "now()"
+          + ","
+          + "now());";
   public static final String SQL_USER_ACCOUNT_DELETE =
       "DELETE FROM "
           + TABLE_USER_ACCOUNT
@@ -117,6 +120,15 @@ public class PostgresSqlStatement {
           + COLUMN_USER_ACCOUNT_ID
           + " = :"
           + INPUT_USER_ACCOUNT_ID
+          + ";";
+
+  public static final String SQL_USER_ACCOUNT_GET_BY_NAME =
+      "SELECT * FROM "
+          + TABLE_USER_ACCOUNT
+          + " WHERE "
+          + COLUMN_USER_ACCOUNT_NAME
+          + " = :"
+          + INPUT_USER_ACCOUNT_NAME
           + ";";
 
   public static final String SQL_USER_ACCOUNT_GET_BY_EMAIL =

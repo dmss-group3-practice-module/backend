@@ -64,7 +64,7 @@ public class TestUserAccountController {
     UserAccount userAccount = createValidUserAccount();
     userAccount.setName("");
     when(userAccountService.addUser(any(UserAccount.class)))
-            .thenThrow(new IllegalArgumentException("Username cannot be empty or blank"));
+        .thenThrow(new IllegalArgumentException("Username cannot be empty or blank"));
 
     mockMvc
         .perform(
@@ -95,7 +95,7 @@ public class TestUserAccountController {
     UserAccount userAccount = createValidUserAccount();
     userAccount.setEmail("");
     when(userAccountService.addUser(any(UserAccount.class)))
-            .thenThrow(new IllegalArgumentException("Username cannot be empty or blank"));
+        .thenThrow(new IllegalArgumentException("Username cannot be empty or blank"));
 
     mockMvc
         .perform(
@@ -138,10 +138,7 @@ public class TestUserAccountController {
   @Test
   public void testUpdateUser_NullAccount() throws Exception {
     mockMvc
-        .perform(
-            post("/user/update")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
+        .perform(post("/user/update").contentType(MediaType.APPLICATION_JSON).content(""))
         .andExpect(status().isBadRequest());
   }
 
@@ -149,7 +146,7 @@ public class TestUserAccountController {
   public void testUpdateUser_MissingId() throws Exception {
     UserAccount userAccount = createValidUserAccount();
     when(userAccountService.updateUser(any(UserAccount.class)))
-            .thenThrow(new IllegalArgumentException("User ID cannot be null"));
+        .thenThrow(new IllegalArgumentException("User ID cannot be null"));
 
     mockMvc
         .perform(

@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.List;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.EUserAccountStatus;
 import nus.iss.team3.backend.entity.EUserRole;
@@ -14,9 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Arrays;
-import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 public class TestUserAccountService {
@@ -40,7 +39,8 @@ public class TestUserAccountService {
   public void addUser_nullAccount() {
     UserAccount inputUserAccount = null;
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -72,7 +72,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName(null);
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -80,7 +81,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName("");
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -88,7 +90,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = createValidUserAccount();
     inputUserAccount.setPassword(null);
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -96,7 +99,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = createValidUserAccount();
     inputUserAccount.setPassword("");
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -104,7 +108,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = createValidUserAccount();
     inputUserAccount.setEmail(null);
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -112,7 +117,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = createValidUserAccount();
     inputUserAccount.setEmail("");
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
@@ -132,7 +138,8 @@ public class TestUserAccountService {
   public void updateUser_nullAccount() {
     UserAccount inputUserAccount = null;
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.updateUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.updateUser(inputUserAccount));
   }
 
   @Test
@@ -140,7 +147,8 @@ public class TestUserAccountService {
     UserAccount inputUserAccount = createValidUserAccount();
     inputUserAccount.setId(null);
 
-    assertThrows(IllegalArgumentException.class, () -> userAccountService.updateUser(inputUserAccount));
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.updateUser(inputUserAccount));
   }
 
   @Test

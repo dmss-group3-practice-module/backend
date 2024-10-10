@@ -39,8 +39,8 @@ public class IngredientService implements IIngredientService {
       return false;
     }
 
-    ingredient.setCreateTime(ZonedDateTime.now());
-    ingredient.setUpdateTime(ZonedDateTime.now());
+    ingredient.setCreateDateTime(ZonedDateTime.now());
+    ingredient.setUpdateDateTime(ZonedDateTime.now());
 
     return ingredientDataAccess.addIngredient(ingredient);
   }
@@ -68,10 +68,7 @@ public class IngredientService implements IIngredientService {
       return false;
     }
 
-    // todo
-    // need add other fields' condition
-
-    ingredient.setUpdateTime(ZonedDateTime.now());
+    ingredient.setUpdateDateTime(ZonedDateTime.now());
     return ingredientDataAccess.updateIngredient(ingredient);
   }
 
@@ -101,9 +98,9 @@ public class IngredientService implements IIngredientService {
   }
 
   /**
-   * Check whether the input Ingredient contains value for it to be accepted
+   * Check whether the input Ingredient contains acceptable values
    *
-   * @return whether the string is null or blank.
+   * @return whether boolean on whether ingredient is valid
    */
   private boolean validateIngredient(Ingredient ingredient) {
     return ingredient != null

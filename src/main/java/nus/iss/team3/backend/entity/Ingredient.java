@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
- * Contains records that is related to a Ingredient, - ingredientId : must be unique,
+ * Contains records that is related to a Ingredient, - id : must be unique
  *
  * @author Liu Kun
  */
@@ -17,8 +17,8 @@ public class Ingredient {
   private String uom;
   private Double quantity;
   private Date expiryDate;
-  private ZonedDateTime createTime;
-  private ZonedDateTime updateTime;
+  private ZonedDateTime createDateTime;
+  private ZonedDateTime updateDateTime;
 
   public Ingredient() {}
 
@@ -29,16 +29,16 @@ public class Ingredient {
       String uom,
       Double quantity,
       Date expiryDate,
-      ZonedDateTime createTime,
-      ZonedDateTime updateTime) {
+      ZonedDateTime createDateTime,
+      ZonedDateTime updateDateTime) {
     this.id = id;
     this.name = name;
     this.userId = userId;
     this.uom = uom;
     this.quantity = quantity;
     this.expiryDate = expiryDate;
-    this.createTime = createTime;
-    this.updateTime = updateTime;
+    this.createDateTime = createDateTime;
+    this.updateDateTime = updateDateTime;
   }
 
   public int getIngredientId() {
@@ -85,20 +85,20 @@ public class Ingredient {
     this.expiryDate = expiryDate;
   }
 
-  public ZonedDateTime getCreateTime() {
-    return createTime;
+  public ZonedDateTime getCreateDateTime() {
+    return createDateTime;
   }
 
-  public void setCreateTime(ZonedDateTime createTime) {
-    this.createTime = createTime;
+  public void setCreateDateTime(ZonedDateTime createDateTime) {
+    this.createDateTime = createDateTime;
   }
 
-  public ZonedDateTime getUpdateTime() {
-    return updateTime;
+  public ZonedDateTime getUpdateDateTime() {
+    return updateDateTime;
   }
 
-  public void setUpdateTime(ZonedDateTime updateTime) {
-    this.updateTime = updateTime;
+  public void setUpdateDateTime(ZonedDateTime updateDateTime) {
+    this.updateDateTime = updateDateTime;
   }
 
   @Override
@@ -122,11 +122,11 @@ public class Ingredient {
         + ", expiryDate='"
         + expiryDate
         + '\''
-        + ", createTime='"
-        + createTime
+        + ", createDateTime='"
+        + createDateTime
         + '\''
-        + ", updateTime='"
-        + updateTime
+        + ", updateDateTime='"
+        + updateDateTime
         + '\''
         + '}';
   }

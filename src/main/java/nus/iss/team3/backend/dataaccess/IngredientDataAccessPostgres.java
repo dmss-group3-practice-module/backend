@@ -27,7 +27,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
   /**
    * @param ingredient ingredient to be added
-   * @return whether adding the ingredient was successful or not
+   * @return boolean of whether adding ingredient was successful
    */
   @Override
   public boolean addIngredient(Ingredient ingredient) {
@@ -52,7 +52,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
   /**
    * @param ingredient ingredient to be updated
-   * @return whether updating the ingredient was successful or not
+   * @return boolean of whether updating ingredient was successful
    */
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
@@ -79,8 +79,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
   }
 
   /**
-   * @param ingredientId id of ingredient to be deleted
-   * @return whether deleting the ingredient was successful or not
+   * @param id of ingredient to be deleted
+   * @return boolean of whether deleting ingredient was successful
    */
   @Override
   public boolean deleteIngredientById(int id) {
@@ -102,8 +102,8 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
   }
 
   /**
-   * @param ingredientId id of ingredient to be retrieved
-   * @return the content of the ingredient that was retrieved
+   * @param id of ingredient to be retrieved
+   * @return content of the retrieved ingredient
    */
   @Override
   public Ingredient getIngredientById(int id) {
@@ -130,7 +130,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
   /**
    * @param userId id of user to be retrieved
-   * @return the content of the ingredient that was retrieved
+   * @return content of retrieved ingredient based on userId
    */
   @Override
   public List<Ingredient> getIngredientsByUser(int userId) {

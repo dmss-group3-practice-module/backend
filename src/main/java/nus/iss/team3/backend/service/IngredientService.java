@@ -47,7 +47,6 @@ public class IngredientService implements IIngredientService {
 
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
-    // logger.info("iid is {}", ingredient.getIngredientId());
     if (!validateIngredient(ingredient)) {
       logger.info(
           "updateIngredient failed, due to validation failed for ingredient {}",
@@ -83,7 +82,6 @@ public class IngredientService implements IIngredientService {
 
   @Override
   public Ingredient getIngredientById(Integer id) {
-    logger.info("looking for {}", id);
     return ingredientDataAccess.getIngredientById(id);
   }
 

@@ -231,15 +231,13 @@ public class PostgresSqlStatement {
   public static final String COLUMN_INGREDIENT_UOM = "uom";
   public static final String COLUMN_INGREDIENT_QUANTITY = "quantity";
   public static final String COLUMN_INGREDIENT_EXPIRY_DATE = "expiry_date";
-  public static final String COLUMN_INGREDIENT_CREATE_TIME = "create_datetime";
-  public static final String COLUMN_INGREDIENT_UPDATE_TIME = "update_datetime";
+  public static final String COLUMN_INGREDIENT_CREATE_DATETIME = "create_datetime";
+  public static final String COLUMN_INGREDIENT_UPDATE_DATETIME = "update_datetime";
 
   public static final String SQL_INGREDIENT_ADD =
       "INSERT INTO "
           + TABLE_INGREDIENT
           + "("
-          // + COLUMN_INGREDIENT_ID
-          // + ","
           + COLUMN_INGREDIENT_NAME
           + ","
           + COLUMN_USER_ID
@@ -250,12 +248,10 @@ public class PostgresSqlStatement {
           + ","
           + COLUMN_INGREDIENT_EXPIRY_DATE
           + ","
-          + COLUMN_INGREDIENT_CREATE_TIME
+          + COLUMN_INGREDIENT_CREATE_DATETIME
           + ","
-          + COLUMN_INGREDIENT_UPDATE_TIME
+          + COLUMN_INGREDIENT_UPDATE_DATETIME
           + ") VALUES (:"
-          // + INPUT_INGREDIENT_ID
-          // + ",:"
           + INPUT_INGREDIENT_NAME
           + ",:"
           + INPUT_USER_ID
@@ -274,14 +270,11 @@ public class PostgresSqlStatement {
           + COLUMN_INGREDIENT_ID
           + " = :"
           + INPUT_INGREDIENT_ID;
+
   public static final String SQL_INGREDIENT_UPDATE =
       "UPDATE "
           + TABLE_INGREDIENT
           + " SET "
-          // + COLUMN_INGREDIENT_ID
-          // + " = :"
-          // + INPUT_INGREDIENT_ID
-          // + ","
           + COLUMN_INGREDIENT_NAME
           + " = :"
           + INPUT_INGREDIENT_NAME
@@ -302,7 +295,7 @@ public class PostgresSqlStatement {
           + " = :"
           + INPUT_INGREDIENT_EXPIRY_DATE
           + ", "
-          + COLUMN_INGREDIENT_UPDATE_TIME
+          + COLUMN_INGREDIENT_UPDATE_DATETIME
           + " = :"
           + "now()"
           + " WHERE "
@@ -310,6 +303,7 @@ public class PostgresSqlStatement {
           + " = :"
           + INPUT_INGREDIENT_ID
           + ";";
+
   public static final String SQL_INGREDIENT_GET_BY_ID =
       "SELECT * FROM "
           + TABLE_INGREDIENT
@@ -317,8 +311,10 @@ public class PostgresSqlStatement {
           + COLUMN_INGREDIENT_ID
           + " = :"
           + INPUT_INGREDIENT_ID;
+
   public static final String SQL_INGREDIENTS_GET_BY_USER =
       "SELECT * FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
+
   public static final String SQL_INGREDIENTS_DELETE_BY_USER =
       "DELETE FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
 }

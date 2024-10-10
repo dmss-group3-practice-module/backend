@@ -1,6 +1,7 @@
 /* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -113,16 +114,13 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     List<Map<String, Object>> entityReturned =
         postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_INGREDIENT_GET_BY_ID, sqlInput);
 
-    // entity may be null, so I think here should add this condition
     if (entityReturned == null) {
-      logger.error("no entity found for {}, please review", id);
-      return new Ingredient();
+      logger.error("no entity found for id {}", id);
+      return null;
     }
 
     if (entityReturned.size() == 1) {
       return translateDBRecordToIngredient(entityReturned.getFirst());
-    } else {
-      logger.error("record abnormal as {} for {}, please review", entityReturned.size(), id);
     }
 
     return null;
@@ -183,13 +181,6 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
       returnItem.setName((String) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME));
     }
 
-    // userId can I set？
-    // if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ID)
-    // && (entity.get(PostgresSqlStatement.COLUMN_USER_ID) instanceof Integer)) {
-    // returnItem.setUserId((Integer)
-    // entity.get(PostgresSqlStatement.COLUMN_USER_ID));
-    // }
-
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY) instanceof Double)) {
       returnItem.setQuantity((Double) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY));
@@ -204,6 +195,18 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE) instanceof Date)) {
       returnItem.setExpiryDate(
           (Date) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_EXPIRY_DATE));
+    }
+
+    if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_CREATE_DATETIME)
+        && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_CREATE_DATETIME)
+            instanceof java.sql.Timestamp timestamp)) {
+      returnItem.setCreateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
+    }
+
+    if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_UPDATE_DATETIME)
+        && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_UPDATE_DATETIME)
+            instanceof java.sql.Timestamp timestamp)) {
+      returnItem.setUpdateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
     return returnItem;
   }

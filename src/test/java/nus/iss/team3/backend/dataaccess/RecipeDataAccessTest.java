@@ -1,11 +1,5 @@
 package nus.iss.team3.backend.dataaccess;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import java.sql.Timestamp;
-import java.util.*;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.Ingredient;
@@ -15,6 +9,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.sql.Timestamp;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeDataAccessTest {
@@ -108,7 +109,7 @@ class RecipeDataAccessTest {
             IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
 
     // 验证异常消息是否正确
-    assertEquals("Required fields cannot be null", exception.getMessage());
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
 
     // 验证没有与PostgresDataAccess进行任何交互
     verify(postgresDataAccess, never()).queryStatement(anyString(), anyMap());
@@ -232,7 +233,7 @@ class RecipeDataAccessTest {
             IllegalArgumentException.class, () -> recipeDataAccess.updateRecipe(invalidRecipe));
 
     // 验证异常消息是否正确
-    assertEquals("Required fields cannot be null", exception.getMessage());
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
 
     // 验证没有与PostgresDataAccess进行任何交互
     verify(postgresDataAccess, never()).upsertStatement(anyString(), anyMap());

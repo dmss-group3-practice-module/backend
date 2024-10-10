@@ -1,7 +1,5 @@
 package nus.iss.team3.backend.controller;
 
-import java.util.List;
-import java.util.Objects;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.service.IRecipeService;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Controller class to handle web call for recipe related queries.
@@ -148,11 +149,14 @@ public class RecipeController {
    * 根据ID获取特定的食谱
    *
    * @param id 路径变量中的食谱ID
-   * @return 包含食谱的响应实体 Notices: 1. GetMapping("/{id}") 注解: 映射HTTP GET请求到该方法，路径为 /api/recipes/{id}。
-   *     2. PathVariable Long id: 从URL路径中提取 id 参数。
+   * @return 包含食谱的响应实体
    */
   @GetMapping("/{id}")
   public ResponseEntity<Recipe> getRecipe(@PathVariable Long id) {
+    /* Notices:
+     * 1. GetMapping("/{id}") 注解: 映射HTTP GET请求到该方法，路径为 /api/recipes/{id}。
+     * 2. PathVariable Long id: 从URL路径中提取 id 参数。
+     */
     logger.info("接收到获取食谱的请求: ID={}", id);
     try {
       // 调用服务层的方法获取指定ID的食谱
@@ -176,10 +180,13 @@ public class RecipeController {
   /**
    * 获取所有食谱
    *
-   * @return 包含所有食谱的响应实体 Notices: 1. GetMapping 注解: 映射HTTP GET请求到该方法，路径为 /api/recipes
+   * @return 包含所有食谱的响应实体
    */
   @GetMapping
   public ResponseEntity<List<Recipe>> getAllRecipes() {
+    /* Notices:
+     * 1. GetMapping 注解: 映射HTTP GET请求到该方法，路径为 /api/recipes
+     */
     logger.info("接收到获取所有食谱的请求");
     try {
       // 调用服务层的方法获取所有食谱
@@ -198,11 +205,14 @@ public class RecipeController {
    * 根据名称搜索食谱
    *
    * @param name 请求参数中的食谱名称
-   * @return 包含匹配食谱的响应实体 Notices: 1. GetMapping("/search") 注解: 映射HTTP GET请求到该方法，路径为
-   *     /api/recipes/search。 2. RequestParam String name: 从请求参数中提取 name 参数，用于搜索食谱。
+   * @return 包含匹配食谱的响应实体
    */
   @GetMapping("/search")
   public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam String name) {
+    /* Notices:
+     * 1. GetMapping("/search") 注解: 映射HTTP GET请求到该方法，路径为/api/recipes/search。
+     * 2. RequestParam String name: 从请求参数中提取 name 参数，用于搜索食谱。
+     */
     logger.info("接收到搜索食谱的请求: 名称={}", name);
     try {
       // 调用服务层的方法根据名称搜索食谱

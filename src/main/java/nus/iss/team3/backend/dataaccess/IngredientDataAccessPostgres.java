@@ -132,9 +132,12 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
    */
   @Override
   public List<Ingredient> getIngredientsByUser(int userId) {
-    List<Map<String, Object>> entityReturned =
-        postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_USER, null);
+    Map<String, Object> sqlInput = new HashMap<>();
+    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, userId);
 
+    List<Map<String, Object>> entityReturned =
+        postgresDataAccess.queryStatement(
+            PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_USER_ID, sqlInput);
     if (entityReturned == null) {
       logger.error("No ingredients found for user {}", userId);
       return new ArrayList<>();
@@ -153,7 +156,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
     int result =
         postgresDataAccess.upsertStatement(
-            PostgresSqlStatement.SQL_INGREDIENTS_DELETE_BY_USER, sqlInput);
+            PostgresSqlStatement.SQL_INGREDIENTS_DELETE_BY_USER_ID, sqlInput);
 
     if (result == 0) {
       logger.info("ingredient deletion for {} failed, no ingredient found", userId);

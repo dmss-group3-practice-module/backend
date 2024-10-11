@@ -43,11 +43,11 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
         postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_ADD, sqlInput);
 
     if (result == 1) {
-      logger.info("ingredient created for {}", ingredient.getIngredientId());
+      logger.info("ingredient created for {}", ingredient.getId());
 
       return true;
     }
-    logger.info("ingredient creation for {} failed", ingredient.getIngredientId());
+    logger.info("ingredient creation for {} failed", ingredient.getId());
     return false;
   }
 
@@ -58,7 +58,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
     Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, ingredient.getIngredientId());
+    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, ingredient.getId());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, ingredient.getName());
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ID, ingredient.getUserId());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_UOM, ingredient.getUom());
@@ -67,14 +67,14 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
     int result =
         postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_INGREDIENT_UPDATE, sqlInput);
     if (result == 1) {
-      logger.info("ingredient updated for {}", ingredient.getIngredientId());
+      logger.info("ingredient updated for {}", ingredient.getId());
       return true;
     } else if (result == 0) {
-      logger.debug("account update for {} failed, no account found", ingredient.getIngredientId());
+      logger.debug("ingredient update for {} failed, no ingredient found", ingredient.getId());
       return false;
     } else {
       logger.error(
-          "account update for {} affected multiple rows: {}", ingredient.getIngredientId(), result);
+          "ingredient update for {} affected multiple rows: {}", ingredient.getId(), result);
       throw new RuntimeException("Multiple rows affected during update");
     }
   }
@@ -176,7 +176,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
 
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_ID)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID) instanceof Integer)) {
-      returnItem.setIngredientId((Integer) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID));
+      returnItem.setId((Integer) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID));
     }
 
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_NAME)

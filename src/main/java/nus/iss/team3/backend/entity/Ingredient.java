@@ -41,11 +41,11 @@ public class Ingredient {
     this.updateDateTime = updateDateTime;
   }
 
-  public int getIngredientId() {
+  public int getId() {
     return id;
   }
 
-  public void setIngredientId(int id) {
+  public void setId(int id) {
     this.id = id;
   }
 
@@ -59,6 +59,10 @@ public class Ingredient {
 
   public int getUserId() {
     return userId;
+  }
+
+  public void setUserId(int userId) {
+    this.userId = userId;
   }
 
   public String getUom() {
@@ -113,7 +117,7 @@ public class Ingredient {
         + ", quantity='"
         + quantity
         + '\''
-        + ", user='"
+        + ", userId='"
         + userId
         + '\''
         + ", uom='"

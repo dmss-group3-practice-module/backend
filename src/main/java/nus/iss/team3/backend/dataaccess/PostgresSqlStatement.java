@@ -279,10 +279,6 @@ public class PostgresSqlStatement {
           + " = :"
           + INPUT_INGREDIENT_NAME
           + ", "
-          + COLUMN_USER_ID
-          + " = :"
-          + INPUT_USER_ID
-          + ", "
           + COLUMN_INGREDIENT_UOM
           + " = :"
           + INPUT_INGREDIENT_UOM
@@ -296,12 +292,16 @@ public class PostgresSqlStatement {
           + INPUT_INGREDIENT_EXPIRY_DATE
           + ", "
           + COLUMN_INGREDIENT_UPDATE_DATETIME
-          + " = :"
+          + " = "
           + "now()"
           + " WHERE "
           + COLUMN_INGREDIENT_ID
           + " = :"
           + INPUT_INGREDIENT_ID
+          + " AND "
+          + COLUMN_USER_ID
+          + " = :"
+          + INPUT_USER_ACCOUNT_ID
           + ";";
 
   public static final String SQL_INGREDIENT_GET_BY_ID =

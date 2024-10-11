@@ -32,10 +32,8 @@ public class IngredientService implements IIngredientService {
       return false;
     }
 
-    if (ingredientDataAccess.getIngredientById(ingredient.getIngredientId()) != null) {
-      logger.info(
-          "addIngredient failed, due to existing ingredient for Id {}",
-          ingredient.getIngredientId());
+    if (ingredientDataAccess.getIngredientById(ingredient.getId()) != null) {
+      logger.info("addIngredient failed, due to existing ingredient for Id {}", ingredient.getId());
       return false;
     }
 
@@ -48,22 +46,18 @@ public class IngredientService implements IIngredientService {
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
     if (!validateIngredient(ingredient)) {
-      logger.info(
-          "updateIngredient failed, due to validation failed for ingredient {}",
-          (ingredient == null ? "null object" : ingredient.getName()));
+      logger.info("validation for updateIngredient failed for ingredient {}", ingredient.getName());
       return false;
     }
 
-    if (ingredient.getIngredientId() < 0) {
-      logger.info(
-          "updateUser failed, due to missing Id account for {}", ingredient.getIngredientId());
+    if (ingredient.getId() < 0) {
+      logger.info("missing id for updateUser for ingredientId {}", ingredient.getId());
       return false;
     }
 
-    Ingredient existingIngredient =
-        ingredientDataAccess.getIngredientById(ingredient.getIngredientId());
+    Ingredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getId());
     if (existingIngredient == null) {
-      logger.info("updateUser failed, due to missing account for {}", ingredient.getIngredientId());
+      logger.info("missing ingredient for updateUser for ingredientId {}", ingredient.getId());
       return false;
     }
 
@@ -102,7 +96,7 @@ public class IngredientService implements IIngredientService {
    */
   private boolean validateIngredient(Ingredient ingredient) {
     return ingredient != null
-        && ingredient.getIngredientId() >= 0
+        && ingredient.getId() >= 0
         && !StringUtilities.isStringNullOrBlank(ingredient.getName())
         && !StringUtilities.isStringNullOrBlank(ingredient.getUom())
         && !Double.isNaN(ingredient.getQuantity())

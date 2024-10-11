@@ -26,7 +26,7 @@ public class UserAccountService implements IUserAccountService {
   @Override
   public boolean addUser(UserAccount userAccount) {
     try {
-      validateUserAccount(userAccount);
+      validateUserAccount(userAccount, false);
       if (!isUserNameAndEmailAvailable(userAccount, null)) {
         logger.warn("Username or email already exists for: {}", userAccount.getName());
         return false;
@@ -49,7 +49,7 @@ public class UserAccountService implements IUserAccountService {
   @Override
   public boolean updateUser(UserAccount userAccount) {
     try {
-      validateUserAccount(userAccount);
+      validateUserAccount(userAccount, true);
       if (userAccount.getId() == null) {
         throw new IllegalArgumentException("updateUser failed, due to missing Id for account");
       }
@@ -126,7 +126,7 @@ public class UserAccountService implements IUserAccountService {
     return true;
   }
 
-  private void validateUserAccount(UserAccount userAccount) {
+  private void validateUserAccount(UserAccount userAccount, boolean isUpdate) {
     if (userAccount == null) {
       throw new IllegalArgumentException("User account cannot be null");
     }

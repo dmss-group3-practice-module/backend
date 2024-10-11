@@ -1,6 +1,7 @@
 /* (C)2024 */
 package nus.iss.team3.backend.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.IUserAccountService;
@@ -78,6 +79,7 @@ public class UserAccountController {
     }
   }
 
+  @JsonView(UserAccount.WithoutPasswordView.class)
   @GetMapping("/get/{id}")
   public ResponseEntity<?> getUser(@PathVariable Integer id) {
     try {
@@ -97,6 +99,7 @@ public class UserAccountController {
     }
   }
 
+  @JsonView(UserAccount.WithoutPasswordView.class)
   @GetMapping("/getAll")
   public ResponseEntity<List<UserAccount>> getAllUsers() {
     try {

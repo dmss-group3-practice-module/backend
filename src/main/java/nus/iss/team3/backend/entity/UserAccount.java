@@ -1,6 +1,8 @@
 /* (C)2024 */
 package nus.iss.team3.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.time.ZonedDateTime;
 
 /**
@@ -11,15 +13,37 @@ import java.time.ZonedDateTime;
  */
 // @Entity
 public class UserAccount {
+  public static class WithoutPasswordView {}
 
+  public static class WithPasswordView extends WithoutPasswordView {}
+
+  @JsonView(WithoutPasswordView.class)
   private Integer id;
+
+  @JsonView(WithoutPasswordView.class)
   private String name;
+
+  // @JsonIgnore private String password;
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonView(WithPasswordView.class)
   private String password;
+
+  @JsonView(WithoutPasswordView.class)
   private String displayName;
+
+  @JsonView(WithoutPasswordView.class)
   private String email;
+
+  @JsonView(WithoutPasswordView.class)
   private EUserAccountStatus status;
+
+  @JsonView(WithoutPasswordView.class)
   private EUserRole role;
+
+  @JsonView(WithoutPasswordView.class)
   private ZonedDateTime createDateTime;
+
+  @JsonView(WithoutPasswordView.class)
   private ZonedDateTime updateDateTime;
 
   public UserAccount() {}

@@ -114,7 +114,23 @@ public class PostgresSqlStatement {
           + ";";
 
   public static final String SQL_USER_ACCOUNT_GET_BY_ID =
-      "SELECT * FROM "
+      "SELECT "
+          + COLUMN_USER_ACCOUNT_ID
+          + ", "
+          + COLUMN_USER_ACCOUNT_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_DISPLAY_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + ", "
+          + COLUMN_USER_ACCOUNT_STATUS
+          + ", "
+          + COLUMN_USER_ACCOUNT_ROLE
+          + ", "
+          + COLUMN_USER_ACCOUNT_CREATE_DATETIME
+          + ", "
+          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
+          + " FROM "
           + TABLE_USER_ACCOUNT
           + " WHERE "
           + COLUMN_USER_ACCOUNT_ID
@@ -123,7 +139,23 @@ public class PostgresSqlStatement {
           + ";";
 
   public static final String SQL_USER_ACCOUNT_GET_BY_NAME =
-      "SELECT * FROM "
+      "SELECT "
+          + COLUMN_USER_ACCOUNT_ID
+          + ", "
+          + COLUMN_USER_ACCOUNT_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_DISPLAY_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + ", "
+          + COLUMN_USER_ACCOUNT_STATUS
+          + ", "
+          + COLUMN_USER_ACCOUNT_ROLE
+          + ", "
+          + COLUMN_USER_ACCOUNT_CREATE_DATETIME
+          + ", "
+          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
+          + " FROM "
           + TABLE_USER_ACCOUNT
           + " WHERE "
           + COLUMN_USER_ACCOUNT_NAME
@@ -132,7 +164,23 @@ public class PostgresSqlStatement {
           + ";";
 
   public static final String SQL_USER_ACCOUNT_GET_BY_EMAIL =
-      "SELECT * FROM "
+      "SELECT "
+          + COLUMN_USER_ACCOUNT_ID
+          + ", "
+          + COLUMN_USER_ACCOUNT_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_DISPLAY_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + ", "
+          + COLUMN_USER_ACCOUNT_STATUS
+          + ", "
+          + COLUMN_USER_ACCOUNT_ROLE
+          + ", "
+          + COLUMN_USER_ACCOUNT_CREATE_DATETIME
+          + ", "
+          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
+          + " FROM "
           + TABLE_USER_ACCOUNT
           + " WHERE "
           + COLUMN_USER_ACCOUNT_EMAIL
@@ -140,5 +188,24 @@ public class PostgresSqlStatement {
           + INPUT_USER_ACCOUNT_EMAIL
           + ";";
 
-  public static final String SQL_USER_ACCOUNT_GET_ALL = "SELECT * FROM " + TABLE_USER_ACCOUNT + ";";
+  public static final String SQL_USER_ACCOUNT_GET_ALL =
+      "SELECT "
+          + COLUMN_USER_ACCOUNT_ID
+          + ", "
+          + COLUMN_USER_ACCOUNT_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_DISPLAY_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + ", "
+          + COLUMN_USER_ACCOUNT_STATUS
+          + ", "
+          + COLUMN_USER_ACCOUNT_ROLE
+          + ", "
+          + COLUMN_USER_ACCOUNT_CREATE_DATETIME
+          + ", "
+          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
+          + " FROM "
+          + TABLE_USER_ACCOUNT
+          + ";";
 }

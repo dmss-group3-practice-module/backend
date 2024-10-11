@@ -139,21 +139,6 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
    */
   @Override
   public List<UserAccount> getAllUsers() {
-    /*String sql = SQL_USER_ACCOUNT_GET_ALL + " LIMIT ? OFFSET ?";
-    try {
-      List<UserAccount> users =
-          jdbcTemplate.query(
-              sql,
-              new Object[] {pageable.getPageSize(), pageable.getOffset()},
-              new UserAccountRowMapper());
-
-      long total = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user_account", Long.class);
-
-      return new PageImpl<>(users, pageable, total);
-    } catch (DataAccessException e) {
-      logger.error("Error getting all users", e);
-      return Page.empty();
-    }*/
     String sql = SQL_USER_ACCOUNT_GET_ALL;
     try {
       List<UserAccount> users = jdbcTemplate.query(sql, new UserAccountRowMapper());
@@ -168,53 +153,10 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   private UserAccount translateDBRecordToUserAccount(Map<String, Object> entity) {
     UserAccount returnItem = new UserAccount();
 
-    /*if (entity.containsKey(COLUMN_USER_ACCOUNT_ID)
-        && (entity.get(COLUMN_USER_ACCOUNT_ID) instanceof Integer)) {
-      returnItem.setId((Integer) entity.get(COLUMN_USER_ACCOUNT_ID));
-    }
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_NAME)
-        && (entity.get(COLUMN_USER_ACCOUNT_NAME) instanceof String)) {
-      returnItem.setName((String) entity.get(COLUMN_USER_ACCOUNT_NAME));
-    }
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_PASSWORD)
-        && (entity.get(COLUMN_USER_ACCOUNT_PASSWORD) instanceof String)) {
-      returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
-    }
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_DISPLAY_NAME)
-        && (entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME) instanceof String)) {
-      returnItem.setDisplayName((String) entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
-    }
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_EMAIL)
-        && (entity.get(COLUMN_USER_ACCOUNT_EMAIL) instanceof String)) {
-      returnItem.setEmail((String) entity.get(COLUMN_USER_ACCOUNT_EMAIL));
-    }
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_STATUS)
-        && (entity.get(COLUMN_USER_ACCOUNT_STATUS) instanceof Integer)) {
-      returnItem.setStatus(
-          EUserAccountStatus.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_STATUS)));
-    }
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_ROLE)
-        && (entity.get(COLUMN_USER_ACCOUNT_ROLE) instanceof Integer)) {
-      returnItem.setRole(EUserRole.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_ROLE)));
-    }
-
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_CREATE_DATETIME)
-        && (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp)) {
-      java.sql.Timestamp timestamp =
-          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME);
-      returnItem.setCreateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
-    }
-
-    if (entity.containsKey(COLUMN_USER_ACCOUNT_UPDATE_DATETIME)
-        && (entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME) instanceof java.sql.Timestamp)) {
-      java.sql.Timestamp timestamp =
-          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME);
-      returnItem.setUpdateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
-    }*/
-
     returnItem.setId((Integer) entity.get(COLUMN_USER_ACCOUNT_ID));
     returnItem.setName((String) entity.get(COLUMN_USER_ACCOUNT_NAME));
-    returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
+    // Password is not set here as it's not returned from the database
+    // returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
     returnItem.setDisplayName((String) entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
     returnItem.setEmail((String) entity.get(COLUMN_USER_ACCOUNT_EMAIL));
     returnItem.setStatus(
@@ -249,31 +191,13 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   }
 
   private class UserAccountRowMapper implements RowMapper<UserAccount> {
-    /*@Override
-    public UserAccount mapRow(ResultSet rs, int rowNum) throws SQLException {
-      UserAccount user = new UserAccount();
-      user.setId(rs.getInt(COLUMN_USER_ACCOUNT_ID));
-      user.setName(rs.getString(COLUMN_USER_ACCOUNT_NAME));
-      user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
-      user.setDisplayName(rs.getString(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
-      user.setEmail(rs.getString(COLUMN_USER_ACCOUNT_EMAIL));
-      user.setStatus(EUserAccountStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));
-      user.setRole(EUserRole.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_ROLE)));
-      user.setCreateDateTime(
-          rs.getTimestamp(COLUMN_USER_ACCOUNT_CREATE_DATETIME)
-              .toInstant()
-              .atZone(ZoneId.systemDefault()));
-      user.setUpdateDateTime(
-          rs.getTimestamp(COLUMN_USER_ACCOUNT_UPDATE_DATETIME)
-              .toInstant()
-              .atZone(ZoneId.systemDefault()));
-      return user;*/
     @Override
     public UserAccount mapRow(ResultSet rs, int rowNum) throws SQLException {
       UserAccount user = new UserAccount();
       user.setId(rs.getInt(COLUMN_USER_ACCOUNT_ID));
       user.setName(rs.getString(COLUMN_USER_ACCOUNT_NAME));
-      user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
+      // Password is not set here as it's not returned from the database
+      // user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
       user.setDisplayName(rs.getString(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
       user.setEmail(rs.getString(COLUMN_USER_ACCOUNT_EMAIL));
       user.setStatus(EUserAccountStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));

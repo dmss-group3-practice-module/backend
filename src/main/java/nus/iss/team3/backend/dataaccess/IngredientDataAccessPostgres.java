@@ -1,4 +1,3 @@
-/* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
 import java.time.ZoneId;

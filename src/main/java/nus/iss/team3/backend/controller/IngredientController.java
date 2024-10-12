@@ -24,11 +24,11 @@ public class IngredientController {
   @Autowired private IIngredientService ingredientService;
 
   @PostMapping("/add")
-  public ResponseEntity addIngredient(@RequestBody Ingredient ingredient) {
+  public ResponseEntity<?> addIngredient(@RequestBody Ingredient ingredient) {
     try {
       if (ingredientService.addIngredient(ingredient)) {
         logger.info("Creation of Ingredient: {} completed", ingredient.getName());
-        return new ResponseEntity<>(ingredient, HttpStatus.CREATED);
+        return new ResponseEntity<>(true, HttpStatus.CREATED);
       }
       logger.info("Creation of Ingredient: {} failed", ingredient.getName());
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -42,11 +42,11 @@ public class IngredientController {
   }
 
   @PostMapping("/update")
-  public ResponseEntity<Ingredient> updateIngredient(@RequestBody Ingredient ingredient) {
+  public ResponseEntity<Boolean> updateIngredient(@RequestBody Ingredient ingredient) {
     try {
       if (ingredientService.updateIngredient(ingredient)) {
         logger.info("Update of Ingredient: {} completed", ingredient.getName());
-        return new ResponseEntity<>(ingredient, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
       }
       logger.info("Update of Ingredient: {} failed", ingredient.getName());
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -72,15 +72,15 @@ public class IngredientController {
   }
 
   @GetMapping("/get/{id}")
-  public ResponseEntity<Ingredient> getIngredient(@PathVariable int id) {
+  public ResponseEntity<?> getIngredient(@PathVariable int id) {
     try {
       Ingredient ingredient = ingredientService.getIngredientById(id);
       if (ingredient != null) {
         logger.info("Retrieved Ingredient: {}", id);
-        return new ResponseEntity(ingredient, HttpStatus.OK);
+        return new ResponseEntity<Ingredient>(ingredient, HttpStatus.OK);
       } else {
         logger.info("Ingredient not found: {}", id);
-        return new ResponseEntity(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     } catch (Exception e) {
       logger.error("Error getting ingredient", e);

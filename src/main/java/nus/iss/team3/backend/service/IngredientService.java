@@ -1,4 +1,3 @@
-/* (C)2024 */
 package nus.iss.team3.backend.service;
 
 import java.time.ZonedDateTime;
@@ -96,7 +95,7 @@ public class IngredientService implements IIngredientService {
    */
   private boolean validateIngredient(Ingredient ingredient) {
     return ingredient != null
-        && ingredient.getId() >= 0
+        && ingredient.getUserId() > 0
         && !StringUtilities.isStringNullOrBlank(ingredient.getName())
         && !StringUtilities.isStringNullOrBlank(ingredient.getUom())
         && !Double.isNaN(ingredient.getQuantity())

@@ -178,6 +178,11 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
       returnItem.setId((Integer) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID));
     }
 
+    if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ID)
+        && (entity.get(PostgresSqlStatement.COLUMN_USER_ID) instanceof Integer)) {
+      returnItem.setUserId((Integer) entity.get(PostgresSqlStatement.COLUMN_USER_ID));
+    }
+
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_NAME)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME) instanceof String)) {
       returnItem.setName((String) entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME));

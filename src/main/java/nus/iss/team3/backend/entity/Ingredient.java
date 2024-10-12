@@ -111,7 +111,7 @@ public class Ingredient {
         + "id='"
         + id
         + '\''
-        + "name='"
+        + ", name='"
         + name
         + '\''
         + ", quantity='"

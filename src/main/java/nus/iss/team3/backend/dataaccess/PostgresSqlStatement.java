@@ -214,6 +214,7 @@ public class PostgresSqlStatement {
   //////////////////////////////
   // Ingredient
   public static final String INPUT_INGREDIENT_ID = "id";
+  public static final String INPUT_INGREDIENT_USER_ACCOUNT_ID = "userId";
   public static final String INPUT_INGREDIENT_NAME = "name";
   public static final String INPUT_USER_ID = "userId";
   public static final String INPUT_INGREDIENT_UOM = "uom";
@@ -298,7 +299,7 @@ public class PostgresSqlStatement {
           + " AND "
           + COLUMN_USER_ID
           + " = :"
-          + INPUT_USER_ACCOUNT_ID
+          + INPUT_INGREDIENT_USER_ACCOUNT_ID
           + ";";
 
   public static final String SQL_INGREDIENT_GET_BY_ID =

@@ -24,35 +24,24 @@ public class IngredientService implements IIngredientService {
 
   @Override
   public boolean addIngredient(Ingredient ingredient) {
-    if (!validateIngredient(ingredient)) {
-      logger.info(
-          "addIngredient failed, due to validation failed for ingredient {}",
-          (ingredient == null ? "null object" : ingredient.getName()));
-      return false;
-    }
+    validateIngredient(ingredient, false);
 
-    ingredient.setCreateDateTime(ZonedDateTime.now());
-    ingredient.setUpdateDateTime(ZonedDateTime.now());
+    ZonedDateTime now = ZonedDateTime.now();
+    ingredient.setCreateDateTime(now);
+    ingredient.setUpdateDateTime(now);
 
     return ingredientDataAccess.addIngredient(ingredient);
   }
 
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
-    if (!validateIngredient(ingredient)) {
-      logger.info("validation for updateIngredient failed for ingredient");
-      return false;
-    }
-
-    if (ingredient.getId() < 0) {
-      logger.info("missing id for updateUser for ingredientId {}", ingredient.getId());
-      return false;
-    }
+    validateIngredient(ingredient, true);
+    System.out.println("ingredient: " + ingredient);
 
     Ingredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getId());
+    System.out.println("existingIngredient: " + existingIngredient);
     if (existingIngredient == null) {
-      logger.info("missing ingredient for updateUser for ingredientId {}", ingredient.getId());
-      return false;
+      throw new IllegalArgumentException("Missing ingredient for updateUser {}");
     }
 
     ingredient.setUpdateDateTime(ZonedDateTime.now());
@@ -62,7 +51,7 @@ public class IngredientService implements IIngredientService {
   @Override
   public boolean deleteIngredientById(Integer id) {
     if (ingredientDataAccess.getIngredientById(id) == null) {
-      logger.info("deleteUser failed, due to missing account for {}", id);
+      logger.info("deleteIngredient failed, due to missing ingredient for {}", id);
       return false;
     }
     return ingredientDataAccess.deleteIngredientById(id);
@@ -88,12 +77,27 @@ public class IngredientService implements IIngredientService {
    *
    * @return whether boolean on whether ingredient is valid
    */
-  private boolean validateIngredient(Ingredient ingredient) {
-    return ingredient != null
-        && ingredient.getUserId() > 0
-        && !StringUtilities.isStringNullOrBlank(ingredient.getName())
-        && !StringUtilities.isStringNullOrBlank(ingredient.getUom())
-        && !Double.isNaN(ingredient.getQuantity())
-        && ingredient.getExpiryDate() != null;
+  private void validateIngredient(Ingredient ingredient, boolean isUpdate) {
+    if (ingredient == null) {
+      throw new IllegalArgumentException("Ingredient cannot be null");
+    }
+    if (ingredient.getUserId() <= 0) {
+      throw new IllegalArgumentException("Ingredient userId must be valid");
+    }
+    if (isUpdate && ingredient.getId() <= 0) {
+      throw new IllegalArgumentException("Ingredient id must be valid");
+    }
+    if (StringUtilities.isStringNullOrBlank(ingredient.getName())) {
+      throw new IllegalArgumentException("Ingredient name cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(ingredient.getUom())) {
+      throw new IllegalArgumentException("Ingredient uom cannot be empty or blank");
+    }
+    if (ingredient.getQuantity() <= 0) {
+      throw new IllegalArgumentException("Ingredient quantity must be greater than 0");
+    }
+    if (ingredient.getExpiryDate() == null) {
+      throw new IllegalArgumentException("Ingredient expiry date cannot be null");
+    }
   }
 }

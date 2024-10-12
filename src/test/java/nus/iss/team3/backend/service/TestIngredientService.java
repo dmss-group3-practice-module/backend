@@ -26,41 +26,49 @@ public class TestIngredientService {
   @Test
   public void addIngredient() {
     // null ingredient
-    assertFalse(ingredientService.addIngredient(null));
+    assertThrows(IllegalArgumentException.class, () -> ingredientService.addIngredient(null));
 
     // null/empty name
     Ingredient inputIngredient = new Ingredient();
 
     inputIngredient.setName(null);
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
 
     inputIngredient.setName("");
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
 
     // valid ingredient name, null/empty uom
     inputIngredient.setName("apple");
     inputIngredient.setUom("");
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
     inputIngredient.setUom(null);
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
 
     // valid ingredient name and uom, missing/invalid quantity
     inputIngredient.setUom("kg");
     inputIngredient.setQuantity(-1.0);
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
     inputIngredient.setQuantity(0.0);
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
 
     // valid ingredient name, uom and quantity, missing expiryDate
     inputIngredient.setQuantity(1.5);
     inputIngredient.setExpiryDate(null);
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
 
     // valid ingredient with name, uom, quantity and expiryDate, missing userId
     LocalDate localDate = LocalDate.of(2024, 10, 10);
     Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     inputIngredient.setExpiryDate(date);
-    assertFalse(ingredientService.addIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.addIngredient(inputIngredient));
 
     // valid ingredient with name, uom, quantity, expiryDate and userId
     inputIngredient.setUserId(1);
@@ -99,10 +107,10 @@ public class TestIngredientService {
 
   @Test
   public void updateIngredient() {
-    Ingredient nullIngredient = null;
-    assertFalse(ingredientService.updateIngredient(nullIngredient));
+    // cannot update null ingredient
+    assertThrows(IllegalArgumentException.class, () -> ingredientService.updateIngredient(null));
 
-    // missing id
+    // missing ingredient id
     Ingredient inputIngredient = new Ingredient();
     inputIngredient.setName("apple");
     inputIngredient.setQuantity(1.0);
@@ -111,14 +119,16 @@ public class TestIngredientService {
     LocalDate localDate = LocalDate.of(2024, 10, 10);
     Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     inputIngredient.setExpiryDate(date);
-    assertFalse(ingredientService.updateIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.updateIngredient(inputIngredient));
 
     // set id to have a valid ingredient
     inputIngredient.setId(1);
 
     // update a non-existing ingredient
     when(ingredientDataAccess.getIngredientById(1)).thenReturn(null);
-    assertFalse(ingredientService.updateIngredient(inputIngredient));
+    assertThrows(
+        IllegalArgumentException.class, () -> ingredientService.updateIngredient(inputIngredient));
 
     // update a valid ingredient
     when(ingredientDataAccess.getIngredientById(1)).thenReturn(inputIngredient);

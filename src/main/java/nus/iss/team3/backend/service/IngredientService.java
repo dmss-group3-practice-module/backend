@@ -36,10 +36,7 @@ public class IngredientService implements IIngredientService {
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
     validateIngredient(ingredient, true);
-    System.out.println("ingredient: " + ingredient);
-
     Ingredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getId());
-    System.out.println("existingIngredient: " + existingIngredient);
     if (existingIngredient == null) {
       throw new IllegalArgumentException("Missing ingredient for updateUser {}");
     }

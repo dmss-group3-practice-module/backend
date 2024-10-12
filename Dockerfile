@@ -19,7 +19,7 @@ RUN chmod +x gradlew
 RUN ./gradlew bootJar
 
 # Use a smaller base image for the final stage to run the application
-FROM eclipse-temurin:22-jre-jammy
+FROM --platform=linux/amd64 eclipse-temurin:22-jre-jammy
 
 # Set the working directory inside the container
 WORKDIR /app

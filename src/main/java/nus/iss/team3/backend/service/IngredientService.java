@@ -40,7 +40,7 @@ public class IngredientService implements IIngredientService {
   @Override
   public boolean updateIngredient(Ingredient ingredient) {
     if (!validateIngredient(ingredient)) {
-      logger.info("validation for updateIngredient failed for ingredient {}", ingredient.getName());
+      logger.info("validation for updateIngredient failed for ingredient");
       return false;
     }
 

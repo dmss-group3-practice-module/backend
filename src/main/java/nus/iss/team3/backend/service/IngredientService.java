@@ -31,11 +31,6 @@ public class IngredientService implements IIngredientService {
       return false;
     }
 
-    if (ingredientDataAccess.getIngredientById(ingredient.getId()) != null) {
-      logger.info("addIngredient failed, due to existing ingredient for Id {}", ingredient.getId());
-      return false;
-    }
-
     ingredient.setCreateDateTime(ZonedDateTime.now());
     ingredient.setUpdateDateTime(ZonedDateTime.now());
 

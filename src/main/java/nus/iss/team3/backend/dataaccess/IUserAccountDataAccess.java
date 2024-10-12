@@ -12,15 +12,17 @@ import nus.iss.team3.backend.entity.UserAccount;
  */
 public interface IUserAccountDataAccess {
 
-  public boolean addUser(UserAccount userAccount);
+  boolean addUser(UserAccount userAccount);
 
-  public boolean updateUser(UserAccount userAccount);
+  boolean updateUser(UserAccount userAccount);
 
-  public boolean deleteUserById(String userId);
+  boolean deleteUserById(Integer id);
 
-  public UserAccount getUserById(String userId);
+  UserAccount getUserById(Integer id);
 
-  public UserAccount getUserByEmail(String email);
+  UserAccount getUserByName(String name);
 
-  public List<UserAccount> getAllUsers();
+  UserAccount getUserByEmail(String email);
+
+  List<UserAccount> getAllUsers();
 }

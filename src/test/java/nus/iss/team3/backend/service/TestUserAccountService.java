@@ -5,7 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.List;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
+import nus.iss.team3.backend.entity.EUserAccountStatus;
+import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,147 +25,239 @@ public class TestUserAccountService {
   @Mock private IUserAccountDataAccess userAccountDataAccess;
 
   @Test
+  public void addUser_validAccount_success() {
+    UserAccount inputUserAccount = createValidUserAccount();
+
+    when(userAccountDataAccess.getUserByName(anyString())).thenReturn(null);
+    when(userAccountDataAccess.getUserByEmail(anyString())).thenReturn(null);
+    when(userAccountDataAccess.addUser(any())).thenReturn(true);
+
+    assertTrue(userAccountService.addUser(inputUserAccount));
+  }
+
+  @Test
   public void addUser_nullAccount() {
-    {
-      UserAccount inputUserAccount = null;
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+    UserAccount inputUserAccount = null;
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_nullUsername() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName(null);
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+  public void addUser_duplicateUsername_failure() {
+    UserAccount inputUserAccount = createValidUserAccount();
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
+    UserAccount existingUser = new UserAccount();
+    existingUser.setId(1); // Set a non-null ID
+    when(userAccountDataAccess.getUserByName(anyString())).thenReturn(existingUser);
+    when(userAccountDataAccess.getUserByEmail(anyString())).thenReturn(null);
 
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_emptyUsername() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName("");
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+  public void addUser_duplicateEmail_failure() {
+    UserAccount inputUserAccount = createValidUserAccount();
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
+    UserAccount existingUser = new UserAccount();
+    existingUser.setId(1); // Set a non-null ID
+    when(userAccountDataAccess.getUserByName(anyString())).thenReturn(null);
+    when(userAccountDataAccess.getUserByEmail(anyString())).thenReturn(existingUser);
 
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertFalse(userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_validUsername_nullPassword() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName("valid");
-      inputUserAccount.setPassword(null);
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+  public void addUser_validAccount_nullName() {
+    UserAccount inputUserAccount = new UserAccount();
+    inputUserAccount.setName(null);
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_validUsername_emptyPassword() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName("valid");
-      inputUserAccount.setPassword("");
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+  public void addUser_validAccount_emptyName() {
+    UserAccount inputUserAccount = new UserAccount();
+    inputUserAccount.setName("");
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_validUsername_validPassword_nullEmail() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName("valid");
-      inputUserAccount.setPassword("valid");
-      inputUserAccount.setEmail(null);
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+  public void addUser_validAccount_validName_nullPassword() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setPassword(null);
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_validUsername_validPassword_emptyEmail() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName("valid");
-      inputUserAccount.setPassword("valid");
-      inputUserAccount.setEmail("");
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = false;
+  public void addUser_validAccount_validName_emptyPassword() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setPassword("");
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_validUsername_validPassword_validEmail_nullAccount() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserId("valid");
-      inputUserAccount.setUserName("valid");
-      inputUserAccount.setPassword("valid");
-      inputUserAccount.setEmail("valid");
-      UserAccount dbUserAccount = null;
-      boolean addUserResult = true;
+  public void addUser_validAccount_validName_validPassword_nullEmail() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setEmail(null);
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
-
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
   }
 
   @Test
-  public void addUser_validAccount_validUsername_validPassword_validEmail_validAccount() {
-    {
-      UserAccount inputUserAccount = new UserAccount();
-      inputUserAccount.setUserName("valid");
-      inputUserAccount.setPassword("valid");
-      inputUserAccount.setEmail("valid");
-      UserAccount dbUserAccount = new UserAccount();
-      boolean addUserResult = false;
+  public void addUser_validAccount_validName_validPassword_emptyEmail() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setEmail("");
 
-      when(userAccountDataAccess.getUserById(anyString())).thenReturn(dbUserAccount);
-      when(userAccountDataAccess.addUser(any())).thenReturn(addUserResult);
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+  }
 
-      assertEquals(addUserResult, userAccountService.addUser(inputUserAccount));
-    }
+  @Test
+  public void updateUser_validAccount_success() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setId(1);
+
+    when(userAccountDataAccess.getUserById(1)).thenReturn(inputUserAccount);
+    when(userAccountDataAccess.getUserByName(anyString())).thenReturn(null);
+    when(userAccountDataAccess.getUserByEmail(anyString())).thenReturn(null);
+    when(userAccountDataAccess.updateUser(any())).thenReturn(true);
+
+    assertTrue(userAccountService.updateUser(inputUserAccount));
+  }
+
+  @Test
+  public void updateUser_nullAccount() {
+    UserAccount inputUserAccount = null;
+
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.updateUser(inputUserAccount));
+  }
+
+  @Test
+  public void updateUser_missingId() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setId(null);
+
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.updateUser(inputUserAccount));
+  }
+
+  @Test
+  public void updateUser_nonExistingAccount() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setId(1);
+
+    when(userAccountDataAccess.getUserById(1)).thenReturn(null);
+
+    assertFalse(userAccountService.updateUser(inputUserAccount));
+  }
+
+  @Test
+  public void updateUser_duplicateUsername_failure() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setId(1);
+
+    UserAccount existingUser = new UserAccount();
+    existingUser.setId(2);
+
+    when(userAccountDataAccess.getUserById(1)).thenReturn(inputUserAccount);
+    when(userAccountDataAccess.getUserByName(anyString())).thenReturn(existingUser);
+
+    assertFalse(userAccountService.updateUser(inputUserAccount));
+  }
+
+  @Test
+  public void updateUser_duplicateEmail_failure() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setId(1);
+
+    UserAccount existingUser = new UserAccount();
+    existingUser.setId(2);
+
+    when(userAccountDataAccess.getUserByEmail("valid@example.com")).thenReturn(inputUserAccount);
+    when(userAccountDataAccess.getUserByEmail(anyString())).thenReturn(existingUser);
+
+    assertFalse(userAccountService.updateUser(inputUserAccount));
+  }
+
+  @Test
+  public void deleteUserById_nonExistingUser() {
+    Integer userId = 1;
+    when(userAccountDataAccess.getUserById(userId)).thenReturn(null);
+
+    assertFalse(userAccountService.deleteUserById(userId));
+  }
+
+  @Test
+  public void deleteUserById_success() {
+    Integer userId = 1;
+
+    UserAccount existingAccount = new UserAccount();
+    existingAccount.setId(userId);
+
+    when(userAccountDataAccess.getUserById(userId)).thenReturn(existingAccount);
+    when(userAccountDataAccess.deleteUserById(userId)).thenReturn(true);
+
+    assertTrue(userAccountService.deleteUserById(userId));
+  }
+
+  @Test
+  public void getUserById_nonExistingUser() {
+    Integer userId = 1;
+    when(userAccountDataAccess.getUserById(userId)).thenReturn(null);
+
+    assertNull(userAccountService.getUserById(userId));
+  }
+
+  @Test
+  public void getUserById_existingUser() {
+    Integer userId = 1;
+    UserAccount existingAccount = new UserAccount();
+    existingAccount.setId(userId);
+
+    when(userAccountDataAccess.getUserById(userId)).thenReturn(existingAccount);
+
+    assertEquals(existingAccount, userAccountService.getUserById(userId));
+  }
+
+  @Test
+  public void getAllUser_emptyList() {
+    when(userAccountDataAccess.getAllUsers()).thenReturn(Arrays.asList());
+
+    List<UserAccount> result = userAccountService.getAllUsers();
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void getAllUser_success() {
+    UserAccount user1 = new UserAccount();
+    UserAccount user2 = new UserAccount();
+    List<UserAccount> userList = Arrays.asList(user1, user2);
+
+    when(userAccountDataAccess.getAllUsers()).thenReturn(userList);
+
+    List<UserAccount> result = userAccountService.getAllUsers();
+    assertEquals(2, result.size());
+    assertEquals(userList, result);
+  }
+
+  private UserAccount createValidUserAccount() {
+    UserAccount userAccount = new UserAccount();
+    userAccount.setName("valid");
+    userAccount.setPassword("valid");
+    userAccount.setDisplayName("Valid User");
+    userAccount.setEmail("valid@example.com");
+    userAccount.setStatus(EUserAccountStatus.ACTIVE);
+    userAccount.setRole(EUserRole.USER);
+    return userAccount;
   }
 }

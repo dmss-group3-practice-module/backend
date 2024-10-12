@@ -36,6 +36,10 @@ logging:
       iss:
         team3:
           backend: DEBUG
+    org:
+      springframework:
+        web: DEBUG
+      hibernate: ERROR
 ---
 ##############################
 ### individual environment setup

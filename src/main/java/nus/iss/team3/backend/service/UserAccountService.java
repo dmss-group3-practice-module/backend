@@ -1,6 +1,7 @@
 /* (C)2024 */
 package nus.iss.team3.backend.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.UserAccount;
@@ -24,82 +25,137 @@ public class UserAccountService implements IUserAccountService {
 
   @Override
   public boolean addUser(UserAccount userAccount) {
-    if (validateUserAccount(userAccount)) {
-      logger.info(
-          "addUser failed, due to validation failed for account {}",
-          (userAccount == null ? "null object" : userAccount.getUserName()));
-      return false;
+    try {
+      validateUserAccount(userAccount, false);
+      if (!isUserNameAndEmailAvailable(userAccount, null)) {
+        logger.warn("Username or email already exists for: {}", userAccount.getName());
+        return false;
+      }
+      userAccount.setCreateDateTime(ZonedDateTime.now());
+      userAccount.setUpdateDateTime(ZonedDateTime.now());
+      boolean result = userAccountDataAccess.addUser(userAccount);
+      if (result) {
+        logger.info("User account created successfully for: {}", userAccount.getName());
+      } else {
+        logger.error("Failed to create user account for: {}", userAccount.getName());
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger.error("Failed to add user: {}", e.getMessage());
+      throw e;
     }
-    if (userAccountDataAccess.getUserById(userAccount.getUserId()) != null) {
-      logger.info("addUser failed, due to existing account for Id {}", userAccount.getUserName());
-      return false;
-    }
-    if (userAccountDataAccess.getUserByEmail(userAccount.getEmail()) != null) {
-      logger.info(
-          "addUser failed, due to existing account for Email: {}", userAccount.getUserName());
-      return false;
-    }
-
-    return userAccountDataAccess.addUser(userAccount);
   }
 
   @Override
   public boolean updateUser(UserAccount userAccount) {
-    if (validateUserAccount(userAccount)) {
-      logger.info(
-          "updateUser failed, due to validation failed for account {}",
-          (userAccount == null ? "null object" : userAccount.getUserId()));
-      return false;
+    try {
+      validateUserAccount(userAccount, true);
+      if (userAccount.getId() == null) {
+        throw new IllegalArgumentException("updateUser failed, due to missing Id for account");
+      }
+      UserAccount existingAccount = userAccountDataAccess.getUserById(userAccount.getId());
+      if (existingAccount == null) {
+        logger.warn("User not found for update: {}", userAccount.getId());
+        return false;
+      }
+      if (!isUserNameAndEmailAvailable(userAccount, userAccount.getId())) {
+        return false;
+      }
+      // Only update password if a new one is provided
+      if (!StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
+        userAccount.setPassword(userAccount.getPassword());
+      } else {
+        userAccount.setPassword(existingAccount.getPassword());
+      }
+      boolean result = userAccountDataAccess.updateUser(userAccount);
+      if (result) {
+        logger.info("User account updated successfully for ID: {}", userAccount.getId());
+      } else {
+        logger.error("Failed to update user account for ID: {}", userAccount.getId());
+      }
+      return result;
+    } catch (IllegalArgumentException e) {
+      logger.error("Failed to update user: {}", e.getMessage());
+      throw e;
     }
-    if (StringUtilities.isStringNullOrBlank(userAccount.getUserId())) {
-      logger.info("updateUser failed, due to missing Id account for {}", userAccount.getUserId());
-      return false;
-    }
-    UserAccount otherAccount = userAccountDataAccess.getUserById(userAccount.getUserId());
-    if (otherAccount == null) {
-      logger.info("updateUser failed, due to missing account for {}", userAccount.getUserId());
-      return false;
-    }
-    otherAccount = userAccountDataAccess.getUserByEmail(userAccount.getEmail());
-    if (otherAccount != null && !otherAccount.getUserId().equals(userAccount.getUserId())) {
-      logger.info(
-          "updateUser failed, due to existing account for Email: {}", userAccount.getUserName());
-      return false;
-    }
-    return userAccountDataAccess.updateUser(userAccount);
   }
 
   @Override
-  public boolean deleteUserById(String userId) {
-    if (userAccountDataAccess.getUserById(userId) == null) {
-      logger.info("updateUser failed, due to missing account for {}", userId);
-      return false;
+  public boolean deleteUserById(Integer id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
     }
-    return userAccountDataAccess.deleteUserById(userId);
+    boolean result = userAccountDataAccess.deleteUserById(id);
+    if (result) {
+      logger.info("User account deleted successfully for ID: {}", id);
+    } else {
+      logger.warn("Failed to delete user account for ID: {}", id);
+    }
+    return result;
   }
 
   @Override
-  public UserAccount getUserById(String userId) {
-
-    logger.info("looking for {}", userId);
-    return userAccountDataAccess.getUserById(userId);
+  public UserAccount getUserById(Integer id) {
+    if (id == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
+    UserAccount user = userAccountDataAccess.getUserById(id);
+    if (user == null) {
+      logger.warn("User not found for ID: {}", id);
+    }
+    return user;
   }
 
   @Override
-  public List<UserAccount> getAllUser() {
+  public List<UserAccount> getAllUsers() {
     return userAccountDataAccess.getAllUsers();
   }
 
-  /**
-   * Check whether the input useraccount contians value for it to be accepted
-   *
-   * @return whether the string is null or blank.
-   */
-  private boolean validateUserAccount(UserAccount userAccount) {
-    return userAccount == null
-        || StringUtilities.isStringNullOrBlank(userAccount.getUserId())
-        || StringUtilities.isStringNullOrBlank(userAccount.getUserName())
-        || StringUtilities.isStringNullOrBlank(userAccount.getPassword())
-        || StringUtilities.isStringNullOrBlank(userAccount.getEmail());
+  private boolean isUserNameAndEmailAvailable(UserAccount userAccount, Integer currentUserId) {
+    UserAccount existingUserWithName = userAccountDataAccess.getUserByName(userAccount.getName());
+    if (existingUserWithName != null && !existingUserWithName.getId().equals(currentUserId)) {
+      logger.warn("Username already exists: {}", userAccount.getName());
+      return false;
+    }
+    UserAccount existingUserWithEmail =
+        userAccountDataAccess.getUserByEmail(userAccount.getEmail());
+    if (existingUserWithEmail != null && !existingUserWithEmail.getId().equals(currentUserId)) {
+      logger.warn("Email already exists: {}", userAccount.getEmail());
+      return false;
+    }
+    return true;
+  }
+
+  private void validateUserAccount(UserAccount userAccount, boolean isUpdate) {
+    if (userAccount == null) {
+      throw new IllegalArgumentException("User account cannot be null");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getName())) {
+      throw new IllegalArgumentException("Username cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
+      throw new IllegalArgumentException("Password cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getDisplayName())) {
+      throw new IllegalArgumentException("Display name cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(userAccount.getEmail())) {
+      throw new IllegalArgumentException("Email cannot be empty or blank");
+    } else if (!isValidEmail(userAccount.getEmail())) {
+      throw new IllegalArgumentException("Invalid email format");
+    }
+    if (userAccount.getStatus() == null) {
+      throw new IllegalArgumentException("User status cannot be null");
+    }
+    if (userAccount.getRole() == null) {
+      throw new IllegalArgumentException("User role cannot be null");
+    }
+  }
+
+  private boolean isValidEmail(String email) {
+    // a regex for email validation
+    String emailRegex =
+        "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    return email.matches(emailRegex);
   }
 }

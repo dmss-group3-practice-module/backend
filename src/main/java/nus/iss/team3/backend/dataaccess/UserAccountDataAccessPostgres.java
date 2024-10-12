@@ -1,20 +1,29 @@
 /* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
-import java.util.ArrayList;
+import static nus.iss.team3.backend.dataaccess.PostgresSqlStatement.*;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.ZoneId;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.IPostgresDataAccess;
 import nus.iss.team3.backend.entity.EUserAccountStatus;
+import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 /**
- * Repository class to connect to postgres for useraccount Data
+ * Repository class to connect to postgres for user account Data
  *
  * @author Desmond Tan Zhi Heng
  */
@@ -25,6 +34,8 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
 
   @Autowired IPostgresDataAccess postgresDataAccess;
 
+  @Autowired private JdbcTemplate jdbcTemplate;
+
   /**
    * @param userAccount user account to be added
    * @return whether adding the account was successful or not
@@ -32,21 +43,34 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   @Override
   public boolean addUser(UserAccount userAccount) {
 
-    Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, userAccount.getUserId());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_NAME, userAccount.getUserName());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_PASSWORD, userAccount.getPassword());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_EMAIL, userAccount.getEmail());
+    Map<String, Object> sqlInput = createUserAccountMap(userAccount);
 
-    // insert ok if returned 1, any other values means insert failed!
-    int rowUpdated =
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_USER_ACCOUNT_ADD, sqlInput);
-    if (rowUpdated == 1) {
-      logger.debug("account created for {}", userAccount.getUserId());
-      return true;
+    try {
+      int rowUpdated = postgresDataAccess.upsertStatement(SQL_USER_ACCOUNT_ADD, sqlInput);
+      return rowUpdated == 1;
+    } catch (DataAccessException e) {
+      logger.error("Error adding user: {}", userAccount.getName(), e);
+      return false;
     }
-    logger.debug("account creation for {} failed", userAccount.getUserId());
-    return false;
+  }
+
+  /**
+   * @param id userId of account to be deleted
+   * @return whether the deletion of the account was successful
+   */
+  @Override
+  public boolean deleteUserById(Integer id) {
+
+    Map<String, Object> sqlInput = new HashMap<>();
+    sqlInput.put(INPUT_USER_ACCOUNT_ID, id);
+
+    try {
+      int rowUpdated = postgresDataAccess.upsertStatement(SQL_USER_ACCOUNT_DELETE, sqlInput);
+      return rowUpdated == 1;
+    } catch (DataAccessException e) {
+      logger.error("Error deleting user with ID: {}", id, e);
+      return false;
+    }
   }
 
   /**
@@ -56,108 +80,58 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   @Override
   public boolean updateUser(UserAccount userAccount) {
 
-    Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, userAccount.getUserId());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_NAME, userAccount.getUserName());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_PASSWORD, userAccount.getPassword());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_EMAIL, userAccount.getEmail());
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_STATUS, userAccount.getStatus().code);
+    Map<String, Object> sqlInput = createUserAccountMap(userAccount);
+    sqlInput.put(INPUT_USER_ACCOUNT_ID, userAccount.getId());
 
-    // insert ok if returned 1, any other values means insert failed!
-    int rowUpdated =
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_USER_ACCOUNT_UPDATE, sqlInput);
-    if (rowUpdated == 1) {
-      logger.debug("account updated for {}", userAccount.getUserId());
-      return true;
-    }
-    if (rowUpdated == 0) {
-      logger.debug("account update for {} failed, no account found", userAccount.getUserId());
-      // no record for Id found
+    try {
+      int rowUpdated = postgresDataAccess.upsertStatement(SQL_USER_ACCOUNT_UPDATE, sqlInput);
+      return rowUpdated == 1;
+    } catch (DataAccessException e) {
+      logger.error("Error updating user: {}", userAccount.getName(), e);
       return false;
     }
-    if (rowUpdated > 1) {
-      logger.error(
-          "account update for {} happened but multi rows updated, please review",
-          userAccount.getUserId());
-    }
-
-    return false;
   }
 
-  /**
-   * @param userId userId of account to be deleted
-   * @return whether the deletion of the account was successful
-   */
   @Override
-  public boolean deleteUserById(String userId) {
-
-    Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, userId);
-
-    // insert ok if returned 1, any other values means insert failed!
-    int rowUpdated =
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_USER_ACCOUNT_DELETE, sqlInput);
-    if (rowUpdated == 1) {
-      logger.debug("account deleted for {}", userId);
-      return true;
+  public UserAccount getUserById(Integer id) {
+    try {
+      Map<String, Object> sqlInput = new HashMap<>();
+      sqlInput.put(INPUT_USER_ACCOUNT_ID, id);
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(SQL_USER_ACCOUNT_GET_BY_ID, sqlInput);
+      return result.isEmpty() ? null : translateDBRecordToUserAccount(result.get(0));
+    } catch (DataAccessException e) {
+      logger.error("Error getting user by ID: {}", id, e);
+      return null;
     }
-    if (rowUpdated == 0) {
-      logger.debug("account delete for {} failed, no account found", userId);
-      // no record for Id found
-    }
-    if (rowUpdated > 1) {
-      logger.error(
-          "account delete for {} happened but multi rows was deleted, please review", userId);
-    }
-    return false;
   }
 
-  /**
-   * @param userId userId of account to be retrieved
-   * @return the content of the account that was retrieved
-   */
   @Override
-  public UserAccount getUserById(String userId) {
-    Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, userId);
-
-    // insert ok if returned 1, any other values means insert failed!
-    List<Map<String, Object>> entityReturned =
-        postgresDataAccess.queryStatement(
-            PostgresSqlStatement.SQL_USER_ACCOUNT_GET_BY_ID, sqlInput);
-
-    if (entityReturned.size() == 1) {
-
-      return translateDBRecordToUserAccount(entityReturned.getFirst());
+  public UserAccount getUserByName(String name) {
+    try {
+      Map<String, Object> sqlInput = new HashMap<>();
+      sqlInput.put(INPUT_USER_ACCOUNT_NAME, name);
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(SQL_USER_ACCOUNT_GET_BY_NAME, sqlInput);
+      return result.isEmpty() ? null : translateDBRecordToUserAccount(result.get(0));
+    } catch (DataAccessException e) {
+      logger.error("Error getting user by name: {}", name, e);
+      return null;
     }
-    if (entityReturned.size() > 1) {
-      logger.error("Multiple record found for {}, please review", userId);
-    }
-    return null;
   }
 
-  /**
-   * @param email
-   * @return
-   */
   @Override
   public UserAccount getUserByEmail(String email) {
-    Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_EMAIL, email);
-
-    // insert ok if returned 1, any other values means insert failed!
-    List<Map<String, Object>> entityReturned =
-        postgresDataAccess.queryStatement(
-            PostgresSqlStatement.SQL_USER_ACCOUNT_GET_BY_EMAIL, sqlInput);
-
-    if (entityReturned.size() == 1) {
-
-      return translateDBRecordToUserAccount(entityReturned.getFirst());
+    try {
+      Map<String, Object> sqlInput = new HashMap<>();
+      sqlInput.put(INPUT_USER_ACCOUNT_EMAIL, email);
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(SQL_USER_ACCOUNT_GET_BY_EMAIL, sqlInput);
+      return result.isEmpty() ? null : translateDBRecordToUserAccount(result.get(0));
+    } catch (DataAccessException e) {
+      logger.error("Error getting user by email: {}", email, e);
+      return null;
     }
-    if (entityReturned.size() > 1) {
-      logger.error("Multiple record found with same email {}, please review", email);
-    }
-    return null;
   }
 
   /**
@@ -165,47 +139,78 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
    */
   @Override
   public List<UserAccount> getAllUsers() {
-    List<Map<String, Object>> entityReturned =
-        postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_USER_ACCOUNT_GET_ALL, null);
-
-    if (entityReturned == null) {
-      logger.error("Error retriving user account from database.");
+    String sql = SQL_USER_ACCOUNT_GET_ALL;
+    try {
+      List<UserAccount> users = jdbcTemplate.query(sql, new UserAccountRowMapper());
+      logger.info("Found {} users", users.size());
+      return users;
+    } catch (DataAccessException e) {
+      logger.error("Error getting all users", e);
+      return Collections.emptyList();
     }
-    List<UserAccount> returnList = new ArrayList<>();
-    for (Map<String, Object> entity : entityReturned) {
-
-      returnList.add(translateDBRecordToUserAccount(entity));
-    }
-    return returnList;
   }
 
-  // private functions
   private UserAccount translateDBRecordToUserAccount(Map<String, Object> entity) {
     UserAccount returnItem = new UserAccount();
 
-    if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ACCOUNT_ID)
-        && (entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_ID) instanceof String)) {
-      returnItem.setUserId((String) entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_ID));
+    returnItem.setId((Integer) entity.get(COLUMN_USER_ACCOUNT_ID));
+    returnItem.setName((String) entity.get(COLUMN_USER_ACCOUNT_NAME));
+    // Password is not set here as it's not returned from the database
+    // returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
+    returnItem.setDisplayName((String) entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
+    returnItem.setEmail((String) entity.get(COLUMN_USER_ACCOUNT_EMAIL));
+    returnItem.setStatus(
+        EUserAccountStatus.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_STATUS)));
+    returnItem.setRole(EUserRole.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_ROLE)));
+
+    if (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp) {
+      java.sql.Timestamp timestamp =
+          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME);
+      returnItem.setCreateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
-    if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME)
-        && (entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME) instanceof String)) {
-      returnItem.setUserName((String) entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME));
+
+    if (entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME) instanceof java.sql.Timestamp) {
+      java.sql.Timestamp timestamp =
+          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME);
+      returnItem.setUpdateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
-    if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ACCOUNT_PASSWORD)
-        && (entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_PASSWORD) instanceof String)) {
-      returnItem.setPassword(
-          (String) entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_PASSWORD));
-    }
-    if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ACCOUNT_EMAIL)
-        && (entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_EMAIL) instanceof String)) {
-      returnItem.setEmail((String) entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_EMAIL));
-    }
-    if (entity.containsKey(PostgresSqlStatement.COLUMN_USER_ACCOUNT_STATUS)
-        && (entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_STATUS) instanceof Integer)) {
-      returnItem.setStatus(
-          EUserAccountStatus.valueOfCode(
-              (Integer) entity.get(PostgresSqlStatement.COLUMN_USER_ACCOUNT_STATUS)));
-    }
+
     return returnItem;
+  }
+
+  private Map<String, Object> createUserAccountMap(UserAccount userAccount) {
+    Map<String, Object> sqlInput = new HashMap<>();
+    sqlInput.put(INPUT_USER_ACCOUNT_NAME, userAccount.getName());
+    sqlInput.put(
+        INPUT_USER_ACCOUNT_PASSWORD, userAccount.getPassword()); // Consider hashing password
+    sqlInput.put(INPUT_USER_ACCOUNT_DISPLAY_NAME, userAccount.getDisplayName());
+    sqlInput.put(INPUT_USER_ACCOUNT_EMAIL, userAccount.getEmail());
+    sqlInput.put(INPUT_USER_ACCOUNT_STATUS, userAccount.getStatus().getCode());
+    sqlInput.put(INPUT_USER_ACCOUNT_ROLE, userAccount.getRole().getCode());
+    return sqlInput;
+  }
+
+  private class UserAccountRowMapper implements RowMapper<UserAccount> {
+    @Override
+    public UserAccount mapRow(ResultSet rs, int rowNum) throws SQLException {
+      UserAccount user = new UserAccount();
+      user.setId(rs.getInt(COLUMN_USER_ACCOUNT_ID));
+      user.setName(rs.getString(COLUMN_USER_ACCOUNT_NAME));
+      // Password is not set here as it's not returned from the database
+      // user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
+      user.setDisplayName(rs.getString(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
+      user.setEmail(rs.getString(COLUMN_USER_ACCOUNT_EMAIL));
+      user.setStatus(EUserAccountStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));
+      user.setRole(EUserRole.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_ROLE)));
+      user.setCreateDateTime(
+          rs.getTimestamp(COLUMN_USER_ACCOUNT_CREATE_DATETIME)
+              .toInstant()
+              .atZone(ZoneId.systemDefault()));
+      user.setUpdateDateTime(
+          rs.getTimestamp(COLUMN_USER_ACCOUNT_UPDATE_DATETIME)
+              .toInstant()
+              .atZone(ZoneId.systemDefault()));
+      return user;
+    }
   }
 }

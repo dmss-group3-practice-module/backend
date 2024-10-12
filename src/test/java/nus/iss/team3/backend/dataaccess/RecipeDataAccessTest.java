@@ -1,11 +1,29 @@
 package nus.iss.team3.backend.dataaccess;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.Ingredient;
@@ -19,18 +37,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RecipeDataAccessTest {
 
-  @Mock private PostgresDataAccess postgresDataAccess;
-  @InjectMocks private RecipeDataAccess recipeDataAccess;
+  @Mock
+  private PostgresDataAccess postgresDataAccess;
+  @InjectMocks
+  private RecipeDataAccess recipeDataAccess;
 
-  /** 测试成功添加一个食谱 验证插入操作是否按预期执行，并检查相关的INSERT语句 */
+  /**
+   * 测试成功添加一个食谱 验证插入操作是否按预期执行，并检查相关的INSERT语句
+   */
   @Test
   void addRecipe_Success() {
     // Arrange: 创建一个样本食谱对象
     Recipe recipe = createSampleRecipe();
     Map<String, Object> insertResult = Map.of("id", 1L);
     // 模拟插入食谱返回生成的ID
-    when(postgresDataAccess.queryStatement(anyString(), anyMap()))
-        .thenReturn(Collections.singletonList(insertResult));
+    when(postgresDataAccess.queryStatement(anyString(), anyMap())).thenReturn(
+        Collections.singletonList(insertResult));
 
     // Act: 调用添加食谱的方法
     boolean result = recipeDataAccess.addRecipe(recipe);
@@ -45,41 +67,37 @@ class RecipeDataAccessTest {
     // 验证每个配料的INSERT语句被正确调用
     for (Ingredient ingredient : recipe.getIngredients()) {
       // argThat(params -> { ... }) 是一个参数匹配器，用于验证传递给 upsertStatement 方法的参数是否正确。
-      verify(postgresDataAccess, times(1))
-          .upsertStatement(
-              contains("INSERT INTO recipe_ingredients"),
-              argThat(
-                  params ->
-                      Objects.equals(params.get("recipe_id"), 1L)
-                          && Objects.equals(params.get("name"), ingredient.getName())
-                          && Objects.equals(params.get("quantity"), ingredient.getQuantity())
-                          && Objects.equals(params.get("uom"), ingredient.getUom())));
+      verify(postgresDataAccess, times(1)).upsertStatement(
+          contains("INSERT INTO recipe_ingredients"), argThat(
+              params -> Objects.equals(params.get("recipe_id"), 1L) && Objects.equals(
+                  params.get("name"), ingredient.getName()) && Objects.equals(
+                  params.get("quantity"), ingredient.getQuantity()) && Objects.equals(
+                  params.get("uom"), ingredient.getUom())));
     }
 
     // 验证每个烹饪步骤的INSERT语句被正确调用
     for (CookingStep step : recipe.getCookingSteps()) {
-      verify(postgresDataAccess, times(1))
-          .upsertStatement(
-              contains("INSERT INTO recipe_cooking_step"),
-              argThat(
-                  params ->
-                      Objects.equals(params.get("recipe_id"), 1L)
-                          && Objects.equals(params.get("description"), step.getDescription())
-                          && Objects.equals(params.get("image"), step.getImage())));
+      verify(postgresDataAccess, times(1)).upsertStatement(
+          contains("INSERT INTO recipe_cooking_step"), argThat(
+              params -> Objects.equals(params.get("recipe_id"), 1L) && Objects.equals(
+                  params.get("description"), step.getDescription()) && Objects.equals(
+                  params.get("image"), step.getImage())));
     }
 
     // 确认没有执行任何删除操作
     verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM"), anyMap());
   }
 
-  /** 测试添加食谱失败的情况，当插入食谱没有返回任何行时 验证方法应返回false，并且相关的INSERT语句不会被执行 */
+  /**
+   * 测试添加食谱失败的情况，当插入食谱没有返回任何行时 验证方法应返回false，并且相关的INSERT语句不会被执行
+   */
   @Test
   void addRecipe_Failure_InsertRecipe() {
     // Arrange: 创建一个样本食谱对象
     Recipe recipe = createSampleRecipe();
     // 模拟插入食谱没有返回任何结果
-    when(postgresDataAccess.queryStatement(anyString(), anyMap()))
-        .thenReturn(Collections.emptyList());
+    when(postgresDataAccess.queryStatement(anyString(), anyMap())).thenReturn(
+        Collections.emptyList());
 
     // Act: 调用添加食谱的方法
     boolean result = recipeDataAccess.addRecipe(recipe);
@@ -90,22 +108,23 @@ class RecipeDataAccessTest {
 
     // 验证只尝试了插入食谱，而没有插入配料或烹饪步骤
     verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_cooking_step"),
+        anyMap());
   }
 
-  /** 测试添加无效食谱时抛出异常 验证方法应抛出IllegalArgumentException，并且不会与PostgresDataAccess进行任何交互 */
+  /**
+   * 测试添加无效食谱时抛出异常 验证方法应抛出IllegalArgumentException，并且不会与PostgresDataAccess进行任何交互
+   */
   @Test
   void addRecipe_InvalidRecipe_ThrowsException() {
     // Arrange: 创建一个缺失必要字段的无效食谱对象
     Recipe invalidRecipe = new Recipe(); // Missing required fields
 
     // Act & Assert: 调用添加方法应抛出异常
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+    Exception exception = assertThrows(IllegalArgumentException.class,
+        () -> recipeDataAccess.addRecipe(invalidRecipe));
 
     // 验证异常消息是否正确
     assertEquals("Required fields for recipe cannot be null", exception.getMessage());
@@ -115,18 +134,20 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, never()).upsertStatement(anyString(), anyMap());
   }
 
-  /** 测试添加食谱时数据库抛出异常 验证方法应抛出相应的异常，并记录错误日志 */
+  /**
+   * 测试添加食谱时数据库抛出异常 验证方法应抛出相应的异常，并记录错误日志
+   */
   @Test
   void addRecipe_DatabaseException_ThrowsException() {
     // Arrange: 创建一个样本食谱对象
     Recipe recipe = createSampleRecipeWithMultipleIngredientsAndSteps();
     // 模拟插入食谱时抛出异常
-    when(postgresDataAccess.queryStatement(anyString(), anyMap()))
-        .thenThrow(new RuntimeException("Database insert error"));
+    when(postgresDataAccess.queryStatement(anyString(), anyMap())).thenThrow(
+        new RuntimeException("Database insert error"));
 
     // Act & Assert: 调用添加食谱的方法应抛出异常
-    RuntimeException exception =
-        assertThrows(RuntimeException.class, () -> recipeDataAccess.addRecipe(recipe));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> recipeDataAccess.addRecipe(recipe));
 
     // 验证异常消息是否正确
     assertEquals("Database insert error", exception.getMessage());
@@ -135,13 +156,15 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe"), anyMap());
 
     // 验证不会执行配料和步骤的插入
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_cooking_step"),
+        anyMap());
   }
 
-  /** 测试成功更新一个食谱 验证更新操作是否按预期执行，并检查相关的UPDATE和DELETE/INSERT语句 */
+  /**
+   * 测试成功更新一个食谱 验证更新操作是否按预期执行，并检查相关的UPDATE和DELETE/INSERT语句
+   */
   @Test
   void updateRecipe_Success() {
     // Arrange: 创建并设置食谱ID
@@ -160,40 +183,33 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, times(1)).upsertStatement(contains("UPDATE recipe"), anyMap());
 
     // 验证删除并重新插入配料的DELETE和INSERT语句被正确调用
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe_ingredients"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1)).upsertStatement(contains("DELETE FROM recipe_ingredients"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
     for (Ingredient ingredient : recipe.getIngredients()) {
-      verify(postgresDataAccess, times(1))
-          .upsertStatement(
-              contains("INSERT INTO recipe_ingredients"),
-              argThat(
-                  params ->
-                      Objects.equals(params.get("recipe_id"), 1L)
-                          && Objects.equals(params.get("name"), ingredient.getName())
-                          && Objects.equals(params.get("quantity"), ingredient.getQuantity())
-                          && Objects.equals(params.get("uom"), ingredient.getUom())));
+      verify(postgresDataAccess, times(1)).upsertStatement(
+          contains("INSERT INTO recipe_ingredients"), argThat(
+              params -> Objects.equals(params.get("recipe_id"), 1L) && Objects.equals(
+                  params.get("name"), ingredient.getName()) && Objects.equals(
+                  params.get("quantity"), ingredient.getQuantity()) && Objects.equals(
+                  params.get("uom"), ingredient.getUom())));
     }
 
     // 验证删除并重新插入烹饪步骤的DELETE和INSERT语句被正确调用
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe_cooking_step"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1)).upsertStatement(
+        contains("DELETE FROM recipe_cooking_step"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
     for (CookingStep step : recipe.getCookingSteps()) {
-      verify(postgresDataAccess, times(1))
-          .upsertStatement(
-              contains("INSERT INTO recipe_cooking_step"),
-              argThat(
-                  params ->
-                      Objects.equals(params.get("recipe_id"), 1L)
-                          && Objects.equals(params.get("description"), step.getDescription())
-                          && Objects.equals(params.get("image"), step.getImage())));
+      verify(postgresDataAccess, times(1)).upsertStatement(
+          contains("INSERT INTO recipe_cooking_step"), argThat(
+              params -> Objects.equals(params.get("recipe_id"), 1L) && Objects.equals(
+                  params.get("description"), step.getDescription()) && Objects.equals(
+                  params.get("image"), step.getImage())));
     }
   }
 
-  /** 测试更新食谱失败的情况，当UPDATE语句未影响任何行时 验证方法应返回false，并且不会执行删除或插入配料和烹饪步骤的操作 */
+  /**
+   * 测试更新食谱失败的情况，当UPDATE语句未影响任何行时 验证方法应返回false，并且不会执行删除或插入配料和烹饪步骤的操作
+   */
   @Test
   void updateRecipe_Failure_NoRowsUpdated() {
     // Arrange: 创建并设置食谱ID
@@ -210,26 +226,27 @@ class RecipeDataAccessTest {
 
     // 验证只尝试了更新食谱，而没有删除或插入配料和烹饪步骤
     verify(postgresDataAccess, times(1)).upsertStatement(contains("UPDATE recipe"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("DELETE FROM recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("DELETE FROM recipe_cooking_step"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM recipe_cooking_step"),
+        anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_cooking_step"),
+        anyMap());
   }
 
-  /** 测试更新无效食谱时抛出异常 验证方法应抛出IllegalArgumentException，并且不会与PostgresDataAccess进行任何交互 */
+  /**
+   * 测试更新无效食谱时抛出异常 验证方法应抛出IllegalArgumentException，并且不会与PostgresDataAccess进行任何交互
+   */
   @Test
   void updateRecipe_InvalidRecipe_ThrowsException() {
     // Arrange: 创建一个缺失必要字段的无效食谱对象
     Recipe invalidRecipe = new Recipe(); // Missing required fields
 
     // Act & Assert: 调用更新方法应抛出异常
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> recipeDataAccess.updateRecipe(invalidRecipe));
+    Exception exception = assertThrows(IllegalArgumentException.class,
+        () -> recipeDataAccess.updateRecipe(invalidRecipe));
 
     // 验证异常消息是否正确
     assertEquals("Required fields for recipe cannot be null", exception.getMessage());
@@ -238,19 +255,21 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, never()).upsertStatement(anyString(), anyMap());
   }
 
-  /** 测试更新食谱时数据库抛出异常 验证方法应抛出相应的异常，并记录错误日志 */
+  /**
+   * 测试更新食谱时数据库抛出异常 验证方法应抛出相应的异常，并记录错误日志
+   */
   @Test
   void updateRecipe_DatabaseException_ThrowsException() {
     // Arrange: 创建一个样本食谱对象
     Recipe recipe = createSampleRecipeWithMultipleIngredientsAndSteps();
     recipe.setId(1L);
     // 模拟更新食谱时抛出异常
-    when(postgresDataAccess.upsertStatement(anyString(), anyMap()))
-        .thenThrow(new RuntimeException("Database update error"));
+    when(postgresDataAccess.upsertStatement(anyString(), anyMap())).thenThrow(
+        new RuntimeException("Database update error"));
 
     // Act & Assert: 调用更新食谱的方法应抛出异常
-    RuntimeException exception =
-        assertThrows(RuntimeException.class, () -> recipeDataAccess.updateRecipe(recipe));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> recipeDataAccess.updateRecipe(recipe));
 
     // 验证异常消息是否正确
     assertEquals("Database update error", exception.getMessage());
@@ -258,13 +277,15 @@ class RecipeDataAccessTest {
     // 验证更新食谱的SQL语句被调用一次
     verify(postgresDataAccess, times(1)).upsertStatement(contains("UPDATE recipe SET"), anyMap());
     // 验证不会执行配料和步骤的更新
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(contains("INSERT INTO recipe_cooking_step"),
+        anyMap());
   }
 
-  /** 测试成功按ID删除食谱 验证删除操作是否按预期执行，并检查相关的DELETE语句 */
+  /**
+   * 测试成功按ID删除食谱 验证删除操作是否按预期执行，并检查相关的DELETE语句
+   */
   @Test
   void deleteRecipeById_Success() {
     // Arrange: 设置食谱ID
@@ -279,30 +300,27 @@ class RecipeDataAccessTest {
     assertTrue(result);
 
     // 验证删除配料的DELETE语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe_ingredients"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(contains("DELETE FROM recipe_ingredients"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
     // 验证删除烹饪步骤的DELETE语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe_cooking_step"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(
+        contains("DELETE FROM recipe_cooking_step"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
     // 验证删除食谱的DELETE语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe"),
-            argThat(params -> Objects.equals(params.get("id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(contains("DELETE FROM recipe"),
+        argThat(params -> Objects.equals(params.get("id"), recipeId)));
   }
 
-  /** 测试按ID删除食谱失败的情况，当DELETE语句未影响任何行时 验证方法应返回false，并且所有相关的DELETE语句被执行 */
+  /**
+   * 测试按ID删除食谱失败的情况，当DELETE语句未影响任何行时 验证方法应返回false，并且所有相关的DELETE语句被执行
+   */
   @Test
   void deleteRecipeById_Failure_NoRowsDeleted() {
     // Arrange: 设置食谱ID
     Long recipeId = 1L;
     // 模拟删除食谱返回0表示没有行被删除
-    when(postgresDataAccess.upsertStatement(contains("DELETE FROM recipe"), anyMap()))
-        .thenReturn(0);
+    when(postgresDataAccess.upsertStatement(contains("DELETE FROM recipe"), anyMap())).thenReturn(
+        0);
 
     // Act: 调用删除食谱的方法
     boolean result = recipeDataAccess.deleteRecipeById(recipeId);
@@ -311,21 +329,18 @@ class RecipeDataAccessTest {
     assertFalse(result);
 
     // 验证所有相关的DELETE语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe_ingredients"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe_cooking_step"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            contains("DELETE FROM recipe"),
-            argThat(params -> Objects.equals(params.get("id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(contains("DELETE FROM recipe_ingredients"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(
+        contains("DELETE FROM recipe_cooking_step"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(contains("DELETE FROM recipe"),
+        argThat(params -> Objects.equals(params.get("id"), recipeId)));
   }
 
-  /** 测试删除食谱时删除食谱步骤抛出异常 验证方法应抛出相应的异常，并记录错误日志 */
+  /**
+   * 测试删除食谱时删除食谱步骤抛出异常 验证方法应抛出相应的异常，并记录错误日志
+   */
   @Test
   void deleteRecipeById_DeleteRecipe_DatabaseException_ThrowsException() {
     // Arrange: 设置食谱ID
@@ -333,61 +348,56 @@ class RecipeDataAccessTest {
 
     // 模拟删除配料正常执行
     when(postgresDataAccess.upsertStatement(
-            eq("DELETE FROM recipe_ingredients WHERE recipe_id = :recipe_id"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId))))
-        .thenReturn(1);
+        eq("DELETE FROM recipe_ingredients WHERE recipe_id = :recipe_id"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)))).thenReturn(1);
 
     // 模拟删除烹饪步骤正常执行
     when(postgresDataAccess.upsertStatement(
-            eq("DELETE FROM recipe_cooking_step WHERE recipe_id = :recipe_id"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId))))
-        .thenReturn(1);
+        eq("DELETE FROM recipe_cooking_step WHERE recipe_id = :recipe_id"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)))).thenReturn(1);
 
     // 模拟删除食谱时抛出异常
-    when(postgresDataAccess.upsertStatement(
-            eq("DELETE FROM recipe WHERE id = :id"),
-            argThat(params -> Objects.equals(params.get("id"), recipeId))))
-        .thenThrow(new RuntimeException("Database error on deleting recipe"));
+    when(postgresDataAccess.upsertStatement(eq("DELETE FROM recipe WHERE id = :id"),
+        argThat(params -> Objects.equals(params.get("id"), recipeId)))).thenThrow(
+        new RuntimeException("Database error on deleting recipe"));
 
     // Act & Assert: 调用删除食谱的方法应抛出异常
-    RuntimeException exception =
-        assertThrows(RuntimeException.class, () -> recipeDataAccess.deleteRecipeById(recipeId));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> recipeDataAccess.deleteRecipeById(recipeId));
 
     // 验证异常消息是否正确
     assertEquals("Database error on deleting recipe", exception.getMessage());
 
     // 验证删除配料的SQL语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            eq("DELETE FROM recipe_ingredients WHERE recipe_id = :recipe_id"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(
+        eq("DELETE FROM recipe_ingredients WHERE recipe_id = :recipe_id"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
     // 验证删除烹饪步骤的SQL语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            eq("DELETE FROM recipe_cooking_step WHERE recipe_id = :recipe_id"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(
+        eq("DELETE FROM recipe_cooking_step WHERE recipe_id = :recipe_id"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
 
     // 验证删除食谱的SQL语句被调用一次
-    verify(postgresDataAccess, times(1))
-        .upsertStatement(
-            eq("DELETE FROM recipe WHERE id = :id"),
-            argThat(params -> Objects.equals(params.get("id"), recipeId)));
+    verify(postgresDataAccess, times(1)).upsertStatement(eq("DELETE FROM recipe WHERE id = :id"),
+        argThat(params -> Objects.equals(params.get("id"), recipeId)));
   }
 
-  /** 测试根据ID获取食谱，食谱存在的情况 验证查询操作是否按预期执行，并正确组装食谱对象 */
+  /**
+   * 测试根据ID获取食谱，食谱存在的情况 验证查询操作是否按预期执行，并正确组装食谱对象
+   */
   @Test
   void getRecipeById_Found() {
     // Arrange: 设置食谱ID，并模拟查询返回的食谱数据
     Long recipeId = 1L;
     Map<String, Object> recipeRow = createSampleRecipeMap();
     List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE id"), anyMap()))
-        .thenReturn(recipeResult);
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE id"),
+        anyMap())).thenReturn(recipeResult);
     // 模拟查询配料和烹饪步骤的数据
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap()))
-        .thenReturn(Collections.singletonList(createSampleIngredientMap()));
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap()))
-        .thenReturn(Collections.singletonList(createSampleCookingStepMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"),
+        anyMap())).thenReturn(Collections.singletonList(createSampleIngredientMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"),
+        anyMap())).thenReturn(Collections.singletonList(createSampleCookingStepMap()));
 
     // Act: 调用获取食谱的方法
     Recipe recipe = recipeDataAccess.getRecipeById(recipeId);
@@ -400,27 +410,25 @@ class RecipeDataAccessTest {
     assertEquals(1, recipe.getCookingSteps().size());
 
     // 验证SELECT查询被正确调用
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe WHERE id"),
-            argThat(params -> Objects.equals(params.get("id"), recipeId)));
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe_ingredients"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe_cooking_step"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).queryStatement(contains("SELECT * FROM recipe WHERE id"),
+        argThat(params -> Objects.equals(params.get("id"), recipeId)));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe_ingredients"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe_cooking_step"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), recipeId)));
   }
 
-  /** 测试根据ID获取食谱，食谱不存在的情况 验证方法应返回null，并且不会查询配料和烹饪步骤 */
+  /**
+   * 测试根据ID获取食谱，食谱不存在的情况 验证方法应返回null，并且不会查询配料和烹饪步骤
+   */
   @Test
   void getRecipeById_NotFound() {
     // Arrange: 设置食谱ID，并模拟查询不返回任何结果
     Long recipeId = 1L;
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE id"), anyMap()))
-        .thenReturn(Collections.emptyList());
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE id"),
+        anyMap())).thenReturn(Collections.emptyList());
 
     // Act: 调用获取食谱的方法
     Recipe recipe = recipeDataAccess.getRecipeById(recipeId);
@@ -429,58 +437,58 @@ class RecipeDataAccessTest {
     assertNull(recipe);
 
     // 验证只进行了食谱的SELECT查询，没有查询配料和烹饪步骤
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe WHERE id"),
-            argThat(params -> Objects.equals(params.get("id"), recipeId)));
-    verify(postgresDataAccess, never())
-        .queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, times(1)).queryStatement(contains("SELECT * FROM recipe WHERE id"),
+        argThat(params -> Objects.equals(params.get("id"), recipeId)));
+    verify(postgresDataAccess, never()).queryStatement(contains("SELECT * FROM recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).queryStatement(
+        contains("SELECT * FROM recipe_cooking_step"), anyMap());
   }
 
-  /** 测试根据名称获取食谱时数据库抛出异常 验证方法应抛出相应的异常，并记录错误日志 */
+  /**
+   * 测试根据名称获取食谱时数据库抛出异常 验证方法应抛出相应的异常，并记录错误日志
+   */
   @Test
   void getRecipesByName_DatabaseException_ThrowsException() {
     // Arrange: 设置搜索名称
     String name = "Sample";
     // 模拟查询食谱时抛出异常
-    when(postgresDataAccess.queryStatement(
-            contains("SELECT * FROM recipe WHERE name ILIKE"), anyMap()))
-        .thenThrow(new RuntimeException("Database query error"));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE name ILIKE"),
+        anyMap())).thenThrow(new RuntimeException("Database query error"));
 
     // Act & Assert: 调用根据名称获取食谱的方法应抛出异常
-    RuntimeException exception =
-        assertThrows(RuntimeException.class, () -> recipeDataAccess.getRecipesByName(name));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> recipeDataAccess.getRecipesByName(name));
 
     // 验证异常消息是否正确
     assertEquals("Database query error", exception.getMessage());
 
     // 验证查询食谱的SELECT语句被调用
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe WHERE name ILIKE"),
-            argThat(params -> Objects.equals(params.get("name"), "%" + name + "%")));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe WHERE name ILIKE"),
+        argThat(params -> Objects.equals(params.get("name"), "%" + name + "%")));
     // 验证不会查询配料和烹饪步骤
-    verify(postgresDataAccess, never())
-        .queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, never()).queryStatement(contains("SELECT * FROM recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).queryStatement(
+        contains("SELECT * FROM recipe_cooking_step"), anyMap());
   }
 
-  /** 测试获取所有食谱 验证查询操作是否按预期执行，并正确组装食谱列表 */
+  /**
+   * 测试获取所有食谱 验证查询操作是否按预期执行，并正确组装食谱列表
+   */
   @Test
   void getAllRecipes() {
     // Arrange: 模拟查询返回的所有食谱数据
     Map<String, Object> recipeRow = createSampleRecipeMap();
     List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe"), isNull()))
-        .thenReturn(recipeResult);
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe"), isNull())).thenReturn(
+        recipeResult);
     // 模拟查询配料和烹饪步骤的数据
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap()))
-        .thenReturn(Collections.singletonList(createSampleIngredientMap()));
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap()))
-        .thenReturn(Collections.singletonList(createSampleCookingStepMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"),
+        anyMap())).thenReturn(Collections.singletonList(createSampleIngredientMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"),
+        anyMap())).thenReturn(Collections.singletonList(createSampleCookingStepMap()));
 
     // Act: 调用获取所有食谱的方法
     List<Recipe> recipes = recipeDataAccess.getAllRecipes();
@@ -496,31 +504,30 @@ class RecipeDataAccessTest {
 
     // 验证SELECT查询被正确调用
     verify(postgresDataAccess, times(1)).queryStatement(contains("SELECT * FROM recipe"), isNull());
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe_ingredients"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe_cooking_step"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe_ingredients"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe_cooking_step"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
   }
 
-  /** 测试根据名称获取食谱，食谱存在的情况 验证查询操作是否按预期执行，并正确组装食谱列表 */
+  /**
+   * 测试根据名称获取食谱，食谱存在的情况 验证查询操作是否按预期执行，并正确组装食谱列表
+   */
   @Test
   void getRecipesByName_Found() {
     // Arrange: 设置搜索名称，并模拟查询返回的食谱数据
     String name = "Sample";
     Map<String, Object> recipeRow = createSampleRecipeMap();
     List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
-    when(postgresDataAccess.queryStatement(
-            contains("SELECT * FROM recipe WHERE name ILIKE"), anyMap()))
-        .thenReturn(recipeResult);
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE name ILIKE"),
+        anyMap())).thenReturn(recipeResult);
     // 模拟查询配料和烹饪步骤的数据
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap()))
-        .thenReturn(Collections.singletonList(createSampleIngredientMap()));
-    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap()))
-        .thenReturn(Collections.singletonList(createSampleCookingStepMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"),
+        anyMap())).thenReturn(Collections.singletonList(createSampleIngredientMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"),
+        anyMap())).thenReturn(Collections.singletonList(createSampleCookingStepMap()));
 
     // Act: 调用根据名称获取食谱的方法
     List<Recipe> recipes = recipeDataAccess.getRecipesByName(name);
@@ -534,28 +541,26 @@ class RecipeDataAccessTest {
     assertEquals(1, recipe.getCookingSteps().size());
 
     // 验证SELECT查询被正确调用
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe WHERE name ILIKE"),
-            argThat(params -> Objects.equals(params.get("name"), "%" + name + "%")));
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe_ingredients"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe_cooking_step"),
-            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe WHERE name ILIKE"),
+        argThat(params -> Objects.equals(params.get("name"), "%" + name + "%")));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe_ingredients"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe_cooking_step"),
+        argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
   }
 
-  /** 测试根据名称获取食谱，食谱不存在的情况 验证方法应返回空列表，并且不会查询配料和烹饪步骤 */
+  /**
+   * 测试根据名称获取食谱，食谱不存在的情况 验证方法应返回空列表，并且不会查询配料和烹饪步骤
+   */
   @Test
   void getRecipesByName_NotFound() {
     // Arrange: 设置搜索名称，并模拟查询不返回任何结果
     String name = "Nonexistent";
-    when(postgresDataAccess.queryStatement(
-            contains("SELECT * FROM recipe WHERE name ILIKE"), anyMap()))
-        .thenReturn(Collections.emptyList());
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE name ILIKE"),
+        anyMap())).thenReturn(Collections.emptyList());
 
     // Act: 调用根据名称获取食谱的方法
     List<Recipe> recipes = recipeDataAccess.getRecipesByName(name);
@@ -565,17 +570,18 @@ class RecipeDataAccessTest {
     assertTrue(recipes.isEmpty());
 
     // 验证只进行了食谱的SELECT查询，没有查询配料和烹饪步骤
-    verify(postgresDataAccess, times(1))
-        .queryStatement(
-            contains("SELECT * FROM recipe WHERE name ILIKE"),
-            argThat(params -> Objects.equals(params.get("name"), "%" + name + "%")));
-    verify(postgresDataAccess, never())
-        .queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap());
-    verify(postgresDataAccess, never())
-        .queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap());
+    verify(postgresDataAccess, times(1)).queryStatement(
+        contains("SELECT * FROM recipe WHERE name ILIKE"),
+        argThat(params -> Objects.equals(params.get("name"), "%" + name + "%")));
+    verify(postgresDataAccess, never()).queryStatement(contains("SELECT * FROM recipe_ingredients"),
+        anyMap());
+    verify(postgresDataAccess, never()).queryStatement(
+        contains("SELECT * FROM recipe_cooking_step"), anyMap());
   }
 
-  /** 辅助方法：创建一个样本食谱对象，用于测试 */
+  /**
+   * 辅助方法：创建一个样本食谱对象，用于测试
+   */
   private Recipe createSampleRecipe() {
     Recipe recipe = new Recipe();
     recipe.setCreatorId(1L);
@@ -598,7 +604,9 @@ class RecipeDataAccessTest {
     return recipe;
   }
 
-  /** 辅助方法：创建一个样本配料对象，用于测试 */
+  /**
+   * 辅助方法：创建一个样本配料对象，用于测试
+   */
   private Ingredient createIngredient(String name, double quantity, String uom) {
     Ingredient ingredient = new Ingredient();
     ingredient.setName(name);
@@ -607,7 +615,9 @@ class RecipeDataAccessTest {
     return ingredient;
   }
 
-  /** 辅助方法：创建一个样本烹饪步骤对象，用于测试 */
+  /**
+   * 辅助方法：创建一个样本烹饪步骤对象，用于测试
+   */
   private CookingStep createCookingStep(String description, String image) {
     CookingStep step = new CookingStep();
     step.setDescription(description);
@@ -615,7 +625,9 @@ class RecipeDataAccessTest {
     return step;
   }
 
-  /** 辅助方法：创建一个样本食谱的Map表示，用于模拟数据库查询结果 */
+  /**
+   * 辅助方法：创建一个样本食谱的Map表示，用于模拟数据库查询结果
+   */
   private Map<String, Object> createSampleRecipeMap() {
     Map<String, Object> map = new HashMap<>();
     map.put("id", 1L);
@@ -632,7 +644,9 @@ class RecipeDataAccessTest {
     return map;
   }
 
-  /** 辅助方法：创建一个样本配料的Map表示，用于模拟数据库查询结果 */
+  /**
+   * 辅助方法：创建一个样本配料的Map表示，用于模拟数据库查询结果
+   */
   private Map<String, Object> createSampleIngredientMap() {
     Map<String, Object> map = new HashMap<>();
     map.put("id", 1L);
@@ -643,7 +657,9 @@ class RecipeDataAccessTest {
     return map;
   }
 
-  /** 辅助方法：创建一个样本烹饪步骤的Map表示，用于模拟数据库查询结果 */
+  /**
+   * 辅助方法：创建一个样本烹饪步骤的Map表示，用于模拟数据库查询结果
+   */
   private Map<String, Object> createSampleCookingStepMap() {
     Map<String, Object> map = new HashMap<>();
     map.put("id", 1);
@@ -653,7 +669,9 @@ class RecipeDataAccessTest {
     return map;
   }
 
-  /** 辅助方法：创建一个包含多个配料和烹饪步骤的样本食谱对象，用于测试 */
+  /**
+   * 辅助方法：创建一个包含多个配料和烹饪步骤的样本食谱对象，用于测试
+   */
   private Recipe createSampleRecipeWithMultipleIngredientsAndSteps() {
     Recipe recipe = new Recipe();
     recipe.setCreatorId(1L);
@@ -667,15 +685,12 @@ class RecipeDataAccessTest {
     recipe.setCreateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
     recipe.setUpdateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
 
-    List<Ingredient> ingredients =
-        Arrays.asList(
-            createIngredient("Sugar", 100.0, "grams"), createIngredient("Flour", 200.0, "grams"));
+    List<Ingredient> ingredients = Arrays.asList(createIngredient("Sugar", 100.0, "grams"),
+        createIngredient("Flour", 200.0, "grams"));
     recipe.setIngredients(ingredients);
 
-    List<CookingStep> steps =
-        Arrays.asList(
-            createCookingStep("Mix sugar and flour.", "step1.jpg"),
-            createCookingStep("Bake the mixture.", "step2.jpg"));
+    List<CookingStep> steps = Arrays.asList(createCookingStep("Mix sugar and flour.", "step1.jpg"),
+        createCookingStep("Bake the mixture.", "step2.jpg"));
     recipe.setCookingSteps(steps);
 
     return recipe;

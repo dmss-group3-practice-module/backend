@@ -24,24 +24,16 @@ public class Recipe {
   private Timestamp updateDatetime;
   private List<Ingredient> ingredients;
   private List<CookingStep> cookingSteps;
+  private String cuisine;
 
   // Constructor
-  public Recipe() {}
+  public Recipe() {
+  }
 
-  public Recipe(
-      Long id,
-      Long creatorId,
-      String name,
-      String image,
-      String description,
-      Integer cookingTimeInSec,
-      Integer difficultyLevel,
-      Double rating,
-      Integer status,
-      Timestamp createDatetime,
-      Timestamp updateDatetime,
-      List<Ingredient> ingredients,
-      List<CookingStep> cookingSteps) {
+  public Recipe(Long id, Long creatorId, String name, String image, String description,
+      Integer cookingTimeInSec, Integer difficultyLevel, Double rating, Integer status,
+      Timestamp createDatetime, Timestamp updateDatetime, List<Ingredient> ingredients,
+      List<CookingStep> cookingSteps, String cuisine) {
     this.id = id;
     this.creatorId = creatorId;
     this.name = name;
@@ -55,6 +47,7 @@ public class Recipe {
     this.updateDatetime = updateDatetime;
     this.ingredients = ingredients;
     this.cookingSteps = cookingSteps;
+    this.cuisine = cuisine;
   }
 
   // Getters and setters
@@ -162,38 +155,21 @@ public class Recipe {
     this.cookingSteps = cookingSteps;
   }
 
+  public String getCuisine() {
+    return cuisine;
+  }
+
+  public void setCuisine(String cuisine) {
+    this.cuisine = cuisine;
+  }
+
   @Override
   public String toString() {
-    return "Recipe{"
-        + "id="
-        + id
-        + ", creatorId="
-        + creatorId
-        + ", name='"
-        + name
-        + '\''
-        + ", image='"
-        + image
-        + '\''
-        + ", description='"
-        + description
-        + '\''
-        + ", cookingTimeInSec="
-        + cookingTimeInSec
-        + ", difficultyLevel="
-        + difficultyLevel
-        + ", rating="
-        + rating
-        + ", status="
-        + status
-        + ", createDatetime="
-        + createDatetime
-        + ", updateDatetime="
-        + updateDatetime
-        + ", ingredients="
-        + ingredients
-        + ", cookingSteps="
-        + cookingSteps
-        + '}';
+    return "Recipe{" + "id=" + id + ", creatorId=" + creatorId + ", name='" + name + '\''
+        + ", image='" + image + '\'' + ", description='" + description + '\''
+        + ", cookingTimeInSec=" + cookingTimeInSec + ", difficultyLevel=" + difficultyLevel
+        + ", rating=" + rating + ", status=" + status + ", createDatetime=" + createDatetime
+        + ", updateDatetime=" + updateDatetime + ", ingredients=" + ingredients + ", cookingSteps="
+        + cookingSteps + ", cuisine='" + cuisine + '\'' + '}';
   }
 }

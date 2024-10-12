@@ -7,13 +7,15 @@ package nus.iss.team3.backend.entity;
  */
 // Entity
 public class CookingStep {
+
   private Long id;
   private Long recipeId;
   private String description;
   private String image;
 
   // Constructors
-  public CookingStep() {}
+  public CookingStep() {
+  }
 
   public CookingStep(Long id, Long recipeId, String description, String image) {
     this.id = id;
@@ -57,17 +59,7 @@ public class CookingStep {
 
   @Override
   public String toString() {
-    return "CookingStep{"
-        + "id="
-        + id
-        + ", recipeId="
-        + recipeId
-        + ", description='"
-        + description
-        + '\''
-        + ", image='"
-        + image
-        + '\''
-        + '}';
+    return "CookingStep{" + "id=" + id + ", recipeId=" + recipeId + ", description='" + description
+        + '\'' + ", image='" + image + '\'' + '}';
   }
 }

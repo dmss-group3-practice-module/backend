@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
 import nus.iss.team3.backend.entity.Ingredient;
 import org.junit.jupiter.api.Test;
@@ -116,7 +115,7 @@ public class TestIngredientService {
 
     // set id to have a valid ingredient
     inputIngredient.setId(1);
-    
+
     // update a non-existing ingredient
     when(ingredientDataAccess.getIngredientById(1)).thenReturn(null);
     assertFalse(ingredientService.updateIngredient(inputIngredient));

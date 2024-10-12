@@ -75,8 +75,6 @@ public class PostgresSqlStatement {
           + " = :"
           + INPUT_USER_ACCOUNT_ID
           + ";";
-          + INPUT_USER_ACCOUNT_EMAIL
-          + ",1);";
   public static final String SQL_USER_ACCOUNT_UPDATE =
       "UPDATE "
           + TABLE_USER_ACCOUNT

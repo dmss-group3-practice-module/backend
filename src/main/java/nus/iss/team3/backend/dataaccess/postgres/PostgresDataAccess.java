@@ -40,7 +40,6 @@ public class PostgresDataAccess implements IPostgresDataAccess {
     }
     try {
       return jdbcTemplate.queryForList(sql, inputs);
-
     } catch (DataAccessException e) {
       logger.error("Error when executing query statement: {}", sql);
       return null;

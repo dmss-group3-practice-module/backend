@@ -24,56 +24,56 @@ public class PostgresSqlStatementRecipe {
   public static final String COLUMN_USER_ACCOUNT_STATUS = "user_status";
 
   public static final String SQL_USER_ACCOUNT_ADD =
-          "INSERT INTO "
-                  + TABLE_USER_ACCOUNT
-                  + "("
-                  + COLUMN_USER_ACCOUNT_ID
-                  + ","
-                  + COLUMN_USER_ACCOUNT_NAME
-                  + ","
-                  + COLUMN_USER_ACCOUNT_PASSWORD
-                  + ","
-                  + COLUMN_USER_ACCOUNT_EMAIL
-                  + ","
-                  + COLUMN_USER_ACCOUNT_STATUS
-                  + ") VALUES (:"
-                  + INPUT_USER_ACCOUNT_ID
-                  + ",:"
-                  + INPUT_USER_ACCOUNT_NAME
-                  + ",:"
-                  + INPUT_USER_ACCOUNT_PASSWORD
-                  + ",:"
-                  + INPUT_USER_ACCOUNT_EMAIL
-                  + ",1);";
+      "INSERT INTO "
+          + TABLE_USER_ACCOUNT
+          + "("
+          + COLUMN_USER_ACCOUNT_ID
+          + ","
+          + COLUMN_USER_ACCOUNT_NAME
+          + ","
+          + COLUMN_USER_ACCOUNT_PASSWORD
+          + ","
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + ","
+          + COLUMN_USER_ACCOUNT_STATUS
+          + ") VALUES (:"
+          + INPUT_USER_ACCOUNT_ID
+          + ",:"
+          + INPUT_USER_ACCOUNT_NAME
+          + ",:"
+          + INPUT_USER_ACCOUNT_PASSWORD
+          + ",:"
+          + INPUT_USER_ACCOUNT_EMAIL
+          + ",1);";
   public static final String SQL_USER_ACCOUNT_DELETE =
-          "DELETE FROM " + TABLE_USER_ACCOUNT + " WHERE " + COLUMN_USER_ACCOUNT_ID + " = :userId;";
+      "DELETE FROM " + TABLE_USER_ACCOUNT + " WHERE " + COLUMN_USER_ACCOUNT_ID + " = :userId;";
   public static final String SQL_USER_ACCOUNT_UPDATE =
-          "UPDATE "
-                  + TABLE_USER_ACCOUNT
-                  + " SET "
-                  + COLUMN_USER_ACCOUNT_NAME
-                  + " = :"
-                  + INPUT_USER_ACCOUNT_NAME
-                  + ", "
-                  + COLUMN_USER_ACCOUNT_PASSWORD
-                  + " = :"
-                  + INPUT_USER_ACCOUNT_PASSWORD
-                  + ", "
-                  + COLUMN_USER_ACCOUNT_EMAIL
-                  + " = :"
-                  + INPUT_USER_ACCOUNT_EMAIL
-                  + " WHERE "
-                  + COLUMN_USER_ACCOUNT_ID
-                  + " = :"
-                  + INPUT_USER_ACCOUNT_ID
-                  + ";";
+      "UPDATE "
+          + TABLE_USER_ACCOUNT
+          + " SET "
+          + COLUMN_USER_ACCOUNT_NAME
+          + " = :"
+          + INPUT_USER_ACCOUNT_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_PASSWORD
+          + " = :"
+          + INPUT_USER_ACCOUNT_PASSWORD
+          + ", "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + " = :"
+          + INPUT_USER_ACCOUNT_EMAIL
+          + " WHERE "
+          + COLUMN_USER_ACCOUNT_ID
+          + " = :"
+          + INPUT_USER_ACCOUNT_ID
+          + ";";
   public static final String SQL_USER_ACCOUNT_GET_BY_ID =
-          "SELECT * FROM user_account where " + COLUMN_USER_ACCOUNT_ID + " = :" + INPUT_USER_ACCOUNT_ID;
+      "SELECT * FROM user_account where " + COLUMN_USER_ACCOUNT_ID + " = :" + INPUT_USER_ACCOUNT_ID;
   public static final String SQL_USER_ACCOUNT_GET_BY_EMAIL =
-          "SELECT * FROM user_account where "
-                  + COLUMN_USER_ACCOUNT_EMAIL
-                  + " = :"
-                  + INPUT_USER_ACCOUNT_EMAIL;
+      "SELECT * FROM user_account where "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + " = :"
+          + INPUT_USER_ACCOUNT_EMAIL;
   public static final String SQL_USER_ACCOUNT_GET_ALL = "SELECT * FROM user_account;";
 
   // Recipe Input parameters
@@ -137,215 +137,215 @@ public class PostgresSqlStatementRecipe {
 
   // SQL statements for Recipe
   public static final String SQL_RECIPE_ADD =
-          "INSERT INTO "
-                  + TABLE_RECIPE
-                  + " ("
-                  + COLUMN_RECIPE_CREATOR_ID
-                  + ", "
-                  + COLUMN_RECIPE_NAME
-                  + ", "
-                  + COLUMN_RECIPE_IMAGE
-                  + ", "
-                  + COLUMN_RECIPE_DESCRIPTION
-                  + ", "
-                  + COLUMN_RECIPE_COOKING_TIME
-                  + ", "
-                  + COLUMN_RECIPE_DIFFICULTY_LEVEL
-                  + ", "
-                  + COLUMN_RECIPE_RATING
-                  + ", "
-                  + COLUMN_RECIPE_STATUS
-                  + ", "
-                  + COLUMN_RECIPE_CUISINE
-                  + ", "
-                  + COLUMN_RECIPE_CREATE_TIME
-                  + ", "
-                  + COLUMN_RECIPE_UPDATE_TIME
-                  + ") "
-                  + "VALUES (:"
-                  + INPUT_RECIPE_CREATOR_ID
-                  + ", :"
-                  + INPUT_RECIPE_NAME
-                  + ", :"
-                  + INPUT_RECIPE_IMAGE
-                  + ", :"
-                  + INPUT_RECIPE_DESCRIPTION
-                  + ", :"
-                  + INPUT_RECIPE_COOKING_TIME
-                  + ", :"
-                  + INPUT_RECIPE_DIFFICULTY_LEVEL
-                  + ", :"
-                  + INPUT_RECIPE_RATING
-                  + ", :"
-                  + INPUT_RECIPE_STATUS
-                  + ", :"
-                  + INPUT_RECIPE_CUISINE
-                  + ", "
-                  + "now(), now()) RETURNING "
-                  + COLUMN_RECIPE_ID;
+      "INSERT INTO "
+          + TABLE_RECIPE
+          + " ("
+          + COLUMN_RECIPE_CREATOR_ID
+          + ", "
+          + COLUMN_RECIPE_NAME
+          + ", "
+          + COLUMN_RECIPE_IMAGE
+          + ", "
+          + COLUMN_RECIPE_DESCRIPTION
+          + ", "
+          + COLUMN_RECIPE_COOKING_TIME
+          + ", "
+          + COLUMN_RECIPE_DIFFICULTY_LEVEL
+          + ", "
+          + COLUMN_RECIPE_RATING
+          + ", "
+          + COLUMN_RECIPE_STATUS
+          + ", "
+          + COLUMN_RECIPE_CUISINE
+          + ", "
+          + COLUMN_RECIPE_CREATE_TIME
+          + ", "
+          + COLUMN_RECIPE_UPDATE_TIME
+          + ") "
+          + "VALUES (:"
+          + INPUT_RECIPE_CREATOR_ID
+          + ", :"
+          + INPUT_RECIPE_NAME
+          + ", :"
+          + INPUT_RECIPE_IMAGE
+          + ", :"
+          + INPUT_RECIPE_DESCRIPTION
+          + ", :"
+          + INPUT_RECIPE_COOKING_TIME
+          + ", :"
+          + INPUT_RECIPE_DIFFICULTY_LEVEL
+          + ", :"
+          + INPUT_RECIPE_RATING
+          + ", :"
+          + INPUT_RECIPE_STATUS
+          + ", :"
+          + INPUT_RECIPE_CUISINE
+          + ", "
+          + "now(), now()) RETURNING "
+          + COLUMN_RECIPE_ID;
   public static final String SQL_RECIPE_UPDATE =
-          "UPDATE "
-                  + TABLE_RECIPE
-                  + " SET "
-                  + COLUMN_RECIPE_CREATOR_ID
-                  + " = :"
-                  + INPUT_RECIPE_CREATOR_ID
-                  + ", "
-                  + COLUMN_RECIPE_NAME
-                  + " = :"
-                  + INPUT_RECIPE_NAME
-                  + ", "
-                  + COLUMN_RECIPE_IMAGE
-                  + " = :"
-                  + INPUT_RECIPE_IMAGE
-                  + ", "
-                  + COLUMN_RECIPE_DESCRIPTION
-                  + " = :"
-                  + INPUT_RECIPE_DESCRIPTION
-                  + ", "
-                  + COLUMN_RECIPE_COOKING_TIME
-                  + " = :"
-                  + INPUT_RECIPE_COOKING_TIME
-                  + ", "
-                  + COLUMN_RECIPE_DIFFICULTY_LEVEL
-                  + " = :"
-                  + INPUT_RECIPE_DIFFICULTY_LEVEL
-                  + ", "
-                  + COLUMN_RECIPE_RATING
-                  + " = :"
-                  + INPUT_RECIPE_RATING
-                  + ", "
-                  + COLUMN_RECIPE_STATUS
-                  + " = :"
-                  + INPUT_RECIPE_STATUS
-                  + ", "
-                  + COLUMN_RECIPE_CUISINE
-                  + " = :"
-                  + INPUT_RECIPE_CUISINE
-                  + ", "
-                  + COLUMN_RECIPE_UPDATE_TIME
-                  + " = now() WHERE "
-                  + COLUMN_RECIPE_ID
-                  + " = :"
-                  + INPUT_RECIPE_ID;
+      "UPDATE "
+          + TABLE_RECIPE
+          + " SET "
+          + COLUMN_RECIPE_CREATOR_ID
+          + " = :"
+          + INPUT_RECIPE_CREATOR_ID
+          + ", "
+          + COLUMN_RECIPE_NAME
+          + " = :"
+          + INPUT_RECIPE_NAME
+          + ", "
+          + COLUMN_RECIPE_IMAGE
+          + " = :"
+          + INPUT_RECIPE_IMAGE
+          + ", "
+          + COLUMN_RECIPE_DESCRIPTION
+          + " = :"
+          + INPUT_RECIPE_DESCRIPTION
+          + ", "
+          + COLUMN_RECIPE_COOKING_TIME
+          + " = :"
+          + INPUT_RECIPE_COOKING_TIME
+          + ", "
+          + COLUMN_RECIPE_DIFFICULTY_LEVEL
+          + " = :"
+          + INPUT_RECIPE_DIFFICULTY_LEVEL
+          + ", "
+          + COLUMN_RECIPE_RATING
+          + " = :"
+          + INPUT_RECIPE_RATING
+          + ", "
+          + COLUMN_RECIPE_STATUS
+          + " = :"
+          + INPUT_RECIPE_STATUS
+          + ", "
+          + COLUMN_RECIPE_CUISINE
+          + " = :"
+          + INPUT_RECIPE_CUISINE
+          + ", "
+          + COLUMN_RECIPE_UPDATE_TIME
+          + " = now() WHERE "
+          + COLUMN_RECIPE_ID
+          + " = :"
+          + INPUT_RECIPE_ID;
   public static final String SQL_RECIPE_DELETE_BY_ID =
-          "DELETE FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
+      "DELETE FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
   public static final String SQL_RECIPE_GET_BY_ID =
-          "SELECT * FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
+      "SELECT * FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
   public static final String SQL_RECIPE_GET_ALL = "SELECT * FROM " + TABLE_RECIPE;
   public static final String SQL_RECIPE_GET_BY_NAME =
-          "SELECT * FROM "
-                  + TABLE_RECIPE
-                  + " WHERE "
-                  + COLUMN_RECIPE_NAME
-                  + " ILIKE :"
-                  + INPUT_RECIPE_NAME;
+      "SELECT * FROM "
+          + TABLE_RECIPE
+          + " WHERE "
+          + COLUMN_RECIPE_NAME
+          + " ILIKE :"
+          + INPUT_RECIPE_NAME;
 
   // SQL statements for Ingredient
   public static final String SQL_INGREDIENT_ADD =
-          "INSERT INTO "
-                  + TABLE_INGREDIENT
-                  + " ("
-                  + COLUMN_INGREDIENT_RECIPE_ID
-                  + ", "
-                  + COLUMN_INGREDIENT_NAME
-                  + ", "
-                  + COLUMN_INGREDIENT_QUANTITY
-                  + ", "
-                  + COLUMN_INGREDIENT_UOM
-                  + ") "
-                  + "VALUES (:"
-                  + INPUT_INGREDIENT_RECIPE_ID
-                  + ", :"
-                  + INPUT_INGREDIENT_NAME
-                  + ", :"
-                  + INPUT_INGREDIENT_QUANTITY
-                  + ", :"
-                  + INPUT_INGREDIENT_UOM
-                  + ") RETURNING "
-                  + COLUMN_INGREDIENT_ID;
+      "INSERT INTO "
+          + TABLE_INGREDIENT
+          + " ("
+          + COLUMN_INGREDIENT_RECIPE_ID
+          + ", "
+          + COLUMN_INGREDIENT_NAME
+          + ", "
+          + COLUMN_INGREDIENT_QUANTITY
+          + ", "
+          + COLUMN_INGREDIENT_UOM
+          + ") "
+          + "VALUES (:"
+          + INPUT_INGREDIENT_RECIPE_ID
+          + ", :"
+          + INPUT_INGREDIENT_NAME
+          + ", :"
+          + INPUT_INGREDIENT_QUANTITY
+          + ", :"
+          + INPUT_INGREDIENT_UOM
+          + ") RETURNING "
+          + COLUMN_INGREDIENT_ID;
   public static final String SQL_INGREDIENT_UPDATE =
-          "UPDATE "
-                  + TABLE_INGREDIENT
-                  + " SET "
-                  + COLUMN_INGREDIENT_NAME
-                  + " = :"
-                  + INPUT_INGREDIENT_NAME
-                  + ", "
-                  + COLUMN_INGREDIENT_QUANTITY
-                  + " = :"
-                  + INPUT_INGREDIENT_QUANTITY
-                  + ", "
-                  + COLUMN_INGREDIENT_UOM
-                  + " = :"
-                  + INPUT_INGREDIENT_UOM
-                  + " WHERE "
-                  + COLUMN_INGREDIENT_ID
-                  + " = :"
-                  + INPUT_INGREDIENT_ID;
+      "UPDATE "
+          + TABLE_INGREDIENT
+          + " SET "
+          + COLUMN_INGREDIENT_NAME
+          + " = :"
+          + INPUT_INGREDIENT_NAME
+          + ", "
+          + COLUMN_INGREDIENT_QUANTITY
+          + " = :"
+          + INPUT_INGREDIENT_QUANTITY
+          + ", "
+          + COLUMN_INGREDIENT_UOM
+          + " = :"
+          + INPUT_INGREDIENT_UOM
+          + " WHERE "
+          + COLUMN_INGREDIENT_ID
+          + " = :"
+          + INPUT_INGREDIENT_ID;
   public static final String SQL_INGREDIENT_DELETE_BY_RECIPE_ID =
-          "DELETE FROM "
-                  + TABLE_INGREDIENT
-                  + " WHERE "
-                  + COLUMN_INGREDIENT_RECIPE_ID
-                  + " = :"
-                  + INPUT_INGREDIENT_RECIPE_ID;
+      "DELETE FROM "
+          + TABLE_INGREDIENT
+          + " WHERE "
+          + COLUMN_INGREDIENT_RECIPE_ID
+          + " = :"
+          + INPUT_INGREDIENT_RECIPE_ID;
   public static final String SQL_INGREDIENT_GET_BY_RECIPE_ID =
-          "SELECT * FROM "
-                  + TABLE_INGREDIENT
-                  + " WHERE "
-                  + COLUMN_INGREDIENT_RECIPE_ID
-                  + " = :"
-                  + INPUT_INGREDIENT_RECIPE_ID
-                  + " ORDER BY id";
+      "SELECT * FROM "
+          + TABLE_INGREDIENT
+          + " WHERE "
+          + COLUMN_INGREDIENT_RECIPE_ID
+          + " = :"
+          + INPUT_INGREDIENT_RECIPE_ID
+          + " ORDER BY id";
 
   // SQL statements for CookingStep
   public static final String SQL_COOKING_STEP_ADD =
-          "INSERT INTO "
-                  + TABLE_COOKING_STEP
-                  + " ("
-                  + COLUMN_COOKING_STEP_RECIPE_ID
-                  + ", "
-                  + COLUMN_COOKING_STEP_DESCRIPTION
-                  + ", "
-                  + COLUMN_COOKING_STEP_IMAGE
-                  + ") "
-                  + "VALUES (:"
-                  + INPUT_COOKING_STEP_RECIPE_ID
-                  + ", :"
-                  + INPUT_COOKING_STEP_DESCRIPTION
-                  + ", :"
-                  + INPUT_COOKING_STEP_IMAGE
-                  + ") RETURNING "
-                  + COLUMN_COOKING_STEP_ID;
+      "INSERT INTO "
+          + TABLE_COOKING_STEP
+          + " ("
+          + COLUMN_COOKING_STEP_RECIPE_ID
+          + ", "
+          + COLUMN_COOKING_STEP_DESCRIPTION
+          + ", "
+          + COLUMN_COOKING_STEP_IMAGE
+          + ") "
+          + "VALUES (:"
+          + INPUT_COOKING_STEP_RECIPE_ID
+          + ", :"
+          + INPUT_COOKING_STEP_DESCRIPTION
+          + ", :"
+          + INPUT_COOKING_STEP_IMAGE
+          + ") RETURNING "
+          + COLUMN_COOKING_STEP_ID;
   public static final String SQL_COOKING_STEP_UPDATE =
-          "UPDATE "
-                  + TABLE_COOKING_STEP
-                  + " SET "
-                  + COLUMN_COOKING_STEP_DESCRIPTION
-                  + " = :"
-                  + INPUT_COOKING_STEP_DESCRIPTION
-                  + ", "
-                  + COLUMN_COOKING_STEP_IMAGE
-                  + " = :"
-                  + INPUT_COOKING_STEP_IMAGE
-                  + " WHERE "
-                  + COLUMN_COOKING_STEP_ID
-                  + " = :"
-                  + INPUT_COOKING_STEP_ID;
+      "UPDATE "
+          + TABLE_COOKING_STEP
+          + " SET "
+          + COLUMN_COOKING_STEP_DESCRIPTION
+          + " = :"
+          + INPUT_COOKING_STEP_DESCRIPTION
+          + ", "
+          + COLUMN_COOKING_STEP_IMAGE
+          + " = :"
+          + INPUT_COOKING_STEP_IMAGE
+          + " WHERE "
+          + COLUMN_COOKING_STEP_ID
+          + " = :"
+          + INPUT_COOKING_STEP_ID;
   public static final String SQL_COOKING_STEP_DELETE_RECIPE_ID =
-          "DELETE FROM "
-                  + TABLE_COOKING_STEP
-                  + " WHERE "
-                  + COLUMN_COOKING_STEP_RECIPE_ID
-                  + " = :"
-                  + INPUT_COOKING_STEP_RECIPE_ID;
+      "DELETE FROM "
+          + TABLE_COOKING_STEP
+          + " WHERE "
+          + COLUMN_COOKING_STEP_RECIPE_ID
+          + " = :"
+          + INPUT_COOKING_STEP_RECIPE_ID;
   public static final String SQL_COOKING_STEP_GET_BY_RECIPE_ID =
-          "SELECT * FROM "
-                  + TABLE_COOKING_STEP
-                  + " WHERE "
-                  + COLUMN_COOKING_STEP_RECIPE_ID
-                  + " = :"
-                  + INPUT_COOKING_STEP_RECIPE_ID
-                  + " ORDER BY id";
+      "SELECT * FROM "
+          + TABLE_COOKING_STEP
+          + " WHERE "
+          + COLUMN_COOKING_STEP_RECIPE_ID
+          + " = :"
+          + INPUT_COOKING_STEP_RECIPE_ID
+          + " ORDER BY id";
 }

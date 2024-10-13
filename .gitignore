@@ -40,3 +40,4 @@ out/
 ### project generated files ###
 logs
 
+.DS_Store

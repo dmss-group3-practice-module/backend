@@ -1,5 +1,7 @@
 package nus.iss.team3.backend.entity;
 
+import java.util.Objects;
+
 /**
  * CookingStep Class
  *
@@ -14,8 +16,7 @@ public class CookingStep {
   private String image;
 
   // Constructors
-  public CookingStep() {
-  }
+  public CookingStep() {}
 
   public CookingStep(Long id, Long recipeId, String description, String image) {
     this.id = id;
@@ -59,7 +60,37 @@ public class CookingStep {
 
   @Override
   public String toString() {
-    return "CookingStep{" + "id=" + id + ", recipeId=" + recipeId + ", description='" + description
-        + '\'' + ", image='" + image + '\'' + '}';
+    return "CookingStep{"
+        + "id="
+        + id
+        + ", recipeId="
+        + recipeId
+        + ", description='"
+        + description
+        + '\''
+        + ", image='"
+        + image
+        + '\''
+        + '}';
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    CookingStep cookingStep = (CookingStep) obj;
+    return Objects.equals(id, cookingStep.id)
+        && Objects.equals(recipeId, cookingStep.recipeId)
+        && Objects.equals(description, cookingStep.description)
+        && Objects.equals(image, cookingStep.image);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, recipeId, description, image);
   }
 }

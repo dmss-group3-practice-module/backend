@@ -2,11 +2,13 @@ package nus.iss.team3.backend.dataaccess;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
+import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.entity.Recipe;
 import org.apache.logging.log4j.LogManager;
@@ -19,534 +21,516 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Mao Weining
  */
-@Repository // 标识这是一个仓库组件
+@Repository // Indicates that this is a repository component
 public class RecipeDataAccess implements IRecipeDataAccess {
 
   private static final Logger logger = LogManager.getLogger(RecipeDataAccess.class);
   private final PostgresDataAccess postgresDataAccess;
 
-  // 构造函数用于依赖注入 PostgresDataAccess
+  // Constructor for dependency injection of PostgresDataAccess
   public RecipeDataAccess(PostgresDataAccess postgresDataAccess) {
     this.postgresDataAccess = postgresDataAccess;
   }
 
   @Override
-  @Transactional // 确保整个方法在一个事务中执行
+  @Transactional // Ensures the entire method is executed in a single transaction
   public boolean addRecipe(Recipe recipe) {
-    logger.info("开始添加食谱: {}", recipe.getName());
+    logger.info("Starting to add recipe: {}", recipe.getName());
     try {
-      // 验证食谱
+      // Validate the recipe
       validateRecipe(recipe);
-      logger.debug("添加食谱：食谱验证通过");
+      logger.debug("Adding recipe: Recipe validation passed");
 
-      // 构建食谱参数的映射
+      // Build a map of recipe parameters
       Map<String, Object> recipeParams = buildRecipeParams(recipe);
 
-      // 插入食谱的 SQL 语句，并返回生成的 id
-      String sql =
-          "INSERT INTO recipe (creator_id, name, image, description, cookingtimeinsec, "
-              + "difficultylevel, rating, status, create_datetime, update_datetime) "
-              + "VALUES (:creator_id, :name, :image, :description, :cookingtimeinsec, "
-              + ":difficultylevel, :rating, :status, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id";
-
-      // 执行插入语句
-      List<Map<String, Object>> result = postgresDataAccess.queryStatement(sql, recipeParams);
+      // Execute the insert statement
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_RECIPE_ADD, recipeParams);
 
       if (result.isEmpty()) {
-        logger.warn("插入食谱失败，未返回生成的ID");
-        return false; // 如果插入失败，返回 false
+        logger.warn("Failed to insert recipe, no generated ID returned");
+        return false; // Return false if insertion fails
       }
 
-      // 获取生成的食谱 ID 并设置到 recipe 对象中
-      Long recipeId = ((Number) result.getFirst().get("id")).longValue();
+      // Get the generated recipe ID and set it to the recipe object
+      Long recipeId =
+          ((Number) result.getFirst().get(PostgresSqlStatement.COLUMN_RECIPE_ID)).longValue();
       recipe.setId(recipeId);
-      logger.debug("食谱插入成功，生成的ID: {}", recipeId);
+      logger.debug("Recipe inserted successfully, generated ID: {}", recipeId);
 
-      // 在插入配料之前，检查集合是否为空，避免不必要的数据库操作
+      // Before inserting ingredients, check if the collection is empty to avoid unnecessary
+      // database operations
       if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
         insertIngredients(recipe);
-        logger.debug("配料插入成功");
+        logger.debug("Ingredients inserted successfully");
       } else {
-        logger.debug("食谱无配料需要插入");
+        logger.debug("No ingredients to insert for the recipe");
       }
 
-      // 在插入烹饪步骤之前，检查集合是否为空，避免不必要的数据库操作
+      // Before inserting cooking steps, check if the collection is empty to avoid unnecessary
+      // database operations
       if (recipe.getCookingSteps() != null && !recipe.getCookingSteps().isEmpty()) {
         insertCookingSteps(recipe);
-        logger.debug("烹饪步骤插入成功");
+        logger.debug("Cooking steps inserted successfully");
       } else {
-        logger.debug("食谱无烹饪步骤需要插入");
+        logger.debug("No cooking steps to insert for the recipe");
       }
 
-      logger.info("食谱添加完成: ID={}", recipeId);
+      logger.info("Recipe addition completed: ID={}", recipeId);
       return true;
     } catch (Exception e) {
-      logger.error("添加食谱时发生异常: {}", e.getMessage(), e);
-      throw e; // 重新抛出异常以触发事务回滚
+      logger.error("Exception occurred while adding recipe: {}", e.getMessage(), e);
+      throw e; // Rethrow the exception to trigger transaction rollback
     }
   }
 
   @Override
-  @Transactional // 确保整个方法在一个事务中执行
+  @Transactional // Ensures the entire method is executed in a single transaction
   public boolean updateRecipe(Recipe recipe) {
-    logger.info("开始更新食谱: ID={}", recipe.getId());
+    logger.info("Starting to update recipe: ID={}", recipe.getId());
     try {
-      // 验证食谱
+      // Validate the recipe
       validateRecipe(recipe);
-      logger.debug("更新食谱：食谱验证通过");
+      logger.debug("Updating recipe: Recipe validation passed");
 
-      // 构建更新 SQL 语句和参数
-      Map<String, Object> recipeParams = new HashMap<>();
-      recipeParams.put("id", recipe.getId());
-      String sql = buildUpdateRecipeSql(recipe, recipeParams);
+      // Build the update SQL statement and parameters
+      Map<String, Object> recipeParams = buildRecipeParams(recipe);
+      recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_ID, recipe.getId());
 
-      // 执行更新语句
-      int updatedRows = postgresDataAccess.upsertStatement(sql, recipeParams);
+      // Execute the update statement
+      int updatedRows =
+          postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_RECIPE_UPDATE, recipeParams);
 
       if (updatedRows == 0) {
-        logger.warn("未找到ID={} 的食谱进行更新", recipe.getId());
-        return false; // 如果没有行被更新，返回 false
+        logger.warn("No recipe found with ID={} for update", recipe.getId());
+        return false; // Return false if no rows were updated
       }
-      logger.debug("食谱更新成功，更新的行数: {}", updatedRows);
+      logger.debug("Recipe updated successfully, number of updated rows: {}", updatedRows);
 
-      // 更新配料：先删除现有的配料，再插入新的配料
+      // Update ingredients: first delete existing ingredients, then insert new ones
       deleteIngredients(recipe.getId());
       insertIngredients(recipe);
-      logger.debug("配料更新成功");
+      logger.debug("Ingredients updated successfully");
 
-      // 更新烹饪步骤：先删除现有的步骤，再插入新的步骤
+      // Update cooking steps: first delete existing steps, then insert new ones
       deleteCookingSteps(recipe.getId());
       insertCookingSteps(recipe);
-      logger.debug("烹饪步骤更新成功");
+      logger.debug("Cooking steps updated successfully");
 
-      logger.info("食谱更新完成: ID={}", recipe.getId());
+      logger.info("Recipe update completed: ID={}", recipe.getId());
       return true;
     } catch (Exception e) {
-      logger.error("更新食谱时发生异常: {}", e.getMessage(), e);
-      throw e; // 重新抛出异常以触发事务回滚
+      logger.error("Exception occurred while updating recipe: {}", e.getMessage(), e);
+      throw e; // Rethrow the exception to trigger transaction rollback
     }
   }
 
   @Override
-  @Transactional // 确保整个方法在一个事务中执行
+  @Transactional // Ensures the entire method is executed in a single transaction
   public boolean deleteRecipeById(Long recipeId) {
-    logger.info("开始删除食谱: ID={}", recipeId);
+    logger.info("Starting to delete recipe: ID={}", recipeId);
     try {
-      // 删除相关的配料
+      // Delete related ingredients
       deleteIngredients(recipeId);
-      logger.debug("配料删除成功");
+      logger.debug("Ingredients deleted successfully");
 
-      // 删除相关烹饪步骤
+      // Delete related cooking steps
       deleteCookingSteps(recipeId);
-      logger.debug("烹饪步骤删除成功");
+      logger.debug("Cooking steps deleted successfully");
 
-      // 删除食谱的 SQL 语句
-      String deleteRecipeSql = "DELETE FROM recipe WHERE id = :id";
-      Map<String, Object> deleteRecipeParams = new HashMap<>();
-      deleteRecipeParams.put("id", recipeId);
-
-      // 执行删除语句
-      int deletedRows = postgresDataAccess.upsertStatement(deleteRecipeSql, deleteRecipeParams);
+      // Execute the delete statement
+      int deletedRows =
+          postgresDataAccess.upsertStatement(
+              PostgresSqlStatement.SQL_RECIPE_DELETE_BY_ID,
+              Collections.singletonMap(PostgresSqlStatement.INPUT_RECIPE_ID, recipeId));
 
       if (deletedRows > 0) {
-        logger.info("食谱删除成功: ID={}", recipeId);
+        logger.info("Recipe deleted successfully: ID={}", recipeId);
         return true;
       } else {
-        logger.warn("未找到ID={} 的食谱进行删除", recipeId);
+        logger.warn("No recipe found with ID={} for deletion", recipeId);
         return false;
       }
     } catch (Exception e) {
-      logger.error("删除食谱时发生异常: {}", e.getMessage(), e);
-      throw e; // 重新抛出异常以触发事务回滚
+      logger.error("Exception occurred while deleting recipe: {}", e.getMessage(), e);
+      throw e; // Rethrow the exception to trigger transaction rollback
     }
   }
 
   @Override
   public Recipe getRecipeById(Long recipeId) {
-    logger.info("查询食谱: ID={}", recipeId);
+    logger.info("Querying recipe: ID={}", recipeId);
     try {
-      // 查询食谱的 SQL 语句
-      String sql = "SELECT * FROM recipe WHERE id = :id";
-      Map<String, Object> params = new HashMap<>();
-      params.put("id", recipeId);
-
-      // 执行查询
-      List<Map<String, Object>> result = postgresDataAccess.queryStatement(sql, params);
+      // Execute the query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(
+              PostgresSqlStatement.SQL_RECIPE_GET_BY_ID,
+              Collections.singletonMap(PostgresSqlStatement.INPUT_RECIPE_ID, recipeId));
 
       if (result.isEmpty()) {
-        logger.warn("未找到ID={} 的食谱", recipeId);
-        return null; // 如果没有找到食谱，返回 null
+        logger.warn("No recipe found with ID={}", recipeId);
+        return null; // Return null if no recipe is found
       }
 
-      // 将查询结果映射为 Recipe 对象
+      // Map the query result to a Recipe object
       Recipe recipe = mapToRecipe(result.getFirst());
-      logger.debug("食谱映射成功: ID={}", recipeId);
+      logger.debug("Recipe mapping successful: ID={}", recipeId);
 
-      // 查询并设置食谱的配料
+      // Query and set the recipe's ingredients
       recipe.setIngredients(getIngredientsForRecipe(recipeId));
-      logger.debug("配料加载成功: 食谱ID={}", recipeId);
+      logger.debug("Ingredients loaded successfully: Recipe ID={}", recipeId);
 
-      // 查询并设置食谱的烹饪步骤
+      // Query and set the recipe's cooking steps
       recipe.setCookingSteps(getCookingStepsForRecipe(recipeId));
-      logger.debug("烹饪步骤加载成功: 食谱ID={}", recipeId);
+      logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipeId);
 
-      logger.info("食谱查询完成: ID={}", recipeId);
+      logger.info("Recipe query completed: ID={}", recipeId);
       return recipe;
     } catch (Exception e) {
-      logger.error("查询食谱时发生异常: {}", e.getMessage(), e);
+      logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
       throw e;
     }
   }
 
   @Override
   public List<Recipe> getAllRecipes() {
-    logger.info("查询所有食谱");
+    logger.info("Querying all recipes");
     try {
-      // 查询所有食谱的 SQL 语句
-      String sql = "SELECT * FROM recipe";
-
-      // 执行查询
-      List<Map<String, Object>> result = postgresDataAccess.queryStatement(sql, null);
+      // Execute the query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_RECIPE_GET_ALL, null);
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
-        //        logger.debug("对象信息: {}", row.toString());
-        // 将每一行映射为 Recipe 对象
+        // Map each row to a Recipe object
         Recipe recipe = mapToRecipe(row);
-
-        // 查询并设置食谱的配料
+        // Query and set the recipe's ingredients
         recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
-
-        // 查询并设置食谱的烹饪步骤
+        // Query and set the recipe's cooking steps
         recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
-
-        recipes.add(recipe); // 添加到食谱列表
+        recipes.add(recipe); // Add to the recipe list
       }
 
-      logger.info("查询所有食谱完成，数量: {}", recipes.size());
+      logger.info("Querying all recipes completed, count: {}", recipes.size());
       return recipes;
     } catch (Exception e) {
-      logger.error("查询所有食谱时发生异常: {}", e.getMessage(), e);
+      logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
       throw e;
     }
   }
 
   @Override
   public List<Recipe> getRecipesByName(String name) {
-    logger.info("按名称查询食谱: 名称包含 '{}'", name);
+    logger.info("Querying recipes by name: Name contains '{}'", name);
     try {
-      // 按名称模糊查询食谱的 SQL 语句
-      String sql = "SELECT * FROM recipe WHERE name ILIKE :name";
-      Map<String, Object> params = new HashMap<>();
-      params.put("name", "%" + name + "%"); // 使用通配符进行模糊查询
-
-      // 执行查询
-      List<Map<String, Object>> result = postgresDataAccess.queryStatement(sql, params);
+      // Execute the query: use wildcard for fuzzy query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(
+              PostgresSqlStatement.SQL_RECIPE_GET_BY_NAME,
+              Collections.singletonMap(PostgresSqlStatement.INPUT_RECIPE_NAME, "%" + name + "%"));
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
-        // 将每一行映射为 Recipe 对象
+        // Map each row to a Recipe object
         Recipe recipe = mapToRecipe(row);
-
-        // 查询并设置食谱的配料
+        // Query and set the recipe's ingredients
         recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
-
-        // 查询并设置食谱的烹饪步骤
+        // Query and set the recipe's cooking steps
         recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
-
-        recipes.add(recipe); // 添加到食谱列表
+        recipes.add(recipe); // Add to the recipe list
       }
 
-      logger.info("按名称查询食谱完成，找到 {} 条记录", recipes.size());
+      logger.info("Querying recipes by name completed, found {} records", recipes.size());
       return recipes;
     } catch (Exception e) {
-      logger.error("按名称查询食谱时发生异常: {}", e.getMessage(), e);
+      logger.error("Exception occurred while querying recipes by name: {}", e.getMessage(), e);
       throw e;
     }
   }
 
-  // 辅助方法：构建食谱参数的映射
+  // Helper method: Build a map of recipe parameters
   private Map<String, Object> buildRecipeParams(Recipe recipe) {
     Map<String, Object> recipeParams = new HashMap<>();
-    recipeParams.put("creator_id", recipe.getCreatorId());
-    recipeParams.put("name", recipe.getName());
-    recipeParams.put("image", recipe.getImage());
-    recipeParams.put("description", recipe.getDescription());
-    recipeParams.put("cookingtimeinsec", recipe.getCookingTimeInSec());
-    recipeParams.put("difficultylevel", recipe.getDifficultyLevel());
-    recipeParams.put("rating", recipe.getRating());
-    recipeParams.put("status", recipe.getStatus());
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID, recipe.getCreatorId());
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_NAME, recipe.getName());
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_IMAGE, recipe.getImage());
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION, recipe.getDescription());
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME, recipe.getCookingTimeInSec());
+    recipeParams.put(
+        PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL, recipe.getDifficultyLevel());
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_RATING, recipe.getRating());
+    // Converts ERecipeStatus to its corresponding integer value
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_STATUS, recipe.getStatus().code);
+    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_CUISINE, recipe.getCuisine());
     return recipeParams;
   }
 
-  // 辅助方法：将数据库记录映射为 Recipe 对象
+  // Helper method: Map database record to Recipe object
   private Recipe mapToRecipe(Map<String, Object> row) {
-    logger.debug("映射数据库记录到 Recipe 对象");
+    logger.debug("Mapping database record to Recipe object");
     logger.info("mapToRecipe: {}", row);
     Recipe recipe = new Recipe();
 
-    recipe.setId(row.get("id") != null ? ((Number) row.get("id")).longValue() : null);
+    recipe.setId(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_ID) != null
+            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_ID)).longValue()
+            : null);
     recipe.setCreatorId(
-        row.get("creator_id") != null ? ((Number) row.get("creator_id")).longValue() : null);
-    recipe.setName(row.get("name") != null ? (String) row.get("name") : null);
-    recipe.setImage(row.get("image") != null ? (String) row.get("image") : null);
-    recipe.setDescription(row.get("description") != null ? (String) row.get("description") : null);
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID) != null
+            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID)).longValue()
+            : null);
+    recipe.setName(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_NAME) != null
+            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_NAME)
+            : null);
+    recipe.setImage(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_IMAGE) != null
+            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_IMAGE)
+            : null);
+    recipe.setDescription(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION) != null
+            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION)
+            : null);
     recipe.setCookingTimeInSec(
-        row.get("cookingtimeinsec") != null
-            ? ((Number) row.get("cookingtimeinsec")).intValue()
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME) != null
+            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME)).intValue()
             : null);
     recipe.setDifficultyLevel(
-        row.get("difficultylevel") != null
-            ? ((Number) row.get("difficultylevel")).intValue()
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL) != null
+            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL)).intValue()
             : null);
-    recipe.setRating(row.get("rating") != null ? ((Number) row.get("rating")).doubleValue() : null);
-    recipe.setStatus(row.get("status") != null ? ((Number) row.get("status")).intValue() : null);
+    recipe.setRating(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_RATING) != null
+            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_RATING)).doubleValue()
+            : null);
+    // Convert integer values to ERecipeStatus
+    recipe.setStatus(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_STATUS) != null
+            ? ERecipeStatus.valueOfCode(
+                ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_STATUS)).intValue())
+            : null);
+    recipe.setCuisine(
+        row.get(PostgresSqlStatement.COLUMN_RECIPE_CUISINE) != null
+            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_CUISINE)
+            : null);
     recipe.setCreateDatetime(
         row.get("create_datetime") != null ? (Timestamp) row.get("create_datetime") : null);
     recipe.setUpdateDatetime(
         row.get("update_datetime") != null ? (Timestamp) row.get("update_datetime") : null);
 
-    logger.debug("Recipe 对象映射完成: ID={}", recipe.getId());
+    logger.debug("Recipe object mapping completed: ID={}", recipe.getId());
     return recipe;
   }
 
-  // 构建更新 SQL 语句的方法
-  private String buildUpdateRecipeSql(Recipe recipe, Map<String, Object> recipeParams) {
-    StringBuilder sqlBuilder = new StringBuilder("UPDATE recipe SET ");
-    boolean first = true;
-
-    if (recipe.getCreatorId() != null) {
-      sqlBuilder.append("creator_id = :creator_id");
-      recipeParams.put("creator_id", recipe.getCreatorId());
-      first = false;
-    }
-    if (recipe.getName() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("name = :name");
-      recipeParams.put("name", recipe.getName());
-      first = false;
-    }
-    if (recipe.getImage() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("image = :image");
-      recipeParams.put("image", recipe.getImage());
-      first = false;
-    }
-    if (recipe.getDescription() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("description = :description");
-      recipeParams.put("description", recipe.getDescription());
-      first = false;
-    }
-    if (recipe.getCookingTimeInSec() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("cookingtimeinsec = :cookingtimeinsec");
-      recipeParams.put("cookingtimeinsec", recipe.getCookingTimeInSec());
-      first = false;
-    }
-    if (recipe.getDifficultyLevel() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("difficultylevel = :difficultylevel");
-      recipeParams.put("difficultylevel", recipe.getDifficultyLevel());
-      first = false;
-    }
-    if (recipe.getRating() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("rating = :rating");
-      recipeParams.put("rating", recipe.getRating());
-      first = false;
-    }
-    if (recipe.getStatus() != null) {
-      if (!first) sqlBuilder.append(", ");
-      sqlBuilder.append("status = :status");
-      recipeParams.put("status", recipe.getStatus());
-      first = false;
-    }
-
-    // 添加更新时间
-    sqlBuilder.append(", update_datetime = CURRENT_TIMESTAMP WHERE id = :id");
-
-    return sqlBuilder.toString();
-  }
-
-  // 辅助方法：验证食谱
+  // Helper method: Validate the recipe
   private void validateRecipe(Recipe recipe) {
-    logger.debug("验证食谱: {}", recipe.getName());
+    logger.debug("Validating recipe: {}", recipe.getName());
     if (recipe.getCreatorId() == null
         || recipe.getName() == null
         || recipe.getCookingTimeInSec() == null
         || recipe.getDifficultyLevel() == null
         || recipe.getRating() == null
         || recipe.getStatus() == null) {
-      logger.error("食谱验证失败，存在必填字段为空");
+      // TODO: if "cuisine" is not null, it should be added here.
+      logger.error("Recipe validation failed, required fields are empty");
       throw new IllegalArgumentException("Required fields for recipe cannot be null");
     }
   }
 
-  // 辅助方法：验证配料
+  // Helper method: Validate the ingredient
   private void validateIngredient(Ingredient ingredient) {
-    logger.debug("验证配料: {}", ingredient.getName());
+    logger.debug("Validating ingredient: {}", ingredient.getName());
     if (ingredient.getName() == null
         || ingredient.getQuantity() == null
         || ingredient.getUom() == null) {
-      logger.error("配料验证失败，存在必填字段为空");
+      logger.error("Ingredient validation failed, required fields are empty");
       throw new IllegalArgumentException("Required fields for ingredient cannot be null");
     }
   }
 
-  // 辅助方法：插入与食谱关联的配料
-  private void insertIngredients(Recipe recipe) {
-    logger.info("开始插入配料，食谱ID={}", recipe.getId());
-
-    // 检查配料是否为 null
-    if (recipe.getIngredients() == null) {
-      logger.info("配料为 null，跳过插入，食谱ID={}", recipe.getId());
-      return; // 直接返回，不执行插入
-    }
-
-    String ingredientSql =
-        "INSERT INTO recipe_ingredients (recipe_id, name, quantity, uom) "
-            + "VALUES (:recipe_id, :name, :quantity, :uom)";
-    for (Ingredient ingredient : recipe.getIngredients()) {
-      // 验证配料
-      validateIngredient(ingredient);
-      try {
-        Map<String, Object> ingredientParams = new HashMap<>();
-        ingredientParams.put("recipe_id", recipe.getId());
-        ingredientParams.put("name", ingredient.getName());
-        ingredientParams.put("quantity", ingredient.getQuantity());
-        ingredientParams.put("uom", ingredient.getUom());
-        postgresDataAccess.upsertStatement(ingredientSql, ingredientParams); // 执行插入
-        logger.debug("插入配料: {}", ingredient.getName());
-      } catch (Exception e) {
-        logger.error("插入配料时发生异常: {}", e.getMessage(), e);
-        throw e;
-      }
-    }
-    logger.info("配料插入完成，食谱ID={}", recipe.getId());
-  }
-
-  // 辅助方法：删除与食谱关联的配料
-  private void deleteIngredients(Long recipeId) {
-    logger.info("开始删除配料，食谱ID={}", recipeId);
-    try {
-      String deleteIngredientsSql = "DELETE FROM recipe_ingredients WHERE recipe_id = :recipe_id";
-      Map<String, Object> deleteIngredientsParams = new HashMap<>();
-      deleteIngredientsParams.put("recipe_id", recipeId);
-      int deletedRows =
-          postgresDataAccess.upsertStatement(deleteIngredientsSql, deleteIngredientsParams);
-      logger.debug("配料删除成功，删除的行数: {}", deletedRows);
-    } catch (Exception e) {
-      logger.error("删除配料时发生异常: {}", e.getMessage(), e);
-      throw e; // 重新抛出异常以触发事务回滚
-    }
-  }
-
-  // 辅助方法：验证烹饪步骤
+  // Helper method: Validate the cooking step
   private void validateCookingStep(CookingStep step) {
-    logger.debug("验证烹饪步骤");
+    logger.debug("Validating cooking step");
     if (step.getDescription() == null) {
-      logger.error("烹饪步骤验证失败，描述为空");
+      logger.error("Cooking step validation failed, description is empty");
       throw new IllegalArgumentException("Description for cooking step cannot be null");
     }
   }
 
-  // 辅助方法：插入与食谱关联的烹饪步骤
-  private void insertCookingSteps(Recipe recipe) {
-    logger.info("开始插入烹饪步骤，食谱ID={}", recipe.getId());
+  // Helper method: Insert ingredients associated with the recipe
+  void insertIngredients(Recipe recipe) {
+    logger.info("Starting to insert ingredients, Recipe ID={}", recipe.getId());
 
-    // 检查配料是否为 null
-    if (recipe.getCookingSteps() == null) {
-      logger.info("烹饪步骤为 null，跳过插入，食谱ID={}", recipe.getId());
-      return; // 直接返回，不执行插入
+    // Check if ingredients are null
+    if (recipe.getIngredients() == null) {
+      logger.info("Ingredients are null, skipping insertion, Recipe ID={}", recipe.getId());
+      return; // Return directly, do not perform insertion
     }
 
-    String stepSql =
-        "INSERT INTO recipe_cooking_step (recipe_id, description, image) "
-            + "VALUES (:recipe_id, :description, :image)";
-    for (CookingStep step : recipe.getCookingSteps()) {
-      validateCookingStep(step); // 验证非空字段
+    for (Ingredient ingredient : recipe.getIngredients()) {
+      // Validate the ingredient
+      validateIngredient(ingredient);
       try {
-        Map<String, Object> stepParams = new HashMap<>();
-        stepParams.put("recipe_id", recipe.getId());
-        stepParams.put("description", step.getDescription());
-        stepParams.put("image", step.getImage());
-        postgresDataAccess.upsertStatement(stepSql, stepParams); // 执行插入
-        logger.debug("插入烹饪步骤: {}", step.getDescription());
+        Map<String, Object> ingredientParams = new HashMap<>();
+        ingredientParams.put(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID, recipe.getId());
+        ingredientParams.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, ingredient.getName());
+        ingredientParams.put(
+            PostgresSqlStatement.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
+        ingredientParams.put(PostgresSqlStatement.INPUT_INGREDIENT_UOM, ingredient.getUom());
+        postgresDataAccess.upsertStatement(
+            PostgresSqlStatement.SQL_INGREDIENT_ADD, ingredientParams);
+        logger.debug("Inserted ingredient: {}", ingredient.getName());
       } catch (Exception e) {
-        logger.error("插入烹饪步骤时发生异常: {}", e.getMessage(), e);
-        throw e; // 重新抛出异常以触发事务回滚
+        logger.error("Exception occurred while inserting ingredient: {}", e.getMessage(), e);
+        throw e;
       }
     }
-    logger.info("烹饪步骤插入完成，食谱ID={}", recipe.getId());
+    logger.info("Ingredients insertion completed, Recipe ID={}", recipe.getId());
   }
 
-  // 辅助方法：删除与食谱关联的烹饪步骤
-  private void deleteCookingSteps(Long recipeId) {
-    logger.info("开始删除烹饪步骤，食谱ID={}", recipeId);
+  // Helper method: Delete ingredients associated with the recipe
+  void deleteIngredients(Long recipeId) {
+    logger.info("Starting to delete ingredients, Recipe ID={}", recipeId);
     try {
-      String deleteStepsSql = "DELETE FROM recipe_cooking_step WHERE recipe_id = :recipe_id";
-      Map<String, Object> deleteStepsParams = new HashMap<>();
-      deleteStepsParams.put("recipe_id", recipeId);
-      int deletedRows = postgresDataAccess.upsertStatement(deleteStepsSql, deleteStepsParams);
-      logger.debug("烹饪步骤删除成功，删除的行数: {}", deletedRows);
+      Map<String, Object> deleteIngredientsParams = new HashMap<>();
+      deleteIngredientsParams.put(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID, recipeId);
+      int deletedRows =
+          postgresDataAccess.upsertStatement(
+              PostgresSqlStatement.SQL_INGREDIENT_DELETE_BY_RECIPE_ID, deleteIngredientsParams);
+      logger.debug("Ingredients deleted successfully, number of deleted rows: {}", deletedRows);
     } catch (Exception e) {
-      logger.error("删除烹饪步骤时发生异常: {}", e.getMessage(), e);
-      throw e; // 重新抛出异常以触发事务回滚
+      logger.error("Exception occurred while deleting ingredients: {}", e.getMessage(), e);
+      throw e; // Rethrow the exception to trigger transaction rollback
     }
   }
 
-  // 辅助方法：获取与食谱关联的配料
+  // Helper method: Insert cooking steps associated with the recipe
+  void insertCookingSteps(Recipe recipe) {
+    logger.info("Starting to insert cooking steps, Recipe ID={}", recipe.getId());
+
+    // Check if cooking steps are null
+    if (recipe.getCookingSteps() == null) {
+      logger.info("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
+      return; // Return directly, do not perform insertion
+    }
+
+    for (CookingStep step : recipe.getCookingSteps()) {
+      validateCookingStep(step); // Validate non-empty fields
+      try {
+        Map<String, Object> stepParams = new HashMap<>();
+        stepParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID, recipe.getId());
+        stepParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_DESCRIPTION, step.getDescription());
+        stepParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_IMAGE, step.getImage());
+        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_COOKING_STEP_ADD, stepParams);
+        logger.debug("Inserted cooking step: {}", step.getDescription());
+      } catch (Exception e) {
+        logger.error("Exception occurred while inserting cooking step: {}", e.getMessage(), e);
+        throw e; // Rethrow the exception to trigger transaction rollback
+      }
+    }
+    logger.info("Cooking steps insertion completed, Recipe ID={}", recipe.getId());
+  }
+
+  // Helper method: Delete cooking steps associated with the recipe
+  void deleteCookingSteps(Long recipeId) {
+    logger.info("Starting to delete cooking steps, Recipe ID={}", recipeId);
+    try {
+      Map<String, Object> deleteStepsParams = new HashMap<>();
+      deleteStepsParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
+      int deletedRows =
+          postgresDataAccess.upsertStatement(
+              PostgresSqlStatement.SQL_COOKING_STEP_DELETE_RECIPE_ID, deleteStepsParams);
+      logger.debug("Cooking steps deleted successfully, number of deleted rows: {}", deletedRows);
+    } catch (Exception e) {
+      logger.error("Exception occurred while deleting cooking steps: {}", e.getMessage(), e);
+      throw e; // Rethrow the exception to trigger transaction rollback
+    }
+  }
+
+  // Helper method: Get ingredients associated with the recipe
   private List<Ingredient> getIngredientsForRecipe(Long recipeId) {
-    logger.info("获取配料，食谱ID={}", recipeId);
-    String sql = "SELECT * FROM recipe_ingredients WHERE recipe_id = :recipe_id ORDER BY id";
+    logger.info("Getting ingredients, Recipe ID={}", recipeId);
+
+    // Construct query parameters
     Map<String, Object> params = new HashMap<>();
-    params.put("recipe_id", recipeId);
+    params.put(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID, recipeId);
 
-    // 执行查询
-    List<Map<String, Object>> result = postgresDataAccess.queryStatement(sql, params);
+    // Execute the query
+    List<Map<String, Object>> result =
+        postgresDataAccess.queryStatement(
+            PostgresSqlStatement.SQL_INGREDIENT_GET_BY_RECIPE_ID, params);
 
+    // Construct the list of ingredients
     List<Ingredient> ingredients = new ArrayList<>();
     for (Map<String, Object> row : result) {
       Ingredient ingredient = new Ingredient();
-      ingredient.setId(row.get("id") != null ? ((Number) row.get("id")).longValue() : null);
+      ingredient.setId(
+          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID) != null
+              ? ((Number) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID)).longValue()
+              : null);
       ingredient.setRecipeId(
-          row.get("recipe_id") != null ? ((Number) row.get("recipe_id")).longValue() : null);
-      ingredient.setName(row.get("name") != null ? (String) row.get("name") : null);
+          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_RECIPE_ID) != null
+              ? ((Number) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_RECIPE_ID)).longValue()
+              : null);
+      ingredient.setName(
+          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME) != null
+              ? (String) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME)
+              : null);
       ingredient.setQuantity(
-          row.get("quantity") != null ? ((Number) row.get("quantity")).doubleValue() : null);
-      ingredient.setUom(row.get("uom") != null ? (String) row.get("uom") : null);
-      ingredients.add(ingredient); // 添加到配料列表
-      logger.debug("加载配料: {}", ingredient.getName());
+          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY) != null
+              ? ((Number) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY)).doubleValue()
+              : null);
+      ingredient.setUom(
+          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_UOM) != null
+              ? (String) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_UOM)
+              : null);
+      ingredients.add(ingredient); // Add to the ingredient list
+      logger.debug("Loaded ingredient: {}", ingredient.getName());
     }
 
-    logger.info("配料加载完成，数量={}", ingredients.size());
+    logger.info("Ingredients loading completed, count={}", ingredients.size());
     return ingredients;
   }
 
-  // 辅助方法：获取与食谱关联的烹饪步骤
+  // Helper method: Get cooking steps associated with the recipe
   private List<CookingStep> getCookingStepsForRecipe(Long recipeId) {
-    logger.info("获取烹饪步骤，食谱ID={}", recipeId);
-    String sql = "SELECT * FROM recipe_cooking_step WHERE recipe_id = :recipe_id ORDER BY id";
+    logger.info("Getting cooking steps, Recipe ID={}", recipeId);
+
+    // Construct query parameters
     Map<String, Object> params = new HashMap<>();
-    params.put("recipe_id", recipeId);
+    params.put(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
 
-    // 执行查询
-    List<Map<String, Object>> result = postgresDataAccess.queryStatement(sql, params);
+    // Execute the query
+    List<Map<String, Object>> result =
+        postgresDataAccess.queryStatement(
+            PostgresSqlStatement.SQL_COOKING_STEP_GET_BY_RECIPE_ID, params);
 
+    // Construct the list of cooking steps
     List<CookingStep> steps = new ArrayList<>();
     for (Map<String, Object> row : result) {
       CookingStep step = new CookingStep();
-      step.setId(row.get("id") != null ? ((Number) row.get("id")).longValue() : null);
+      step.setId(
+          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_ID) != null
+              ? ((Number) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_ID)).longValue()
+              : null);
       step.setRecipeId(
-          row.get("recipe_id") != null ? ((Number) row.get("recipe_id")).longValue() : null);
-      step.setDescription(row.get("description") != null ? (String) row.get("description") : null);
-      step.setImage(row.get("image") != null ? (String) row.get("image") : null);
-      steps.add(step); // 添加到烹饪步骤列表
-      logger.debug("加载烹饪步骤: {}", step.getDescription());
+          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_RECIPE_ID) != null
+              ? ((Number) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_RECIPE_ID)).longValue()
+              : null);
+      step.setDescription(
+          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_DESCRIPTION) != null
+              ? (String) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_DESCRIPTION)
+              : null);
+      step.setImage(
+          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_IMAGE) != null
+              ? (String) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_IMAGE)
+              : null);
+      steps.add(step); // Add to the cooking steps list
+      logger.debug("Loaded cooking step: {}", step.getDescription());
     }
 
-    logger.info("烹饪步骤加载完成，数量={}", steps.size());
+    logger.info("Cooking steps loading completed, count={}", steps.size());
     return steps;
   }
 }

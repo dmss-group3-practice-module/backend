@@ -1,7 +1,17 @@
 package nus.iss.team3.backend.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,172 +20,222 @@ import nus.iss.team3.backend.entity.Recipe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** 单元测试类：RecipeServiceTest 用于测试 RecipeService 类的各个方法，确保其行为符合预期。 */
+/**
+ * Unit test class: RecipeServiceTest is used to test the methods of the RecipeService class to
+ * ensure its behavior meets expectations.
+ */
 class RecipeServiceTest {
 
-  private IRecipeDataAccess mockDataAccess; // Mock 的数据访问层
-  private RecipeService recipeService; // 被测试的服务类
+  private IRecipeDataAccess mockDataAccess; // Mocked data access layer
+  private RecipeService recipeService; // Service class under test
 
-  /** 初始化测试环境，在每个测试之前创建新的 Mock 对象和 RecipeService 实例 */
+  /**
+   * Initializes the test environment by creating new mock objects and RecipeService instance before
+   * each test.
+   */
   @BeforeEach
   void setUp() {
     mockDataAccess = mock(IRecipeDataAccess.class);
     recipeService = new RecipeService(mockDataAccess);
   }
 
-  /** 测试成功添加一个有效的食谱 验证服务层调用数据访问层的 addRecipe 方法，并返回预期结果 */
+  /**
+   * Test successfully adding a valid recipe Verify that the service layer calls the data access
+   * layer's addRecipe method and returns the expected result
+   */
   @Test
   void addRecipe_Success() {
-    // Arrange: 创建一个有效的食谱对象
+    // Arrange: Create a valid recipe object
     Recipe recipe = new Recipe();
     recipe.setName("Test Recipe");
+    recipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    recipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
-    // 模拟数据访问层返回 true
+    // Mock the data access layer to return true
     when(mockDataAccess.addRecipe(recipe)).thenReturn(true);
 
-    // Act: 调用服务层的 addRecipe 方法
+    // Act: Call the service layer's addRecipe method
     boolean result = recipeService.addRecipe(recipe);
 
-    // Assert: 验证结果为 true，且数据访问层被调用一次
+    // Assert: Verify the result is true and the data access layer was called once
     assertTrue(result);
     verify(mockDataAccess, times(1)).addRecipe(recipe);
   }
 
-  /** 测试添加食谱时传入 null 对象 期望服务层抛出 IllegalArgumentException */
+  /**
+   * Test adding a recipe with a null object Expect the service layer to throw
+   * IllegalArgumentException
+   */
   @Test
   void addRecipe_NullRecipe_ThrowsException() {
-    // Act & Assert: 调用 addRecipe 方法传入 null，应抛出 IllegalArgumentException
+    // Act & Assert: Call addRecipe method with null, should throw IllegalArgumentException
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> recipeService.addRecipe(null));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe cannot be null", exception.getMessage());
 
-    // 验证数据访问层的 addRecipe 方法未被调用
+    // Verify the data access layer's addRecipe method was not called
     verify(mockDataAccess, never()).addRecipe(any());
   }
 
-  /** 测试添加食谱时传入没有名称的食谱对象 期望服务层抛出 IllegalArgumentException */
+  /**
+   * Test adding a recipe object without a name Expect the service layer to throw
+   * IllegalArgumentException
+   */
   @Test
   void addRecipe_EmptyName_ThrowsException() {
-    // Arrange: 创建一个食谱对象但不设置名称
+    // Arrange: Create a recipe object but do not set the name
     Recipe recipe = new Recipe();
 
-    // Act & Assert: 调用 addRecipe 方法，应抛出 IllegalArgumentException
+    // Act & Assert: Call addRecipe method, should throw IllegalArgumentException
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> recipeService.addRecipe(recipe));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱名称不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe name cannot be empty", exception.getMessage());
 
-    // 验证数据访问层的 addRecipe 方法未被调用
+    // Verify the data access layer's addRecipe method was not called
     verify(mockDataAccess, never()).addRecipe(any());
   }
 
-  /** 测试成功更新一个有效的食谱 验证服务层调用数据访问层的 updateRecipe 方法，并返回预期结果 */
+  /**
+   * Test successfully updating a valid recipe Verify that the service layer calls the data access
+   * layer's updateRecipe method and returns the expected result
+   */
   @Test
   void updateRecipe_Success() {
-    // Arrange: 创建一个有效的食谱对象，并设置 ID
+    // Arrange: Create a valid recipe object and set the ID
     Recipe recipe = new Recipe();
-    recipe.setId(1L);
+    recipe.setId(1L); // Set the ID
     recipe.setName("Updated Recipe");
+    recipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    recipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
-    // 模拟数据访问层返回 true
+    // Create an existing recipe object that is different from the new recipe
+    Recipe existingRecipe = new Recipe();
+    existingRecipe.setId(1L); // Same ID
+    existingRecipe.setName("Old Recipe");
+    existingRecipe.setCookingTimeInSec(600); // Different cooking time
+    existingRecipe.setDifficultyLevel(3); // Different difficulty level
+
+    // Mock the data access layer to return the existing recipe when fetched
+    when(mockDataAccess.getRecipeById(recipe.getId())).thenReturn(existingRecipe);
+    // Mock the data access layer to return true for the update
     when(mockDataAccess.updateRecipe(recipe)).thenReturn(true);
 
-    // Act: 调用服务层的 updateRecipe 方法
+    // Act: Call the service layer's updateRecipe method
     boolean result = recipeService.updateRecipe(recipe);
 
-    // Assert: 验证结果为 true，且数据访问层被调用一次
+    // Assert: Verify the result is true and the data access layer was called once
     assertTrue(result);
-    verify(mockDataAccess, times(1)).updateRecipe(recipe);
+    verify(mockDataAccess, times(1))
+        .getRecipeById(recipe.getId()); // Verify fetching existing recipe
+    verify(mockDataAccess, times(1)).updateRecipe(recipe); // Verify update was called
   }
 
-  /** 测试更新食谱时传入 null 对象 期望服务层抛出 IllegalArgumentException */
+  /**
+   * Test updating a recipe with a null object Expect the service layer to throw
+   * IllegalArgumentException
+   */
   @Test
   void updateRecipe_NullRecipe_ThrowsException() {
-    // Act & Assert: 调用 updateRecipe 方法传入 null，应抛出 IllegalArgumentException
+    // Act & Assert: Call updateRecipe method with null, should throw IllegalArgumentException
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> recipeService.updateRecipe(null));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe cannot be null", exception.getMessage());
 
-    // 验证数据访问层的 updateRecipe 方法未被调用
+    // Verify the data access layer's updateRecipe method was not called
     verify(mockDataAccess, never()).updateRecipe(any());
   }
 
-  /** 测试更新食谱时传入没有 ID 的食谱对象 期望服务层抛出 IllegalArgumentException */
+  /**
+   * Test updating a recipe object without an ID Expect the service layer to throw
+   * IllegalArgumentException
+   */
   @Test
   void updateRecipe_NullId_ThrowsException() {
-    // Arrange: 创建一个食谱对象但不设置 ID
+    // Arrange: Create a recipe object but do not set the ID
     Recipe recipe = new Recipe();
     recipe.setName("Recipe without ID");
 
-    // Act & Assert: 调用 updateRecipe 方法，应抛出 IllegalArgumentException
+    // Act & Assert: Call updateRecipe method, should throw IllegalArgumentException
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> recipeService.updateRecipe(recipe));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱 ID 不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe ID cannot be null", exception.getMessage());
 
-    // 验证数据访问层的 updateRecipe 方法未被调用
+    // Verify the data access layer's updateRecipe method was not called
     verify(mockDataAccess, never()).updateRecipe(any());
   }
 
-  /** 测试更新食谱时传入没有名称的食谱对象 期望服务层抛出 IllegalArgumentException */
+  /**
+   * Test updating a recipe object without a name Expect the service layer to throw
+   * IllegalArgumentException
+   */
   @Test
   void updateRecipe_EmptyName_ThrowsException() {
-    // Arrange: 创建一个食谱对象，设置 ID 但不设置名称
+    // Arrange: Create a recipe object, set ID but do not set name
     Recipe recipe = new Recipe();
     recipe.setId(1L);
 
-    // Act & Assert: 调用 updateRecipe 方法，应抛出 IllegalArgumentException
+    // Act & Assert: Call updateRecipe method, should throw IllegalArgumentException
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> recipeService.updateRecipe(recipe));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱名称不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe name cannot be empty", exception.getMessage());
 
-    // 验证数据访问层的 updateRecipe 方法未被调用
+    // Verify the data access layer's updateRecipe method was not called
     verify(mockDataAccess, never()).updateRecipe(any());
   }
 
-  /** 测试成功根据 ID 删除食谱 验证服务层调用数据访问层的 deleteRecipeById 方法，并返回预期结果 */
+  /**
+   * Test successfully deleting a recipe by ID Verify that the service layer calls the data access
+   * layer's deleteRecipeById method and returns the expected result
+   */
   @Test
   void deleteRecipeById_Success() {
-    // Arrange: 设置食谱 ID
+    // Arrange: Set the recipe ID
     Long recipeId = 1L;
 
-    // 模拟数据访问层返回 true
+    // Mock the data access layer to return true
     when(mockDataAccess.deleteRecipeById(recipeId)).thenReturn(true);
 
-    // Act: 调用服务层的 deleteRecipeById 方法
+    // Act: Call the service layer's deleteRecipeById method
     boolean result = recipeService.deleteRecipeById(recipeId);
 
-    // Assert: 验证结果为 true，且数据访问层被调用一次
+    // Assert: Verify the result is true and the data access layer was called once
     assertTrue(result);
     verify(mockDataAccess, times(1)).deleteRecipeById(recipeId);
   }
 
-  /** 测试删除食谱时传入 null ID 期望服务层抛出 NullPointerException */
+  /**
+   * Test deleting a recipe with a null ID Expect the service layer to throw NullPointerException
+   */
   @Test
   void deleteRecipeById_NullId_ThrowsException() {
-    // Act & Assert: 调用 deleteRecipeById 方法传入 null，应抛出 NullPointerException
+    // Act & Assert: Call deleteRecipeById method with null, should throw NullPointerException
     Exception exception =
         assertThrows(NullPointerException.class, () -> recipeService.deleteRecipeById(null));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱 ID 不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe ID cannot be null", exception.getMessage());
 
-    // 验证数据访问层的 deleteRecipeById 方法未被调用
+    // Verify the data access layer's deleteRecipeById method was not called
     verify(mockDataAccess, never()).deleteRecipeById(any());
   }
 
-  /** 测试成功根据 ID 获取食谱 验证服务层调用数据访问层的 getRecipeById 方法，并返回预期结果 */
+  /**
+   * Test successfully retrieving a recipe by ID Verify that the service layer calls the data access
+   * layer's getRecipeById method and returns the expected result
+   */
   @Test
   void getRecipeById_Found() {
-    // Arrange: 设置食谱 ID 和模拟返回的食谱对象
+    // Arrange: Set the recipe ID and mock the returned recipe object
     Long recipeId = 1L;
     Recipe recipe = new Recipe();
     recipe.setId(recipeId);
@@ -183,49 +243,59 @@ class RecipeServiceTest {
 
     when(mockDataAccess.getRecipeById(recipeId)).thenReturn(recipe);
 
-    // Act: 调用服务层的 getRecipeById 方法
+    // Act: Call the service layer's getRecipeById method
     Recipe result = recipeService.getRecipeById(recipeId);
 
-    // Assert: 验证返回的食谱对象与预期相符，并且数据访问层被调用一次
+    // Assert: Verify the returned recipe object matches the expected one and the data access layer
+    // was called once
     assertNotNull(result);
     assertEquals(recipeId, result.getId());
     assertEquals("Existing Recipe", result.getName());
     verify(mockDataAccess, times(1)).getRecipeById(recipeId);
   }
 
-  /** 测试根据 ID 获取食谱时传入 null ID 期望服务层抛出 NullPointerException */
+  /**
+   * Test getting a recipe by ID with a null ID Expect the service layer to throw
+   * NullPointerException
+   */
   @Test
   void getRecipeById_NullId_ThrowsException() {
-    // Act & Assert: 调用 getRecipeById 方法传入 null，应抛出 NullPointerException
+    // Act & Assert: Call getRecipeById method with null, should throw NullPointerException
     Exception exception =
         assertThrows(NullPointerException.class, () -> recipeService.getRecipeById(null));
 
-    // 验证异常消息是否正确
-    assertEquals("食谱 ID 不能为空", exception.getMessage());
+    // Verify the exception message is correct
+    assertEquals("Recipe ID cannot be null", exception.getMessage());
 
-    // 验证数据访问层的 getRecipeById 方法未被调用
+    // Verify the data access layer's getRecipeById method was not called
     verify(mockDataAccess, never()).getRecipeById(any());
   }
 
-  /** 测试根据 ID 获取食谱，当食谱不存在时 验证服务层返回 null */
+  /**
+   * Test getting a recipe by ID when the recipe does not exist Verify that the service layer
+   * returns null
+   */
   @Test
   void getRecipeById_NotFound() {
-    // Arrange: 设置食谱 ID，并模拟数据访问层返回 null
+    // Arrange: Set the recipe ID and mock the data access layer to return null
     Long recipeId = 1L;
     when(mockDataAccess.getRecipeById(recipeId)).thenReturn(null);
 
-    // Act: 调用服务层的 getRecipeById 方法
+    // Act: Call the service layer's getRecipeById method
     Recipe result = recipeService.getRecipeById(recipeId);
 
-    // Assert: 验证结果为 null，且数据访问层被调用一次
+    // Assert: Verify the result is null and the data access layer was called once
     assertNull(result);
     verify(mockDataAccess, times(1)).getRecipeById(recipeId);
   }
 
-  /** 测试成功获取所有食谱 验证服务层调用数据访问层的 getAllRecipes 方法，并返回预期结果 */
+  /**
+   * Test successfully retrieving all recipes Verify that the service layer calls the data access
+   * layer's getAllRecipes method and returns the expected result
+   */
   @Test
   void getAllRecipes_Success() {
-    // Arrange: 创建一个食谱列表并模拟数据访问层返回
+    // Arrange: Create a list of recipes and mock the data access layer to return it
     Recipe recipe1 = new Recipe();
     recipe1.setId(1L);
     recipe1.setName("Recipe One");
@@ -237,34 +307,42 @@ class RecipeServiceTest {
     List<Recipe> recipes = List.of(recipe1, recipe2);
     when(mockDataAccess.getAllRecipes()).thenReturn(recipes);
 
-    // Act: 调用服务层的 getAllRecipes 方法
+    // Act: Call the service layer's getAllRecipes method
     List<Recipe> result = recipeService.getAllRecipes();
 
-    // Assert: 验证返回的列表与预期相符，并且数据访问层被调用一次
+    // Assert: Verify the returned list matches the expected one and the data access layer was
+    // called once
     assertNotNull(result);
     assertEquals(2, result.size());
     verify(mockDataAccess, times(1)).getAllRecipes();
   }
 
-  /** 测试获取所有食谱时数据访问层返回空列表 验证服务层返回空列表 */
+  /**
+   * Test when the data access layer returns an empty list while retrieving all recipes Verify that
+   * the service layer returns an empty list
+   */
   @Test
   void getAllRecipes_EmptyList() {
-    // Arrange: 模拟数据访问层返回空列表
+    // Arrange: Mock the data access layer to return an empty list
     when(mockDataAccess.getAllRecipes()).thenReturn(Collections.emptyList());
 
-    // Act: 调用服务层的 getAllRecipes 方法
+    // Act: Call the service layer's getAllRecipes method
     List<Recipe> result = recipeService.getAllRecipes();
 
-    // Assert: 验证返回的列表为空，并且数据访问层被调用一次
+    // Assert: Verify the returned list is empty and the data access layer was called once
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(mockDataAccess, times(1)).getAllRecipes();
   }
 
-  /** 测试根据名称获取食谱，名称非空且有匹配结果 验证服务层调用数据访问层的 getRecipesByName 方法，并返回预期结果 */
+  /**
+   * Test getting recipes by name when the name is non-empty and there are matching results Verify
+   * that the service layer calls the data access layer's getRecipesByName method and returns the
+   * expected result
+   */
   @Test
   void getRecipesByName_Found() {
-    // Arrange: 设置搜索名称并模拟数据访问层返回的食谱列表
+    // Arrange: Set the search name and mock the data access layer to return a list of recipes
     String name = "Chicken";
     Recipe recipe = new Recipe();
     recipe.setId(1L);
@@ -272,54 +350,66 @@ class RecipeServiceTest {
 
     when(mockDataAccess.getRecipesByName(name)).thenReturn(List.of(recipe));
 
-    // Act: 调用服务层的 getRecipesByName 方法
+    // Act: Call the service layer's getRecipesByName method
     List<Recipe> result = recipeService.getRecipesByName(name);
 
-    // Assert: 验证返回的列表包含预期的食谱，并且数据访问层被调用一次
+    // Assert: Verify the returned list contains the expected recipe and the data access layer was
+    // called once
     assertNotNull(result);
     assertEquals(1, result.size());
     assertEquals("Chicken Curry", result.getFirst().getName());
     verify(mockDataAccess, times(1)).getRecipesByName(name);
   }
 
-  /** 测试根据名称获取食谱，名称非空但没有匹配结果 验证服务层返回空列表 */
+  /**
+   * Test getting recipes by name when the name is non-empty but there are no matching results
+   * Verify that the service layer returns an empty list
+   */
   @Test
   void getRecipesByName_NotFound() {
-    // Arrange: 设置搜索名称并模拟数据访问层返回空列表
+    // Arrange: Set the search name and mock the data access layer to return an empty list
     String name = "Beef";
     when(mockDataAccess.getRecipesByName(name)).thenReturn(Collections.emptyList());
 
-    // Act: 调用服务层的 getRecipesByName 方法
+    // Act: Call the service layer's getRecipesByName method
     List<Recipe> result = recipeService.getRecipesByName(name);
 
-    // Assert: 验证返回的列表为空，并且数据访问层被调用一次
+    // Assert: Verify the returned list is empty and the data access layer was called once
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(mockDataAccess, times(1)).getRecipesByName(name);
   }
 
-  /** 测试根据名称获取食谱时传入空字符串 验证服务层返回空列表，并且数据访问层未被调用 */
+  /**
+   * Test getting recipes by name when an empty string is passed Verify that the service layer
+   * returns an empty list and the data access layer is not called
+   */
   @Test
   void getRecipesByName_EmptyName_ReturnsEmptyList() {
-    // Arrange: 设置空字符串作为搜索名称
+    // Arrange: Set an empty string as the search name
     String name = "   ";
 
-    // Act: 调用服务层的 getRecipesByName 方法
+    // Act: Call the service layer's getRecipesByName method
     List<Recipe> result = recipeService.getRecipesByName(name);
 
-    // Assert: 验证返回的列表为空，并且数据访问层的 getRecipesByName 方法未被调用
+    // Assert: Verify the returned list is empty and the data access layer's getRecipesByName method
+    // was not called
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(mockDataAccess, never()).getRecipesByName(anyString());
   }
 
-  /** 测试根据名称获取食谱时传入 null 验证服务层返回空列表，并且数据访问层未被调用 */
+  /**
+   * Test getting recipes by name when null is passed Verify that the service layer returns an empty
+   * list and the data access layer is not called
+   */
   @Test
   void getRecipesByName_NullName_ReturnsEmptyList() {
-    // Act: 调用服务层的 getRecipesByName 方法传入 null
+    // Act: Call the service layer's getRecipesByName method with null
     List<Recipe> result = recipeService.getRecipesByName(null);
 
-    // Assert: 验证返回的列表为空，并且数据访问层的 getRecipesByName 方法未被调用
+    // Assert: Verify the returned list is empty and the data access layer's getRecipesByName method
+    // was not called
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(mockDataAccess, never()).getRecipesByName(anyString());

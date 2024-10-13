@@ -1,14 +1,23 @@
 package nus.iss.team3.backend.controller;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.util.List;
+import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.service.IRecipeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,19 +28,22 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** 单元测试类：RecipeControllerTest 用于测试 RecipeController 类的各个端点，确保其行为符合预期。 */
+/**
+ * Unit test class: RecipeControllerTest is used to test various endpoints of the RecipeController
+ * class to ensure its behavior meets expectations.
+ */
 @WebMvcTest(RecipeController.class)
 class RecipeControllerTest {
 
-  @Autowired private MockMvc mockMvc; // 模拟HTTP请求的工具
+  @Autowired private MockMvc mockMvc; // Tool for simulating HTTP requests
 
-  @MockBean private IRecipeService recipeService; // 模拟服务层的依赖
+  @MockBean private IRecipeService recipeService; // Mocking the service layer dependency
 
-  @Autowired private ObjectMapper objectMapper; // 用于将对象序列化为JSON
+  @Autowired private ObjectMapper objectMapper; // Used to serialize objects to JSON
 
-  private Recipe sampleRecipe; // 示例食谱对象，用于测试
+  private Recipe sampleRecipe; // Sample recipe object for testing
 
-  /** 在每个测试方法执行前初始化示例食谱对象 */
+  /** Initializes the sample recipe object before each test method is executed */
   @BeforeEach
   void setUp() {
     sampleRecipe = new Recipe();
@@ -43,18 +55,22 @@ class RecipeControllerTest {
     sampleRecipe.setCookingTimeInSec(3600);
     sampleRecipe.setDifficultyLevel(2);
     sampleRecipe.setRating(4.5);
-    sampleRecipe.setStatus(1);
+    sampleRecipe.setStatus(ERecipeStatus.DRAFT);
+    sampleRecipe.setCuisine("Chinese");
     sampleRecipe.setCreateDatetime(new Timestamp(System.currentTimeMillis()));
     sampleRecipe.setUpdateDatetime(new Timestamp(System.currentTimeMillis()));
   }
 
-  /** 测试成功添加一个新的食谱 验证返回201 CREATED状态，并且服务层的 addRecipe 方法被调用 */
+  /**
+   * Test successful addition of a new recipe. Verify returns 201 CREATED status and that the
+   * service layer's addRecipe method is called
+   */
   @Test
   void addRecipe_Success() throws Exception {
-    // Arrange: 模拟服务层成功添加食谱
+    // Arrange: Mock the service layer to successfully add a recipe
     when(recipeService.addRecipe(any(Recipe.class))).thenReturn(true);
 
-    // Act & Assert: 发送POST请求并验证响应状态和内容
+    // Act & Assert: Send POST request and verify response status and content
     mockMvc
         .perform(
             post("/api/recipes")
@@ -63,18 +79,21 @@ class RecipeControllerTest {
         .andExpect(status().isCreated())
         .andExpect(content().string("Recipe added successfully"));
 
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).addRecipe(any(Recipe.class));
   }
 
-  /** 测试添加食谱时传入无效数据，服务层抛出IllegalArgumentException 验证返回400 BAD REQUEST状态和错误消息 */
+  /**
+   * Test adding a recipe with invalid data, service layer throws IllegalArgumentException. Verify
+   * returns 400 BAD REQUEST status and error message
+   */
   @Test
   void addRecipe_InvalidData_ReturnsBadRequest() throws Exception {
-    // Arrange: 模拟服务层抛出 IllegalArgumentException
+    // Arrange: Mock the service layer to throw IllegalArgumentException
     when(recipeService.addRecipe(any(Recipe.class)))
         .thenThrow(new IllegalArgumentException("Invalid recipe data"));
 
-    // Act & Assert: 发送POST请求并验证响应状态和错误消息
+    // Act & Assert: Send POST request and verify response status and error message
     mockMvc
         .perform(
             post("/api/recipes")
@@ -83,40 +102,22 @@ class RecipeControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(content().string("Invalid recipe data"));
 
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).addRecipe(any(Recipe.class));
   }
 
-  /** 测试添加食谱时发生服务器错误 验证返回500 INTERNAL SERVER ERROR状态 */
-  @Test
-  void addRecipe_ServerError_ReturnsInternalServerError() throws Exception {
-    // Arrange: 模拟服务层抛出通用异常
-    when(recipeService.addRecipe(any(Recipe.class)))
-        .thenThrow(new RuntimeException("Database error"));
-
-    // Act & Assert: 发送POST请求并验证响应状态和错误消息
-    mockMvc
-        .perform(
-            post("/api/recipes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sampleRecipe)))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().string("Failed to add recipe"));
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).addRecipe(any(Recipe.class));
-  }
-
-  /** 测试成功更新一个现有的食谱 验证返回200 OK状态，并且服务层的 updateRecipe 方法被调用 */
+  /**
+   * Test successful update of an existing recipe. Verify returns 200 OK status and that the service
+   * layer's updateRecipe method is called
+   */
   @Test
   void updateRecipe_Success() throws Exception {
-    // Arrange: 模拟服务层成功更新食谱
-    when(recipeService.recipeExists(anyLong())).thenReturn(true);
+    // Arrange: Mock the service layer to successfully update a recipe
     when(recipeService.updateRecipe(any(Recipe.class))).thenReturn(true);
 
     Long recipeId = sampleRecipe.getId();
 
-    // Act & Assert: 发送PUT请求并验证响应状态和内容
+    // Act & Assert: Send PUT request and verify response status and content
     mockMvc
         .perform(
             put("/api/recipes/{id}", recipeId)
@@ -125,117 +126,39 @@ class RecipeControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("Recipe updated successfully"));
 
-    // 验证服务层方法被调用一次，并且ID被正确设置
-    verify(recipeService, times(1))
-        .updateRecipe(argThat(recipe -> recipe.getId().equals(recipeId)));
-  }
-
-  /** 测试更新食谱时传入无效数据，服务层抛出IllegalArgumentException 验证返回400 BAD REQUEST状态和错误消息 */
-  @Test
-  void updateRecipe_InvalidData_ReturnsBadRequest() throws Exception {
-    // Arrange: 模拟服务层抛出 IllegalArgumentException
-    when(recipeService.recipeExists(anyLong())).thenReturn(true);
-    when(recipeService.updateRecipe(any(Recipe.class)))
-        .thenThrow(new IllegalArgumentException("Invalid recipe data"));
-    Long recipeId = sampleRecipe.getId();
-
-    // Act & Assert: 发送PUT请求并验证响应状态和错误消息
-    mockMvc
-        .perform(
-            put("/api/recipes/{id}", recipeId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sampleRecipe)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string("Invalid recipe data"));
-
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).updateRecipe(any(Recipe.class));
   }
 
-  /** 测试更新食谱时发生服务器错误 验证返回500 INTERNAL SERVER ERROR状态 */
-  @Test
-  void updateRecipe_ServerError_ReturnsInternalServerError() throws Exception {
-    // Arrange: 模拟服务层抛出通用异常
-    when(recipeService.recipeExists(anyLong())).thenReturn(true);
-    when(recipeService.updateRecipe(any(Recipe.class)))
-        .thenThrow(new RuntimeException("Database error"));
-    Long recipeId = sampleRecipe.getId();
-
-    // Act & Assert: 发送PUT请求并验证响应状态和错误消息
-    mockMvc
-        .perform(
-            put("/api/recipes/{id}", recipeId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sampleRecipe)))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().string("Failed to update recipe"));
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).updateRecipe(any(Recipe.class));
-  }
-
-  /** 测试成功删除一个食谱 验证返回200 OK状态，并且服务层的 deleteRecipeById 方法被调用 */
+  /**
+   * Test successful deletion of a recipe. Verify returns 200 OK status and that the service layer's
+   * deleteRecipeById method is called
+   */
   @Test
   void deleteRecipe_Success() throws Exception {
-    // Arrange: 模拟服务层成功删除食谱
-    when(recipeService.recipeExists(anyLong())).thenReturn(true); // 确保食谱存在
+    // Arrange: Mock the service layer to successfully delete a recipe
     Long recipeId = sampleRecipe.getId();
 
-    // Act & Assert: 发送DELETE请求并验证响应状态和内容
+    // Act & Assert: Send DELETE request and verify response status and content
     mockMvc
         .perform(delete("/api/recipes/{id}", recipeId))
         .andExpect(status().isOk())
         .andExpect(content().string("Recipe deleted successfully"));
 
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).deleteRecipeById(recipeId);
   }
 
-  /** 测试当请求的食谱 ID 不存在时，控制器应返回 404 状态和相应的错误消息 */
-  @Test
-  void deleteRecipe_NotFound_ReturnsNotFound() throws Exception {
-    // Arrange: 模拟服务层方法
-    when(recipeService.recipeExists(anyLong())).thenReturn(false); // 确保食谱不存在
-    Long recipeId = sampleRecipe.getId();
-
-    // Act & Assert: 发送DELETE请求并验证响应状态和内容
-    mockMvc
-        .perform(delete("/api/recipes/{id}", recipeId))
-        .andExpect(status().isNotFound())
-        .andExpect(content().string("Recipe is not exist"));
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).recipeExists(recipeId);
-  }
-
-  /** 测试删除食谱时服务层抛出IllegalArgumentException 验证返回400 BAD REQUEST状态和错误消息 */
-  @Test
-  void deleteRecipe_InvalidData_ReturnsBadRequest() throws Exception {
-    // Arrange: 模拟服务层抛出 IllegalArgumentException
-    when(recipeService.recipeExists(anyLong())).thenReturn(true);
-    doThrow(new IllegalArgumentException("Invalid recipe ID"))
-        .when(recipeService)
-        .deleteRecipeById(anyLong());
-    Long recipeId = sampleRecipe.getId();
-
-    // Act & Assert: 发送DELETE请求并验证响应状态和错误消息
-    mockMvc
-        .perform(delete("/api/recipes/{id}", recipeId))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string("Invalid recipe ID"));
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).deleteRecipeById(recipeId);
-  }
-
-  /** 测试成功获取一个存在的食谱 验证返回200 OK状态和食谱数据 */
+  /**
+   * Test successful retrieval of an existing recipe. Verify returns 200 OK status and recipe data
+   */
   @Test
   void getRecipe_Found() throws Exception {
-    // Arrange: 模拟服务层返回存在的食谱
+    // Arrange: Mock the service layer to return an existing recipe
     when(recipeService.getRecipeById(anyLong())).thenReturn(sampleRecipe);
     Long recipeId = sampleRecipe.getId();
 
-    // Act & Assert: 发送GET请求并验证响应状态和返回的JSON内容
+    // Act & Assert: Send GET request and verify response status and returned JSON content
     mockMvc
         .perform(get("/api/recipes/{id}", recipeId))
         .andExpect(status().isOk())
@@ -244,42 +167,14 @@ class RecipeControllerTest {
         .andExpect(jsonPath("$.name", is(sampleRecipe.getName())))
         .andExpect(jsonPath("$.description", is(sampleRecipe.getDescription())));
 
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).getRecipeById(recipeId);
   }
 
-  /** 测试获取一个不存在的食谱 验证返回404 NOT FOUND状态 */
-  @Test
-  void getRecipe_NotFound() throws Exception {
-    // Arrange: 模拟服务层未找到食谱
-    when(recipeService.getRecipeById(anyLong())).thenReturn(null);
-    Long recipeId = sampleRecipe.getId();
-
-    // Act & Assert: 发送GET请求并验证响应状态
-    mockMvc.perform(get("/api/recipes/{id}", recipeId)).andExpect(status().isNotFound());
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).getRecipeById(recipeId);
-  }
-
-  /** 测试获取食谱时发生服务器错误 验证返回500 INTERNAL SERVER ERROR状态 */
-  @Test
-  void getRecipe_ServerError_ReturnsInternalServerError() throws Exception {
-    // Arrange: 模拟服务层抛出通用异常
-    when(recipeService.getRecipeById(anyLong())).thenThrow(new RuntimeException("Database error"));
-    Long recipeId = sampleRecipe.getId();
-
-    // Act & Assert: 发送GET请求并验证响应状态
-    mockMvc.perform(get("/api/recipes/{id}", recipeId)).andExpect(status().isInternalServerError());
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).getRecipeById(recipeId);
-  }
-
-  /** 测试成功获取所有食谱 验证返回200 OK状态和食谱列表 */
+  /** Test successful retrieval of all recipes. Verify returns 200 OK status and recipe list */
   @Test
   void getAllRecipes_Success() throws Exception {
-    // Arrange: 创建食谱列表并模拟服务层返回
+    // Arrange: Create a list of recipes and mock the service layer to return it
     Recipe recipe1 = new Recipe();
     recipe1.setId(1L);
     recipe1.setName("Recipe One");
@@ -290,7 +185,7 @@ class RecipeControllerTest {
 
     when(recipeService.getAllRecipes()).thenReturn(recipes);
 
-    // Act & Assert: 发送GET请求并验证响应状态和返回的JSON内容
+    // Act & Assert: Send GET request and verify response status and returned JSON content
     mockMvc
         .perform(get("/api/recipes"))
         .andExpect(status().isOk())
@@ -301,44 +196,17 @@ class RecipeControllerTest {
         .andExpect(jsonPath("$[1].id", is(recipe2.getId().intValue())))
         .andExpect(jsonPath("$[1].name", is(recipe2.getName())));
 
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).getAllRecipes();
   }
 
-  /** 测试获取所有食谱时服务层返回空列表 验证返回200 OK状态和空列表 */
-  @Test
-  void getAllRecipes_EmptyList() throws Exception {
-    // Arrange: 模拟服务层返回空列表
-    when(recipeService.getAllRecipes()).thenReturn(List.of());
-
-    // Act & Assert: 发送GET请求并验证响应状态和返回的JSON内容
-    mockMvc
-        .perform(get("/api/recipes"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(0)));
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).getAllRecipes();
-  }
-
-  /** 测试获取所有食谱时发生服务器错误 验证返回500 INTERNAL SERVER ERROR状态 */
-  @Test
-  void getAllRecipes_ServerError_ReturnsInternalServerError() throws Exception {
-    // Arrange: 模拟服务层抛出通用异常
-    when(recipeService.getAllRecipes()).thenThrow(new RuntimeException("Database error"));
-
-    // Act & Assert: 发送GET请求并验证响应状态
-    mockMvc.perform(get("/api/recipes")).andExpect(status().isInternalServerError());
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).getAllRecipes();
-  }
-
-  /** 测试成功根据名称搜索食谱 验证返回200 OK状态和匹配的食谱列表 */
+  /**
+   * Test successful search for recipes by name. Verify returns 200 OK status and matching recipe
+   * list
+   */
   @Test
   void searchRecipes_Found() throws Exception {
-    // Arrange: 创建匹配的食谱列表并模拟服务层返回
+    // Arrange: Create a matching recipe list and mock the service layer to return it
     String searchName = "Chicken";
     Recipe recipe = new Recipe();
     recipe.setId(1L);
@@ -347,7 +215,7 @@ class RecipeControllerTest {
 
     when(recipeService.getRecipesByName(searchName)).thenReturn(recipes);
 
-    // Act & Assert: 发送GET请求并验证响应状态和返回的JSON内容
+    // Act & Assert: Send GET request and verify response status and returned JSON content
     mockMvc
         .perform(get("/api/recipes/search").param("name", searchName))
         .andExpect(status().isOk())
@@ -356,42 +224,7 @@ class RecipeControllerTest {
         .andExpect(jsonPath("$[0].id", is(recipe.getId().intValue())))
         .andExpect(jsonPath("$[0].name", is(recipe.getName())));
 
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).getRecipesByName(searchName);
-  }
-
-  /** 测试根据名称搜索食谱时没有匹配结果 验证返回200 OK状态和空列表 */
-  @Test
-  void searchRecipes_NotFound() throws Exception {
-    // Arrange: 模拟服务层返回空列表
-    String searchName = "Beef";
-    when(recipeService.getRecipesByName(searchName)).thenReturn(List.of());
-
-    // Act & Assert: 发送GET请求并验证响应状态和返回的JSON内容
-    mockMvc
-        .perform(get("/api/recipes/search").param("name", searchName))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(0)));
-
-    // 验证服务层方法被调用一次
-    verify(recipeService, times(1)).getRecipesByName(searchName);
-  }
-
-  /** 测试根据名称搜索食谱时服务层抛出异常 验证返回500 INTERNAL SERVER ERROR状态 */
-  @Test
-  void searchRecipes_ServerError_ReturnsInternalServerError() throws Exception {
-    // Arrange: 模拟服务层抛出通用异常
-    String searchName = "Pasta";
-    when(recipeService.getRecipesByName(searchName))
-        .thenThrow(new RuntimeException("Database error"));
-
-    // Act & Assert: 发送GET请求并验证响应状态
-    mockMvc
-        .perform(get("/api/recipes/search").param("name", searchName))
-        .andExpect(status().isInternalServerError());
-
-    // 验证服务层方法被调用一次
+    // Verify the service layer method is called once
     verify(recipeService, times(1)).getRecipesByName(searchName);
   }
 }

@@ -21,6 +21,4 @@ public interface IRecipeService {
   List<Recipe> getAllRecipes();
 
   List<Recipe> getRecipesByName(String name);
-
-  boolean recipeExists(Long id);
 }

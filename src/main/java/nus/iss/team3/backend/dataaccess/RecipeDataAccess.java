@@ -9,8 +9,8 @@ import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
-import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
@@ -344,7 +344,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   // Helper method: Validate the ingredient
-  private void validateIngredient(Ingredient ingredient) {
+  private void validateIngredient(RecipeIngredient ingredient) {
     logger.debug("Validating ingredient: {}", ingredient.getName());
     if (ingredient.getName() == null
         || ingredient.getQuantity() == null
@@ -373,7 +373,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       return; // Return directly, do not perform insertion
     }
 
-    for (Ingredient ingredient : recipe.getIngredients()) {
+    for (RecipeIngredient ingredient : recipe.getIngredients()) {
       // Validate the ingredient
       validateIngredient(ingredient);
       try {
@@ -458,7 +458,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   // Helper method: Get ingredients associated with the recipe
-  private List<Ingredient> getIngredientsForRecipe(Long recipeId) {
+  private List<RecipeIngredient> getIngredientsForRecipe(Long recipeId) {
     logger.info("Getting ingredients, Recipe ID={}", recipeId);
 
     // Construct query parameters
@@ -471,9 +471,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
             PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID, params);
 
     // Construct the list of ingredients
-    List<Ingredient> ingredients = new ArrayList<>();
+    List<RecipeIngredient> ingredients = new ArrayList<>();
     for (Map<String, Object> row : result) {
-      Ingredient ingredient = new Ingredient();
+      RecipeIngredient ingredient = new RecipeIngredient();
       ingredient.setId(
           row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID) != null
               ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID)).longValue()

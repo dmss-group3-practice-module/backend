@@ -27,8 +27,8 @@ import java.util.Objects;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
-import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeIngredient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -65,7 +65,7 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe"), anyMap());
 
     // Verify that the INSERT statement for each ingredient was called correctly
-    for (Ingredient ingredient : recipe.getIngredients()) {
+    for (RecipeIngredient ingredient : recipe.getIngredients()) {
       // argThat(params -> { ... }) is a parameter matcher used to verify that the parameters passed
       // to the upsertStatement method are correct.
       verify(postgresDataAccess, times(1))
@@ -215,7 +215,7 @@ class RecipeDataAccessTest {
                         params.get(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID), 1L)));
 
     // Verify that the INSERT statement for each ingredient was called correctly
-    for (Ingredient ingredient : recipe.getIngredients()) {
+    for (RecipeIngredient ingredient : recipe.getIngredients()) {
       verify(postgresDataAccess, times(1))
           .upsertStatement(
               contains("INSERT INTO recipe_ingredients"),
@@ -671,7 +671,7 @@ class RecipeDataAccessTest {
     recipe.setUpdateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
     recipe.setCuisine("Chinese");
 
-    Ingredient ingredient = createIngredient("Sugar", 100.0, "grams");
+    RecipeIngredient ingredient = createIngredient("Sugar", 100.0, "grams");
     recipe.setIngredients(Collections.singletonList(ingredient));
 
     CookingStep step = createCookingStep("Mix ingredients.", "step1.jpg");
@@ -681,8 +681,8 @@ class RecipeDataAccessTest {
   }
 
   /** Helper method: Create a sample ingredient object for testing */
-  private Ingredient createIngredient(String name, double quantity, String uom) {
-    Ingredient ingredient = new Ingredient();
+  private RecipeIngredient createIngredient(String name, double quantity, String uom) {
+    RecipeIngredient ingredient = new RecipeIngredient();
     ingredient.setName(name);
     ingredient.setQuantity(quantity);
     ingredient.setUom(uom);
@@ -763,7 +763,7 @@ class RecipeDataAccessTest {
     recipe.setCreateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
     recipe.setUpdateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
 
-    List<Ingredient> ingredients =
+    List<RecipeIngredient> ingredients =
         Arrays.asList(
             createIngredient("Sugar", 100.0, "grams"), createIngredient("Flour", 200.0, "grams"));
     recipe.setIngredients(ingredients);

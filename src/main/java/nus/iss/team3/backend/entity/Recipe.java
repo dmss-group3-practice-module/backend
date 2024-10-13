@@ -23,7 +23,7 @@ public class Recipe {
   private ERecipeStatus status;
   private Timestamp createDatetime;
   private Timestamp updateDatetime;
-  private List<Ingredient> ingredients;
+  private List<RecipeIngredient> ingredients;
   private List<CookingStep> cookingSteps;
   private String cuisine;
 
@@ -42,7 +42,7 @@ public class Recipe {
       ERecipeStatus status,
       Timestamp createDatetime,
       Timestamp updateDatetime,
-      List<Ingredient> ingredients,
+      List<RecipeIngredient> ingredients,
       List<CookingStep> cookingSteps,
       String cuisine) {
     this.id = id;
@@ -150,11 +150,11 @@ public class Recipe {
     this.updateDatetime = updateDatetime;
   }
 
-  public List<Ingredient> getIngredients() {
+  public List<RecipeIngredient> getIngredients() {
     return ingredients;
   }
 
-  public void setIngredients(List<Ingredient> ingredients) {
+  public void setIngredients(List<RecipeIngredient> ingredients) {
     this.ingredients = ingredients;
   }
 

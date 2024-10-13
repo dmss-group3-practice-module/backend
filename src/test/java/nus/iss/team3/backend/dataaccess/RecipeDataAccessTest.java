@@ -200,9 +200,9 @@ class RecipeDataAccessTest {
             contains("UPDATE recipe"),
             argThat(
                 params ->
-                    Objects.equals(params.get(PostgresSqlStatement.COLUMN_RECIPE_ID), 1L)
+                    Objects.equals(params.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID), 1L)
                         && Objects.equals(
-                            params.get(PostgresSqlStatement.COLUMN_RECIPE_NAME),
+                            params.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME),
                             recipe.getName())));
 
     // Verify that the DELETE statement for ingredients was called once
@@ -212,7 +212,7 @@ class RecipeDataAccessTest {
             argThat(
                 params ->
                     Objects.equals(
-                        params.get(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID), 1L)));
+                        params.get(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID), 1L)));
 
     // Verify that the INSERT statement for each ingredient was called correctly
     for (Ingredient ingredient : recipe.getIngredients()) {
@@ -234,7 +234,7 @@ class RecipeDataAccessTest {
             argThat(
                 params ->
                     Objects.equals(
-                        params.get(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID), 1L)));
+                        params.get(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID), 1L)));
 
     // Verify that the INSERT statement for each cooking step was called correctly
     for (CookingStep step : recipe.getCookingSteps()) {
@@ -702,19 +702,19 @@ class RecipeDataAccessTest {
    */
   private Map<String, Object> createSampleRecipeMap() {
     Map<String, Object> map = new HashMap<>();
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_ID, 1L);
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID, 1L);
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_NAME, "Sample Recipe");
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_IMAGE, "sample.jpg");
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION, "A sample recipe description.");
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME, 3600);
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL, 2);
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_RATING, 4.5);
-    map.put(PostgresSqlStatement.COLUMN_RECIPE_STATUS, 1);
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID, 1L);
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATOR_ID, 1L);
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME, "Sample Recipe");
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_IMAGE, "sample.jpg");
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION, "A sample recipe description.");
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME, 3600);
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DIFFICULTY_LEVEL, 2);
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING, 4.5);
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS, 1);
     map.put(
-        PostgresSqlStatement.COLUMN_RECIPE_CREATE_TIME, new Timestamp(System.currentTimeMillis()));
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATE_TIME, new Timestamp(System.currentTimeMillis()));
     map.put(
-        PostgresSqlStatement.COLUMN_RECIPE_UPDATE_TIME, new Timestamp(System.currentTimeMillis()));
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_UPDATE_TIME, new Timestamp(System.currentTimeMillis()));
     return map;
   }
 

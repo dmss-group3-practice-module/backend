@@ -46,7 +46,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       // Execute the insert statement
       List<Map<String, Object>> result =
-          postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_RECIPE_ADD, recipeParams);
+          postgresDataAccess.queryStatement(PostgresSqlStatementRecipe.SQL_RECIPE_ADD, recipeParams);
 
       if (result.isEmpty()) {
         logger.warn("Failed to insert recipe, no generated ID returned");
@@ -55,7 +55,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       // Get the generated recipe ID and set it to the recipe object
       Long recipeId =
-          ((Number) result.getFirst().get(PostgresSqlStatement.COLUMN_RECIPE_ID)).longValue();
+          ((Number) result.getFirst().get(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID)).longValue();
       recipe.setId(recipeId);
       logger.debug("Recipe inserted successfully, generated ID: {}", recipeId);
 
@@ -96,11 +96,11 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       // Build the update SQL statement and parameters
       Map<String, Object> recipeParams = buildRecipeParams(recipe);
-      recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_ID, recipe.getId());
+      recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID, recipe.getId());
 
       // Execute the update statement
       int updatedRows =
-          postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_RECIPE_UPDATE, recipeParams);
+          postgresDataAccess.upsertStatement(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE, recipeParams);
 
       if (updatedRows == 0) {
         logger.warn("No recipe found with ID={} for update", recipe.getId());
@@ -142,8 +142,8 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       // Execute the delete statement
       int deletedRows =
           postgresDataAccess.upsertStatement(
-              PostgresSqlStatement.SQL_RECIPE_DELETE_BY_ID,
-              Collections.singletonMap(PostgresSqlStatement.INPUT_RECIPE_ID, recipeId));
+              PostgresSqlStatementRecipe.SQL_RECIPE_DELETE_BY_ID,
+              Collections.singletonMap(PostgresSqlStatementRecipe.INPUT_RECIPE_ID, recipeId));
 
       if (deletedRows > 0) {
         logger.info("Recipe deleted successfully: ID={}", recipeId);
@@ -165,8 +165,8 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       // Execute the query
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(
-              PostgresSqlStatement.SQL_RECIPE_GET_BY_ID,
-              Collections.singletonMap(PostgresSqlStatement.INPUT_RECIPE_ID, recipeId));
+              PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_ID,
+              Collections.singletonMap(PostgresSqlStatementRecipe.INPUT_RECIPE_ID, recipeId));
 
       if (result.isEmpty()) {
         logger.warn("No recipe found with ID={}", recipeId);
@@ -199,7 +199,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     try {
       // Execute the query
       List<Map<String, Object>> result =
-          postgresDataAccess.queryStatement(PostgresSqlStatement.SQL_RECIPE_GET_ALL, null);
+          postgresDataAccess.queryStatement(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL, null);
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
@@ -227,8 +227,8 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       // Execute the query: use wildcard for fuzzy query
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(
-              PostgresSqlStatement.SQL_RECIPE_GET_BY_NAME,
-              Collections.singletonMap(PostgresSqlStatement.INPUT_RECIPE_NAME, "%" + name + "%"));
+              PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_NAME,
+              Collections.singletonMap(PostgresSqlStatementRecipe.INPUT_RECIPE_NAME, "%" + name + "%"));
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
@@ -252,17 +252,17 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   // Helper method: Build a map of recipe parameters
   private Map<String, Object> buildRecipeParams(Recipe recipe) {
     Map<String, Object> recipeParams = new HashMap<>();
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID, recipe.getCreatorId());
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_NAME, recipe.getName());
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_IMAGE, recipe.getImage());
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION, recipe.getDescription());
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME, recipe.getCookingTimeInSec());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATOR_ID, recipe.getCreatorId());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME, recipe.getName());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_IMAGE, recipe.getImage());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION, recipe.getDescription());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME, recipe.getCookingTimeInSec());
     recipeParams.put(
-        PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL, recipe.getDifficultyLevel());
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_RATING, recipe.getRating());
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_DIFFICULTY_LEVEL, recipe.getDifficultyLevel());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING, recipe.getRating());
     // Converts ERecipeStatus to its corresponding integer value
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_STATUS, recipe.getStatus().code);
-    recipeParams.put(PostgresSqlStatement.COLUMN_RECIPE_CUISINE, recipe.getCuisine());
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS, recipe.getStatus().code);
+    recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE, recipe.getCuisine());
     return recipeParams;
   }
 
@@ -273,46 +273,46 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     Recipe recipe = new Recipe();
 
     recipe.setId(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_ID) != null
-            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_ID)).longValue()
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID) != null
+            ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID)).longValue()
             : null);
     recipe.setCreatorId(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID) != null
-            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_CREATOR_ID)).longValue()
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATOR_ID) != null
+            ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATOR_ID)).longValue()
             : null);
     recipe.setName(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_NAME) != null
-            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_NAME)
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME) != null
+            ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME)
             : null);
     recipe.setImage(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_IMAGE) != null
-            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_IMAGE)
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_IMAGE) != null
+            ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_IMAGE)
             : null);
     recipe.setDescription(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION) != null
-            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_DESCRIPTION)
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION) != null
+            ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION)
             : null);
     recipe.setCookingTimeInSec(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME) != null
-            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_COOKING_TIME)).intValue()
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME) != null
+            ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME)).intValue()
             : null);
     recipe.setDifficultyLevel(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL) != null
-            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_DIFFICULTY_LEVEL)).intValue()
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DIFFICULTY_LEVEL) != null
+            ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DIFFICULTY_LEVEL)).intValue()
             : null);
     recipe.setRating(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_RATING) != null
-            ? ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_RATING)).doubleValue()
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING) != null
+            ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING)).doubleValue()
             : null);
     // Convert integer values to ERecipeStatus
     recipe.setStatus(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_STATUS) != null
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS) != null
             ? ERecipeStatus.valueOfCode(
-                ((Number) row.get(PostgresSqlStatement.COLUMN_RECIPE_STATUS)).intValue())
+                ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS)).intValue())
             : null);
     recipe.setCuisine(
-        row.get(PostgresSqlStatement.COLUMN_RECIPE_CUISINE) != null
-            ? (String) row.get(PostgresSqlStatement.COLUMN_RECIPE_CUISINE)
+        row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE) != null
+            ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE)
             : null);
     recipe.setCreateDatetime(
         row.get("create_datetime") != null ? (Timestamp) row.get("create_datetime") : null);
@@ -373,13 +373,13 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       validateIngredient(ingredient);
       try {
         Map<String, Object> ingredientParams = new HashMap<>();
-        ingredientParams.put(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID, recipe.getId());
-        ingredientParams.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, ingredient.getName());
+        ingredientParams.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipe.getId());
+        ingredientParams.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_NAME, ingredient.getName());
         ingredientParams.put(
-            PostgresSqlStatement.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
-        ingredientParams.put(PostgresSqlStatement.INPUT_INGREDIENT_UOM, ingredient.getUom());
+            PostgresSqlStatementRecipe.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
+        ingredientParams.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_UOM, ingredient.getUom());
         postgresDataAccess.upsertStatement(
-            PostgresSqlStatement.SQL_INGREDIENT_ADD, ingredientParams);
+            PostgresSqlStatementRecipe.SQL_INGREDIENT_ADD, ingredientParams);
         logger.debug("Inserted ingredient: {}", ingredient.getName());
       } catch (Exception e) {
         logger.error("Exception occurred while inserting ingredient: {}", e.getMessage(), e);
@@ -394,10 +394,10 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     logger.info("Starting to delete ingredients, Recipe ID={}", recipeId);
     try {
       Map<String, Object> deleteIngredientsParams = new HashMap<>();
-      deleteIngredientsParams.put(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID, recipeId);
+      deleteIngredientsParams.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
       int deletedRows =
           postgresDataAccess.upsertStatement(
-              PostgresSqlStatement.SQL_INGREDIENT_DELETE_BY_RECIPE_ID, deleteIngredientsParams);
+              PostgresSqlStatementRecipe.SQL_INGREDIENT_DELETE_BY_RECIPE_ID, deleteIngredientsParams);
       logger.debug("Ingredients deleted successfully, number of deleted rows: {}", deletedRows);
     } catch (Exception e) {
       logger.error("Exception occurred while deleting ingredients: {}", e.getMessage(), e);
@@ -419,10 +419,10 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       validateCookingStep(step); // Validate non-empty fields
       try {
         Map<String, Object> stepParams = new HashMap<>();
-        stepParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID, recipe.getId());
-        stepParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_DESCRIPTION, step.getDescription());
-        stepParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_IMAGE, step.getImage());
-        postgresDataAccess.upsertStatement(PostgresSqlStatement.SQL_COOKING_STEP_ADD, stepParams);
+        stepParams.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipe.getId());
+        stepParams.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_DESCRIPTION, step.getDescription());
+        stepParams.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_IMAGE, step.getImage());
+        postgresDataAccess.upsertStatement(PostgresSqlStatementRecipe.SQL_COOKING_STEP_ADD, stepParams);
         logger.debug("Inserted cooking step: {}", step.getDescription());
       } catch (Exception e) {
         logger.error("Exception occurred while inserting cooking step: {}", e.getMessage(), e);
@@ -437,10 +437,10 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     logger.info("Starting to delete cooking steps, Recipe ID={}", recipeId);
     try {
       Map<String, Object> deleteStepsParams = new HashMap<>();
-      deleteStepsParams.put(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
+      deleteStepsParams.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
       int deletedRows =
           postgresDataAccess.upsertStatement(
-              PostgresSqlStatement.SQL_COOKING_STEP_DELETE_RECIPE_ID, deleteStepsParams);
+              PostgresSqlStatementRecipe.SQL_COOKING_STEP_DELETE_RECIPE_ID, deleteStepsParams);
       logger.debug("Cooking steps deleted successfully, number of deleted rows: {}", deletedRows);
     } catch (Exception e) {
       logger.error("Exception occurred while deleting cooking steps: {}", e.getMessage(), e);
@@ -454,36 +454,36 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
     // Construct query parameters
     Map<String, Object> params = new HashMap<>();
-    params.put(PostgresSqlStatement.INPUT_INGREDIENT_RECIPE_ID, recipeId);
+    params.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
 
     // Execute the query
     List<Map<String, Object>> result =
         postgresDataAccess.queryStatement(
-            PostgresSqlStatement.SQL_INGREDIENT_GET_BY_RECIPE_ID, params);
+            PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID, params);
 
     // Construct the list of ingredients
     List<Ingredient> ingredients = new ArrayList<>();
     for (Map<String, Object> row : result) {
       Ingredient ingredient = new Ingredient();
       ingredient.setId(
-          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID) != null
-              ? ((Number) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID)).longValue()
+          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID) != null
+              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID)).longValue()
               : null);
       ingredient.setRecipeId(
-          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_RECIPE_ID) != null
-              ? ((Number) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_RECIPE_ID)).longValue()
+          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID) != null
+              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID)).longValue()
               : null);
       ingredient.setName(
-          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME) != null
-              ? (String) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_NAME)
+          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME) != null
+              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME)
               : null);
       ingredient.setQuantity(
-          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY) != null
-              ? ((Number) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_QUANTITY)).doubleValue()
+          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY) != null
+              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY)).doubleValue()
               : null);
       ingredient.setUom(
-          row.get(PostgresSqlStatement.COLUMN_INGREDIENT_UOM) != null
-              ? (String) row.get(PostgresSqlStatement.COLUMN_INGREDIENT_UOM)
+          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM) != null
+              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM)
               : null);
       ingredients.add(ingredient); // Add to the ingredient list
       logger.debug("Loaded ingredient: {}", ingredient.getName());
@@ -499,32 +499,32 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
     // Construct query parameters
     Map<String, Object> params = new HashMap<>();
-    params.put(PostgresSqlStatement.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
+    params.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
 
     // Execute the query
     List<Map<String, Object>> result =
         postgresDataAccess.queryStatement(
-            PostgresSqlStatement.SQL_COOKING_STEP_GET_BY_RECIPE_ID, params);
+            PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID, params);
 
     // Construct the list of cooking steps
     List<CookingStep> steps = new ArrayList<>();
     for (Map<String, Object> row : result) {
       CookingStep step = new CookingStep();
       step.setId(
-          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_ID) != null
-              ? ((Number) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_ID)).longValue()
+          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID) != null
+              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID)).longValue()
               : null);
       step.setRecipeId(
-          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_RECIPE_ID) != null
-              ? ((Number) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_RECIPE_ID)).longValue()
+          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_RECIPE_ID) != null
+              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_RECIPE_ID)).longValue()
               : null);
       step.setDescription(
-          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_DESCRIPTION) != null
-              ? (String) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_DESCRIPTION)
+          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_DESCRIPTION) != null
+              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_DESCRIPTION)
               : null);
       step.setImage(
-          row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_IMAGE) != null
-              ? (String) row.get(PostgresSqlStatement.COLUMN_COOKING_STEP_IMAGE)
+          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE) != null
+              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE)
               : null);
       steps.add(step); // Add to the cooking steps list
       logger.debug("Loaded cooking step: {}", step.getDescription());

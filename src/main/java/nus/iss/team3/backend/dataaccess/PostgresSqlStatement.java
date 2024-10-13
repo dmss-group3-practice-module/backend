@@ -32,6 +32,33 @@ public class PostgresSqlStatement {
   public static final String COLUMN_USER_ACCOUNT_CREATE_DATETIME = "create_datetime";
   public static final String COLUMN_USER_ACCOUNT_UPDATE_DATETIME = "update_datetime";
 
+  public static final String SQL_USER_ACCOUNT_GET_BY_NAME_WITH_PASSWORD =
+      "SELECT "
+          + COLUMN_USER_ACCOUNT_ID
+          + ", "
+          + COLUMN_USER_ACCOUNT_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_PASSWORD
+          + ", "
+          + COLUMN_USER_ACCOUNT_DISPLAY_NAME
+          + ", "
+          + COLUMN_USER_ACCOUNT_EMAIL
+          + ", "
+          + COLUMN_USER_ACCOUNT_STATUS
+          + ", "
+          + COLUMN_USER_ACCOUNT_ROLE
+          + ", "
+          + COLUMN_USER_ACCOUNT_CREATE_DATETIME
+          + ", "
+          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
+          + " FROM "
+          + TABLE_USER_ACCOUNT
+          + " WHERE "
+          + COLUMN_USER_ACCOUNT_NAME
+          + " = :"
+          + INPUT_USER_ACCOUNT_NAME
+          + ";";
+
   public static final String SQL_USER_ACCOUNT_ADD =
       "INSERT INTO "
           + TABLE_USER_ACCOUNT

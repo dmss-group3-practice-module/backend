@@ -36,6 +36,33 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
 
   @Autowired private JdbcTemplate jdbcTemplate;
 
+  @Override
+  public UserAccount getUserByNameForAuth(String name) {
+    try {
+      Map<String, Object> sqlInput = new HashMap<>();
+      sqlInput.put(INPUT_USER_ACCOUNT_NAME, name);
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(SQL_USER_ACCOUNT_GET_BY_NAME_WITH_PASSWORD, sqlInput);
+      if (!result.isEmpty()) {
+        UserAccount user = translateDBRecordToUserAccountWithPassword(result.get(0));
+        logger.debug("Retrieved user: {} with role: {}", user.getName(), user.getRole());
+        return user;
+      }
+      logger.warn("No user found with name: {}", name);
+      return null;
+    } catch (DataAccessException e) {
+      logger.error("Error getting user by name for auth: {}", name, e);
+      return null;
+    }
+  }
+
+  // New method to translate DB record to UserAccount including password
+  private UserAccount translateDBRecordToUserAccountWithPassword(Map<String, Object> entity) {
+    UserAccount returnItem = translateDBRecordToUserAccount(entity);
+    returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
+    return returnItem;
+  }
+
   /**
    * @param userAccount user account to be added
    * @return whether adding the account was successful or not
@@ -141,7 +168,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   public List<UserAccount> getAllUsers() {
     String sql = SQL_USER_ACCOUNT_GET_ALL;
     try {
-      List<UserAccount> users = jdbcTemplate.query(sql, new UserAccountRowMapper());
+      List<UserAccount> users = jdbcTemplate.query(sql, new UserAccountRowMapper(false));
       logger.info("Found {} users", users.size());
       return users;
     } catch (DataAccessException e) {
@@ -191,6 +218,12 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   }
 
   private class UserAccountRowMapper implements RowMapper<UserAccount> {
+    private final boolean includePassword;
+
+    public UserAccountRowMapper(boolean includePassword) {
+      this.includePassword = includePassword;
+    }
+
     @Override
     public UserAccount mapRow(ResultSet rs, int rowNum) throws SQLException {
       UserAccount user = new UserAccount();
@@ -198,6 +231,9 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
       user.setName(rs.getString(COLUMN_USER_ACCOUNT_NAME));
       // Password is not set here as it's not returned from the database
       // user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
+      if (includePassword) {
+        user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
+      }
       user.setDisplayName(rs.getString(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
       user.setEmail(rs.getString(COLUMN_USER_ACCOUNT_EMAIL));
       user.setStatus(EUserAccountStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));

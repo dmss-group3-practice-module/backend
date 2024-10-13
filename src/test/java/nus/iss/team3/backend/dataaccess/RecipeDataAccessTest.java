@@ -712,9 +712,11 @@ class RecipeDataAccessTest {
     map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING, 4.5);
     map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS, 1);
     map.put(
-        PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATE_TIME, new Timestamp(System.currentTimeMillis()));
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATE_TIME,
+        new Timestamp(System.currentTimeMillis()));
     map.put(
-        PostgresSqlStatementRecipe.COLUMN_RECIPE_UPDATE_TIME, new Timestamp(System.currentTimeMillis()));
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_UPDATE_TIME,
+        new Timestamp(System.currentTimeMillis()));
     return map;
   }
 

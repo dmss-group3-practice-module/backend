@@ -5,7 +5,7 @@ package nus.iss.team3.backend.dataaccess;
  *
  * @author Desmond Tan Zhi Heng, Liu Kun
  */
-public class PostgresSqlStatement {
+public class PostgresSqlStatementRecipe {
 
   // Input parameter names
   public static final String INPUT_USER_ACCOUNT_ID = "id";

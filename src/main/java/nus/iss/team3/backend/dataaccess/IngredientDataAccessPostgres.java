@@ -132,7 +132,7 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
   @Override
   public List<Ingredient> getIngredientsByUser(int userId) {
     Map<String, Object> sqlInput = new HashMap<>();
-    sqlInput.put(PostgresSqlStatement.INPUT_USER_ACCOUNT_ID, userId);
+    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_USER_ACCOUNT_ID, userId);
 
     List<Map<String, Object>> entityReturned =
         postgresDataAccess.queryStatement(

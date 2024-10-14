@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -202,6 +203,15 @@ class RecipeServiceTest {
     // Arrange: Set the recipe ID
     Long recipeId = 1L;
 
+    // Create an existing recipe object that is different from the new recipe
+    Recipe existingRecipe = new Recipe();
+    existingRecipe.setId(1L); // Same ID
+    existingRecipe.setName("Old Recipe");
+    existingRecipe.setCookingTimeInSec(600); // Different cooking time
+    existingRecipe.setDifficultyLevel(3); // Different difficulty level
+
+    // Mock the data access layer to return the existing recipe when fetched
+    when(mockDataAccess.getRecipeById(anyLong())).thenReturn(existingRecipe);
     // Mock the data access layer to return true
     when(mockDataAccess.deleteRecipeById(recipeId)).thenReturn(true);
 

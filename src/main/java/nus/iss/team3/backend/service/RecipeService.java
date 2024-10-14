@@ -6,7 +6,6 @@ import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.entity.Recipe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,7 +14,8 @@ import org.springframework.stereotype.Service;
  * @author Mao Weining
  */
 @Service // Marks this class as a Spring service component
-@Profile("recipe")
+// TODO: Activate Spring Profile
+// @Profile("recipe")
 public class RecipeService implements IRecipeService {
 
   private static final Logger logger = LogManager.getLogger(RecipeService.class);
@@ -74,6 +74,14 @@ public class RecipeService implements IRecipeService {
   public boolean deleteRecipeById(Long recipeId) {
     // Check if the incoming recipe ID is null, if it is null then throw an exception
     Objects.requireNonNull(recipeId, "Recipe ID cannot be null");
+
+    // Fetch the existing recipe from the database
+    Recipe existingRecipe = recipeDataAccess.getRecipeById(recipeId);
+    if (existingRecipe == null) {
+      logger.error("Recipe with ID {} not found for delete", recipeId);
+      throw new IllegalArgumentException("Recipe not found");
+    }
+
     logger.info("Deleting recipe with ID: {}", recipeId);
     // Delete a recipe with a specified ID using the data access layer method
     boolean result = recipeDataAccess.deleteRecipeById(recipeId);

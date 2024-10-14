@@ -2,11 +2,11 @@ package nus.iss.team3.backend.service;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("!recipe")
+// TODO: Activate Spring Profile
+// @Profile("!recipe")
 public class RecipeWebCaller implements IRecipeService {
 
   @Override

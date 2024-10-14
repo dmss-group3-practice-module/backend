@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 // TODO: set Config profile
 // @Profile(ProfileConfig.PROFILE_RECIPE)
-// Set the base URL path to /api/recipes, all mappings will be based on this path
-@RequestMapping("/api/recipes")
+// Set the base URL path to /recipe, all mappings will be based on this path
+@RequestMapping("/recipe")
 public class RecipeController {
 
   private static final Logger logger = LogManager.getLogger(RecipeController.class);

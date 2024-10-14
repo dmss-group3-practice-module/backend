@@ -73,7 +73,7 @@ class RecipeControllerTest {
     // Act & Assert: Send POST request and verify response status and content
     mockMvc
         .perform(
-            post("/api/recipes")
+            post("/recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(sampleRecipe)))
         .andExpect(status().isCreated())
@@ -96,7 +96,7 @@ class RecipeControllerTest {
     // Act & Assert: Send POST request and verify response status and error message
     mockMvc
         .perform(
-            post("/api/recipes")
+            post("/recipe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(sampleRecipe)))
         .andExpect(status().isBadRequest())
@@ -120,7 +120,7 @@ class RecipeControllerTest {
     // Act & Assert: Send PUT request and verify response status and content
     mockMvc
         .perform(
-            put("/api/recipes/{id}", recipeId)
+            put("/recipe/{id}", recipeId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(sampleRecipe)))
         .andExpect(status().isOk())
@@ -141,7 +141,7 @@ class RecipeControllerTest {
 
     // Act & Assert: Send DELETE request and verify response status and content
     mockMvc
-        .perform(delete("/api/recipes/{id}", recipeId))
+        .perform(delete("/recipe/{id}", recipeId))
         .andExpect(status().isOk())
         .andExpect(content().string("Recipe deleted successfully"));
 
@@ -160,7 +160,7 @@ class RecipeControllerTest {
 
     // Act & Assert: Send GET request and verify response status and returned JSON content
     mockMvc
-        .perform(get("/api/recipes/{id}", recipeId))
+        .perform(get("/recipe/{id}", recipeId))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id", is(sampleRecipe.getId().intValue())))
@@ -187,7 +187,7 @@ class RecipeControllerTest {
 
     // Act & Assert: Send GET request and verify response status and returned JSON content
     mockMvc
-        .perform(get("/api/recipes"))
+        .perform(get("/recipe"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(recipes.size())))
@@ -217,7 +217,7 @@ class RecipeControllerTest {
 
     // Act & Assert: Send GET request and verify response status and returned JSON content
     mockMvc
-        .perform(get("/api/recipes/search").param("name", searchName))
+        .perform(get("/recipe/search").param("name", searchName))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.length()", is(recipes.size())))

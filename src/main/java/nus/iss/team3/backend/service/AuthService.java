@@ -39,7 +39,7 @@ public class AuthService implements IAuthService {
       logger.error("Input password or stored password is null");
       return false;
     }
-      return BCrypt.checkpw(inputPassword, storedHash);
+    return BCrypt.checkpw(inputPassword, storedHash);
   }
 
   public String hashPassword(String plainTextPassword) {

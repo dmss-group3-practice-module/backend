@@ -39,7 +39,12 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
 
   @Override
   public UserAccount authenticateUser(String name, String password) {
-    String sql = "SELECT * FROM user_account WHERE name = ?";
+    String sql =
+        "SELECT * FROM "
+            + PostgresSqlStatement.TABLE_USER_ACCOUNT
+            + " WHERE "
+            + PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME
+            + " = ?";
     try {
       UserAccount user =
           jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
@@ -57,12 +62,6 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   private boolean verifyPassword(String inputPassword, String storedHash) {
     return BCrypt.checkpw(inputPassword, storedHash);
   }
-
-  /*private UserAccount translateDBRecordToUserAccountWithPassword(Map<String, Object> entity) {
-    UserAccount returnItem = translateDBRecordToUserAccount(entity);
-    returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
-    return returnItem;
-  }*/
 
   /**
    * @param userAccount user account to be added

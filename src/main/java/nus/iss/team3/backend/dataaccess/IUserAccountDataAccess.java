@@ -11,6 +11,8 @@ import nus.iss.team3.backend.entity.UserAccount;
  */
 public interface IUserAccountDataAccess {
 
+  UserAccount authenticateUser(String name, String password);
+
   boolean addUser(UserAccount userAccount);
 
   boolean updateUser(UserAccount userAccount);
@@ -24,6 +26,4 @@ public interface IUserAccountDataAccess {
   UserAccount getUserByEmail(String email);
 
   List<UserAccount> getAllUsers();
-
-  UserAccount getUserByNameForAuth(String username);
 }

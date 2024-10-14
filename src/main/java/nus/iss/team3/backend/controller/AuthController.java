@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import jakarta.servlet.http.HttpSession;
+import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.IAuthService;
 import org.apache.logging.log4j.LogManager;
@@ -21,25 +22,19 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
     try {
-      if (loginRequest.getName() == null
-          || loginRequest.getName().isEmpty()
-          || loginRequest.getPassword() == null
-          || loginRequest.getPassword().isEmpty()) {
-        logger.warn("Login attempt with null or empty username/password");
-        return new ResponseEntity<>(
-            "Username and password cannot be empty", HttpStatus.BAD_REQUEST);
-      }
       UserAccount user =
           authService.authenticate(loginRequest.getName(), loginRequest.getPassword());
       if (user != null) {
         logger.info("User logged in successfully: {}", user.getName());
         session.setAttribute("user", user);
-        // Use JsonView to exclude password when returning user object
         return new ResponseEntity<>(user, HttpStatus.OK);
       } else {
         logger.warn("Login failed for user: {}", loginRequest.getName());
         return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
       }
+    } catch (IllegalArgumentException e) {
+      logger.warn("Login attempt with invalid input: {}", e.getMessage());
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Unexpected error during login", e);
       return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -61,28 +56,6 @@ public class AuthController {
     } catch (Exception e) {
       logger.error("Unexpected error during logout", e);
       return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  private static class LoginRequest {
-    private String name;
-    private String password;
-
-    // Getters and setters
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    public String getPassword() {
-      return password;
-    }
-
-    public void setPassword(String password) {
-      this.password = password;
     }
   }
 }

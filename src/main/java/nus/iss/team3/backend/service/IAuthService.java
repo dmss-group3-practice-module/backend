@@ -13,9 +13,4 @@ public interface IAuthService {
    * @return UserAccount if authentication is successful, null otherwise
    */
   UserAccount authenticate(String username, String password);
-
-  // You might want to add more methods in the future, such as:
-  // void logout(String username);
-  // boolean changePassword(String username, String oldPassword, String newPassword);
-  // UserAccount register(UserAccount newUser);
 }

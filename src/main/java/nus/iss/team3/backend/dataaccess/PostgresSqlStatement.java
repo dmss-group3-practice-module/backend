@@ -32,25 +32,15 @@ public class PostgresSqlStatement {
   public static final String COLUMN_USER_ACCOUNT_CREATE_DATETIME = "create_datetime";
   public static final String COLUMN_USER_ACCOUNT_UPDATE_DATETIME = "update_datetime";
 
-  public static final String SQL_USER_ACCOUNT_GET_BY_NAME_WITH_PASSWORD =
+  public static final String SQL_USER_ACCOUNT_GET_BY_NAME_FOR_AUTH =
       "SELECT "
           + COLUMN_USER_ACCOUNT_ID
           + ", "
           + COLUMN_USER_ACCOUNT_NAME
           + ", "
-          + COLUMN_USER_ACCOUNT_PASSWORD
-          + ", "
-          + COLUMN_USER_ACCOUNT_DISPLAY_NAME
-          + ", "
-          + COLUMN_USER_ACCOUNT_EMAIL
-          + ", "
-          + COLUMN_USER_ACCOUNT_STATUS
+          + COLUMN_USER_ACCOUNT_PASSWORD // 仅用于验证，不应返回给调用者
           + ", "
           + COLUMN_USER_ACCOUNT_ROLE
-          + ", "
-          + COLUMN_USER_ACCOUNT_CREATE_DATETIME
-          + ", "
-          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
           + " FROM "
           + TABLE_USER_ACCOUNT
           + " WHERE "
@@ -133,9 +123,9 @@ public class PostgresSqlStatement {
           + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
           + " = "
           + "now()"
-          + COLUMN_USER_ACCOUNT_EMAIL
+          /*+ COLUMN_USER_ACCOUNT_EMAIL
           + " = :"
-          + INPUT_USER_ACCOUNT_EMAIL
+          + INPUT_USER_ACCOUNT_EMAIL*/
           + " WHERE "
           + COLUMN_USER_ACCOUNT_ID
           + " = :"

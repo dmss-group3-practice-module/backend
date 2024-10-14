@@ -70,6 +70,9 @@ public class TestAuthController {
 
   @Test
   public void testLogin_NullUsername() throws Exception {
+    when(authService.authenticate(isNull(), anyString()))
+        .thenThrow(new IllegalArgumentException("Username and password cannot be empty"));
+
     MockHttpSession session = new MockHttpSession();
 
     mockMvc
@@ -84,6 +87,9 @@ public class TestAuthController {
 
   @Test
   public void testLogin_EmptyPassword() throws Exception {
+    when(authService.authenticate(anyString(), eq("")))
+        .thenThrow(new IllegalArgumentException("Username and password cannot be empty"));
+
     MockHttpSession session = new MockHttpSession();
 
     mockMvc

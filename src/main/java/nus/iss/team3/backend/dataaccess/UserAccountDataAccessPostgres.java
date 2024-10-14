@@ -16,6 +16,7 @@ import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,31 +38,31 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   @Autowired private JdbcTemplate jdbcTemplate;
 
   @Override
-  public UserAccount getUserByNameForAuth(String name) {
+  public UserAccount authenticateUser(String name, String password) {
+    String sql = "SELECT * FROM user_account WHERE name = ?";
     try {
-      Map<String, Object> sqlInput = new HashMap<>();
-      sqlInput.put(INPUT_USER_ACCOUNT_NAME, name);
-      List<Map<String, Object>> result =
-          postgresDataAccess.queryStatement(SQL_USER_ACCOUNT_GET_BY_NAME_WITH_PASSWORD, sqlInput);
-      if (!result.isEmpty()) {
-        UserAccount user = translateDBRecordToUserAccountWithPassword(result.get(0));
-        logger.debug("Retrieved user: {} with role: {}", user.getName(), user.getRole());
+      UserAccount user =
+          jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
+      if (user != null && BCrypt.checkpw(password, user.getPassword())) {
+        user.setPassword(null); // 清除密码
         return user;
       }
-      logger.warn("No user found with name: {}", name);
-      return null;
-    } catch (DataAccessException e) {
-      logger.error("Error getting user by name for auth: {}", name, e);
+    } catch (Exception e) {
+      logger.error("Authentication failed", e);
       return null;
     }
+    return null;
   }
 
-  // New method to translate DB record to UserAccount including password
-  private UserAccount translateDBRecordToUserAccountWithPassword(Map<String, Object> entity) {
+  private boolean verifyPassword(String inputPassword, String storedHash) {
+    return BCrypt.checkpw(inputPassword, storedHash);
+  }
+
+  /*private UserAccount translateDBRecordToUserAccountWithPassword(Map<String, Object> entity) {
     UserAccount returnItem = translateDBRecordToUserAccount(entity);
     returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
     return returnItem;
-  }
+  }*/
 
   /**
    * @param userAccount user account to be added
@@ -229,8 +230,6 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
       UserAccount user = new UserAccount();
       user.setId(rs.getInt(COLUMN_USER_ACCOUNT_ID));
       user.setName(rs.getString(COLUMN_USER_ACCOUNT_NAME));
-      // Password is not set here as it's not returned from the database
-      // user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
       if (includePassword) {
         user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
       }

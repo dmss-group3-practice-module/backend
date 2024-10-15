@@ -16,6 +16,7 @@ import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,6 +36,32 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   @Autowired IPostgresDataAccess postgresDataAccess;
 
   @Autowired private JdbcTemplate jdbcTemplate;
+
+  @Override
+  public UserAccount authenticateUser(String name, String password) {
+    String sql =
+        "SELECT * FROM "
+            + PostgresSqlStatement.TABLE_USER_ACCOUNT
+            + " WHERE "
+            + PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME
+            + " = ?";
+    try {
+      UserAccount user =
+          jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
+      if (user != null && BCrypt.checkpw(password, user.getPassword())) {
+        user.setPassword(null); // 清除密码
+        return user;
+      }
+    } catch (Exception e) {
+      logger.error("Authentication failed", e);
+      return null;
+    }
+    return null;
+  }
+
+  private boolean verifyPassword(String inputPassword, String storedHash) {
+    return BCrypt.checkpw(inputPassword, storedHash);
+  }
 
   /**
    * @param userAccount user account to be added
@@ -141,7 +168,7 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   public List<UserAccount> getAllUsers() {
     String sql = SQL_USER_ACCOUNT_GET_ALL;
     try {
-      List<UserAccount> users = jdbcTemplate.query(sql, new UserAccountRowMapper());
+      List<UserAccount> users = jdbcTemplate.query(sql, new UserAccountRowMapper(false));
       logger.info("Found {} users", users.size());
       return users;
     } catch (DataAccessException e) {
@@ -191,13 +218,20 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
   }
 
   private class UserAccountRowMapper implements RowMapper<UserAccount> {
+    private final boolean includePassword;
+
+    public UserAccountRowMapper(boolean includePassword) {
+      this.includePassword = includePassword;
+    }
+
     @Override
     public UserAccount mapRow(ResultSet rs, int rowNum) throws SQLException {
       UserAccount user = new UserAccount();
       user.setId(rs.getInt(COLUMN_USER_ACCOUNT_ID));
       user.setName(rs.getString(COLUMN_USER_ACCOUNT_NAME));
-      // Password is not set here as it's not returned from the database
-      // user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
+      if (includePassword) {
+        user.setPassword(rs.getString(COLUMN_USER_ACCOUNT_PASSWORD));
+      }
       user.setDisplayName(rs.getString(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
       user.setEmail(rs.getString(COLUMN_USER_ACCOUNT_EMAIL));
       user.setStatus(EUserAccountStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));

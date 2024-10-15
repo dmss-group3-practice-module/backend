@@ -8,6 +8,7 @@ import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,10 @@ public class UserAccountService implements IUserAccountService {
         logger.warn("Username or email already exists for: {}", userAccount.getName());
         return false;
       }
+
+      String hashedPassword = BCrypt.hashpw(userAccount.getPassword(), BCrypt.gensalt());
+      userAccount.setPassword(hashedPassword);
+
       userAccount.setCreateDateTime(ZonedDateTime.now());
       userAccount.setUpdateDateTime(ZonedDateTime.now());
       boolean result = userAccountDataAccess.addUser(userAccount);
@@ -61,9 +66,9 @@ public class UserAccountService implements IUserAccountService {
       if (!isUserNameAndEmailAvailable(userAccount, userAccount.getId())) {
         return false;
       }
-      // Only update password if a new one is provided
       if (!StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
-        userAccount.setPassword(userAccount.getPassword());
+        String hashedPassword = BCrypt.hashpw(userAccount.getPassword(), BCrypt.gensalt());
+        userAccount.setPassword(hashedPassword);
       } else {
         userAccount.setPassword(existingAccount.getPassword());
       }

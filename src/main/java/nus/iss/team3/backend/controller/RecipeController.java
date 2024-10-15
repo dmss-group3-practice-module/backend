@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Mao Weining
  */
-// Mark this class as a REST controller using the @RestController annotation.
 @RestController
 // TODO: set Config profile
 // @Profile(ProfileConfig.PROFILE_RECIPE)
@@ -33,7 +32,6 @@ public class RecipeController {
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
 
-  // Constructor that initializes the IRecipeService via dependency injection.
   public RecipeController(IRecipeService recipeService) {
     this.recipeService = recipeService;
   }
@@ -54,15 +52,12 @@ public class RecipeController {
     try {
       recipeService.addRecipe(recipe);
       logger.info("Recipe added successfully: {}", recipe.getName());
-      // Returns a status of 201 CREATED indicating successful creation.
       return new ResponseEntity<>("Recipe added successfully", HttpStatus.CREATED);
     } catch (IllegalArgumentException e) {
       logger.warn("Validation error occurred while adding recipe: {}", e.getMessage());
-      // Returns a status of 400 BAD REQUEST and an error message if validation fails.
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Failed to add recipe: {}", e.getMessage(), e);
-      // Handles other exceptions and returns a status of 500 INTERNAL SERVER ERROR.
       return new ResponseEntity<>("Failed to add recipe", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -78,23 +73,17 @@ public class RecipeController {
   public ResponseEntity<String> updateRecipe(@PathVariable Long id, @RequestBody Recipe recipe) {
     logger.info("Received request to update recipe: ID={}, Name={}", id, recipe.getName());
     try {
-      // Set the ID of the recipe to the ID in the path variable
       recipe.setId(id);
-      // Call the service layer to update the recipe
       boolean updated = recipeService.updateRecipe(recipe);
-      // Returns a status of 500 INTERNAL SERVER ERROR if the update fails
       if (!updated) {
         return new ResponseEntity<>("Failed to update recipe", HttpStatus.INTERNAL_SERVER_ERROR);
       }
       logger.info("Recipe updated successfully: ID={}, Name={}", id, recipe.getName());
-      // Returns a status of 200 OK if the update success
       return new ResponseEntity<>("Recipe updated successfully", HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      // Returns a status of 400 BAD REQUEST and an error message if validation fails.
       logger.warn("Validation error occurred while updating recipe: {}", e.getMessage());
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
-      // Handles other exceptions and returns a status of 500 INTERNAL SERVER ERROR.
       logger.error("Failed to update recipe: {}", e.getMessage(), e);
       return new ResponseEntity<>("Failed to update recipe", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -110,16 +99,13 @@ public class RecipeController {
   public ResponseEntity<String> deleteRecipe(@PathVariable Long id) {
     logger.info("Received request to delete recipe: ID={}", id);
     try {
-      // Returns a status of 200 OK if the delete success
       recipeService.deleteRecipeById(id);
       logger.info("Recipe deleted successfully: ID={}", id);
       return new ResponseEntity<>("Recipe deleted successfully", HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      // Returns a status of 400 BAD REQUEST and an error message if validation fails.
       logger.warn("Validation error occurred while deleting recipe: {}", e.getMessage());
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
-      // Handles other exceptions and returns a status of 500 INTERNAL SERVER ERROR.
       logger.error("Failed to delete recipe: {}", e.getMessage(), e);
       return new ResponseEntity<>("Failed to delete recipe", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -137,17 +123,13 @@ public class RecipeController {
     try {
       Recipe recipe = recipeService.getRecipeById(id);
       if (recipe != null) {
-        // Returns a 200 OK status and the recipe if the service successfully finds the recipe by
-        // ID.
         logger.info("Found recipe: ID={}, Name={}", recipe.getId(), recipe.getName());
         return new ResponseEntity<>(recipe, HttpStatus.OK);
       } else {
-        // Return a status of 404 NOT FOUND if the recipe does not exist,
         logger.warn("Recipe with ID {} not found", id);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
     } catch (Exception e) {
-      // Handles other exceptions and returns a status of 500 INTERNAL SERVER ERROR.
       logger.error("Failed to get recipe: {}", e.getMessage(), e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -162,12 +144,10 @@ public class RecipeController {
   public ResponseEntity<List<Recipe>> getAllRecipes() {
     logger.info("Received request to get all recipes");
     try {
-      // Returns a status of 200 OK and recipe list
       List<Recipe> recipes = recipeService.getAllRecipes();
       logger.info("Found {} recipes", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
-      // Handles other exceptions and returns a status of 500 INTERNAL SERVER ERROR.
       logger.error("Failed to get all recipes: {}", e.getMessage(), e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -183,12 +163,10 @@ public class RecipeController {
   public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam String name) {
     logger.info("Received request to search recipes: Name={}", name);
     try {
-      // Returns a status of 200 OK and list of matching recipes
       List<Recipe> recipes = recipeService.getRecipesByName(name);
       logger.info("Found {} recipes containing '{}'", recipes.size(), name);
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
-      // Handles other exceptions and returns a status of 500 INTERNAL SERVER ERROR.
       logger.error("Failed to search recipes: {}", e.getMessage(), e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }

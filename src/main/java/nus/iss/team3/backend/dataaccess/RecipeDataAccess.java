@@ -21,30 +21,26 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Mao Weining
  */
-@Repository // Indicates that this is a repository component
+@Repository
 public class RecipeDataAccess implements IRecipeDataAccess {
 
   private static final Logger logger = LogManager.getLogger(RecipeDataAccess.class);
   private final PostgresDataAccess postgresDataAccess;
 
-  // Constructor for dependency injection of PostgresDataAccess
   public RecipeDataAccess(PostgresDataAccess postgresDataAccess) {
     this.postgresDataAccess = postgresDataAccess;
   }
 
   @Override
-  @Transactional // Ensures the entire method is executed in a single transaction
+  @Transactional
   public boolean addRecipe(Recipe recipe) {
     logger.info("Starting to add recipe: {}", recipe.getName());
     try {
-      // Validate the recipe
       validateRecipe(recipe);
       logger.debug("Adding recipe: Recipe validation passed");
 
-      // Build a map of recipe parameters
       Map<String, Object> recipeParams = buildRecipeParams(recipe);
 
-      // Execute the insert statement
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(
               PostgresSqlStatementRecipe.SQL_RECIPE_ADD, recipeParams);
@@ -87,11 +83,10 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   @Override
-  @Transactional // Ensures the entire method is executed in a single transaction
+  @Transactional
   public boolean updateRecipe(Recipe recipe) {
     logger.info("Starting to update recipe: ID={}", recipe.getId());
     try {
-      // Validate the recipe
       validateRecipe(recipe);
       logger.debug("Updating recipe: Recipe validation passed");
 
@@ -129,15 +124,13 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   @Override
-  @Transactional // Ensures the entire method is executed in a single transaction
+  @Transactional
   public boolean deleteRecipeById(Long recipeId) {
     logger.info("Starting to delete recipe: ID={}", recipeId);
     try {
-      // Delete related ingredients
       deleteIngredients(recipeId);
       logger.debug("Ingredients deleted successfully");
 
-      // Delete related cooking steps
       deleteCookingSteps(recipeId);
       logger.debug("Cooking steps deleted successfully");
 
@@ -235,13 +228,12 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
-        // Map each row to a Recipe object
         Recipe recipe = mapToRecipe(row);
         // Query and set the recipe's ingredients
         recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
         // Query and set the recipe's cooking steps
         recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
-        recipes.add(recipe); // Add to the recipe list
+        recipes.add(recipe);
       }
 
       logger.info("Querying recipes by name completed, found {} records", recipes.size());
@@ -367,14 +359,12 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   void insertIngredients(Recipe recipe) {
     logger.info("Starting to insert ingredients, Recipe ID={}", recipe.getId());
 
-    // Check if ingredients are null
     if (recipe.getIngredients() == null) {
       logger.info("Ingredients are null, skipping insertion, Recipe ID={}", recipe.getId());
       return; // Return directly, do not perform insertion
     }
 
     for (RecipeIngredient ingredient : recipe.getIngredients()) {
-      // Validate the ingredient
       validateIngredient(ingredient);
       try {
         Map<String, Object> ingredientParams = new HashMap<>();
@@ -416,7 +406,6 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   void insertCookingSteps(Recipe recipe) {
     logger.info("Starting to insert cooking steps, Recipe ID={}", recipe.getId());
 
-    // Check if cooking steps are null
     if (recipe.getCookingSteps() == null) {
       logger.info("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
       return; // Return directly, do not perform insertion
@@ -496,7 +485,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
           row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM) != null
               ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM)
               : null);
-      ingredients.add(ingredient); // Add to the ingredient list
+      ingredients.add(ingredient);
       logger.debug("Loaded ingredient: {}", ingredient.getName());
     }
 
@@ -538,7 +527,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
           row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE) != null
               ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE)
               : null);
-      steps.add(step); // Add to the cooking steps list
+      steps.add(step);
       logger.debug("Loaded cooking step: {}", step.getDescription());
     }
 

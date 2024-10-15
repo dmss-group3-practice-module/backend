@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Mao Weining
  */
-@Service // Marks this class as a Spring service component
+@Service
 // TODO: Activate Spring Profile
 // @Profile("recipe")
 public class RecipeService implements IRecipeService {
@@ -21,14 +21,12 @@ public class RecipeService implements IRecipeService {
   private static final Logger logger = LogManager.getLogger(RecipeService.class);
   private final IRecipeDataAccess recipeDataAccess;
 
-  // Constructor that initializes the IRecipeDataAccess via dependency injection.
   public RecipeService(IRecipeDataAccess recipeDataAccess) {
     this.recipeDataAccess = recipeDataAccess;
   }
 
   @Override
   public boolean addRecipe(Recipe recipe) {
-    // Validation to ensure recipe data meets the requirements of the addition
     validateRecipe(recipe, false);
     logger.info("Adding recipe: {}", recipe.getName());
     // Add recipes to the database using the Data Access Layer approach
@@ -43,10 +41,8 @@ public class RecipeService implements IRecipeService {
 
   @Override
   public boolean updateRecipe(Recipe recipe) {
-    // Validation to ensure recipe data meets the requirements of the updates
     validateRecipe(recipe, true);
 
-    // Fetch the existing recipe from the database
     Recipe existingRecipe = recipeDataAccess.getRecipeById(recipe.getId());
     if (existingRecipe == null) {
       logger.error("Recipe with ID {} not found for update", recipe.getId());
@@ -72,7 +68,6 @@ public class RecipeService implements IRecipeService {
 
   @Override
   public boolean deleteRecipeById(Long recipeId) {
-    // Check if the incoming recipe ID is null, if it is null then throw an exception
     Objects.requireNonNull(recipeId, "Recipe ID cannot be null");
 
     // Fetch the existing recipe from the database

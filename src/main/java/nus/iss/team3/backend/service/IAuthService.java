@@ -2,7 +2,11 @@ package nus.iss.team3.backend.service;
 
 import nus.iss.team3.backend.entity.UserAccount;
 
-/** Interface for authentication service */
+/**
+ * Interface for authentication service
+ *
+ * @author REN JIARUI
+ */
 public interface IAuthService {
 
   /**

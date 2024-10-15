@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * User role
  *
- * @author RENJIARUI
+ * @author REN JIARUI
  */
 public enum EUserRole {
   ADMIN(1),

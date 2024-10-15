@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Repository class to connect to postgres for user account Data
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 @Repository
 public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
@@ -46,21 +46,21 @@ public class UserAccountDataAccessPostgres implements IUserAccountDataAccess {
             + PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME
             + " = ?";
     try {
-      UserAccount user =
-          jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
-      if (user != null && BCrypt.checkpw(password, user.getPassword())) {
-        user.setPassword(null); // 清除密码
-        return user;
-      }
+      return verifyUserCredentials(sql, name, password);
     } catch (Exception e) {
       logger.error("Authentication failed", e);
       return null;
     }
-    return null;
   }
 
-  private boolean verifyPassword(String inputPassword, String storedHash) {
-    return BCrypt.checkpw(inputPassword, storedHash);
+  private UserAccount verifyUserCredentials(String sql, String name, String password) {
+    UserAccount user =
+        jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
+    if (user != null && BCrypt.checkpw(password, user.getPassword())) {
+      user.setPassword(null); // 清除密码
+      return user;
+    }
+    return null;
   }
 
   /**

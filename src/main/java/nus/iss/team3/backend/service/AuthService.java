@@ -8,6 +8,11 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class responsible for user authentication and password management.
+ *
+ * @author REN JIARUI
+ */
 @Service
 public class AuthService implements IAuthService {
 
@@ -32,14 +37,6 @@ public class AuthService implements IAuthService {
       logger.warn("Authentication failed for user: {}", username);
       return null;
     }
-  }
-
-  private boolean verifyPassword(String inputPassword, String storedHash) {
-    if (inputPassword == null || storedHash == null) {
-      logger.error("Input password or stored password is null");
-      return false;
-    }
-    return BCrypt.checkpw(inputPassword, storedHash);
   }
 
   public String hashPassword(String plainTextPassword) {

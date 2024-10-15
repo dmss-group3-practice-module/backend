@@ -7,7 +7,7 @@ import nus.iss.team3.backend.entity.UserAccount;
  * Interface class for UserAccountDataAccess, should contain all functionality needed for
  * useraccount.
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 public interface IUserAccountDataAccess {
 

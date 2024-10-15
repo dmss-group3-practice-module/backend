@@ -1,11 +1,7 @@
 package nus.iss.team3.backend.dataaccess;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
@@ -45,7 +41,11 @@ public class RecipeDataAccess implements IRecipeDataAccess {
           postgresDataAccess.queryStatement(
               PostgresSqlStatementRecipe.SQL_RECIPE_ADD, recipeParams);
 
-      if (result.isEmpty()) {
+      //      if (result.isEmpty()) {
+      //        logger.warn("Failed to insert recipe, no generated ID returned");
+      //        return false; // Return false if insertion fails
+      //      }
+      if (result == null || result.isEmpty()) {
         logger.warn("Failed to insert recipe, no generated ID returned");
         return false; // Return false if insertion fails
       }

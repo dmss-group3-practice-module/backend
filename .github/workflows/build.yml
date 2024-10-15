@@ -84,11 +84,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: thecodemonkey/action-get-gradle-version@master
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         id: version
 
       - name: Clone target repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: |
           echo "Cloning repository..."
           git clone https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/dmss-group3-practice-module/deployment.git
@@ -96,7 +96,7 @@ jobs:
           ls -la deployment
 
       - name: Update image version in Kubernetes YML
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: |
           cd deployment
           VERSION=$(echo "${{ steps.version.outputs.version }}" | sed "s/^['\"]\(.*\)['\"]$/\1/")
@@ -105,7 +105,7 @@ jobs:
           echo "Updated the image version in backend-test.yml to $VERSION"
 
       - name: Commit changes to the deployment repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: |
           cd deployment
           VERSION=$(echo "${{ steps.version.outputs.version }}" | sed "s/^['\"]\(.*\)['\"]$/\1/")
@@ -116,7 +116,7 @@ jobs:
           git commit -m "[backend-test] update image version to $VERSION"
 
       - name: Pushes to deployment repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: cpina/github-action-push-to-another-repository@main
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}

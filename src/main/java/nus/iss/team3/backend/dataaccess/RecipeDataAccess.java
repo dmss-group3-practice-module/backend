@@ -41,13 +41,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
           postgresDataAccess.queryStatement(
               PostgresSqlStatementRecipe.SQL_RECIPE_ADD, recipeParams);
 
-      //      if (result.isEmpty()) {
-      //        logger.warn("Failed to insert recipe, no generated ID returned");
-      //        return false; // Return false if insertion fails
-      //      }
       if (result == null || result.isEmpty()) {
         logger.warn("Failed to insert recipe, no generated ID returned");
-        return false; // Return false if insertion fails
+        return false;
       }
 
       // Get the generated recipe ID and set it to the recipe object
@@ -163,9 +159,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
               PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_ID,
               Collections.singletonMap(PostgresSqlStatementRecipe.INPUT_RECIPE_ID, recipeId));
 
-      if (result.isEmpty()) {
+      if (result == null || result.isEmpty()) {
         logger.warn("No recipe found with ID={}", recipeId);
-        return null; // Return null if no recipe is found
+        return null;
       }
 
       // Map the query result to a Recipe object
@@ -198,7 +194,6 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
-        // Map each row to a Recipe object
         Recipe recipe = mapToRecipe(row);
         // Query and set the recipe's ingredients
         recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));

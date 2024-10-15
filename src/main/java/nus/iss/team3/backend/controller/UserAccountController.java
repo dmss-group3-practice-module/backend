@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller class to handle web call for user related queries
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 @RestController
 @RequestMapping("user")

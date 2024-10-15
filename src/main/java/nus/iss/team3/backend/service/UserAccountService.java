@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 /**
  * Service class with logic for handling user account related queries
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 @Service
 public class UserAccountService implements IUserAccountService {
@@ -26,63 +26,54 @@ public class UserAccountService implements IUserAccountService {
 
   @Override
   public boolean addUser(UserAccount userAccount) {
-    try {
-      validateUserAccount(userAccount, false);
-      if (!isUserNameAndEmailAvailable(userAccount, null)) {
-        logger.warn("Username or email already exists for: {}", userAccount.getName());
-        return false;
-      }
-
-      String hashedPassword = BCrypt.hashpw(userAccount.getPassword(), BCrypt.gensalt());
-      userAccount.setPassword(hashedPassword);
-
-      userAccount.setCreateDateTime(ZonedDateTime.now());
-      userAccount.setUpdateDateTime(ZonedDateTime.now());
-      boolean result = userAccountDataAccess.addUser(userAccount);
-      if (result) {
-        logger.info("User account created successfully for: {}", userAccount.getName());
-      } else {
-        logger.error("Failed to create user account for: {}", userAccount.getName());
-      }
-      return result;
-    } catch (IllegalArgumentException e) {
-      logger.error("Failed to add user: {}", e.getMessage());
-      throw e;
+    validateUserAccount(userAccount, false);
+    if (!isUserNameAndEmailAvailable(userAccount, null)) {
+      logger.warn("Username or email already exists for: {}", userAccount.getName());
+      return false;
     }
+
+    String hashedPassword = BCrypt.hashpw(userAccount.getPassword(), BCrypt.gensalt());
+    userAccount.setPassword(hashedPassword);
+
+    userAccount.setCreateDateTime(ZonedDateTime.now());
+    userAccount.setUpdateDateTime(ZonedDateTime.now());
+    boolean result = userAccountDataAccess.addUser(userAccount);
+    if (result) {
+      logger.info("User account created successfully for: {}", userAccount.getName());
+    } else {
+      logger.error("Failed to create user account for: {}", userAccount.getName());
+    }
+    return result;
   }
 
   @Override
   public boolean updateUser(UserAccount userAccount) {
-    try {
-      validateUserAccount(userAccount, true);
-      if (userAccount.getId() == null) {
-        throw new IllegalArgumentException("updateUser failed, due to missing Id for account");
-      }
-      UserAccount existingAccount = userAccountDataAccess.getUserById(userAccount.getId());
-      if (existingAccount == null) {
-        logger.warn("User not found for update: {}", userAccount.getId());
-        return false;
-      }
-      if (!isUserNameAndEmailAvailable(userAccount, userAccount.getId())) {
-        return false;
-      }
-      if (!StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
-        String hashedPassword = BCrypt.hashpw(userAccount.getPassword(), BCrypt.gensalt());
-        userAccount.setPassword(hashedPassword);
-      } else {
-        userAccount.setPassword(existingAccount.getPassword());
-      }
-      boolean result = userAccountDataAccess.updateUser(userAccount);
-      if (result) {
-        logger.info("User account updated successfully for ID: {}", userAccount.getId());
-      } else {
-        logger.error("Failed to update user account for ID: {}", userAccount.getId());
-      }
-      return result;
-    } catch (IllegalArgumentException e) {
-      logger.error("Failed to update user: {}", e.getMessage());
-      throw e;
+
+    validateUserAccount(userAccount, true);
+    if (userAccount.getId() == null) {
+      throw new IllegalArgumentException("updateUser failed, due to missing Id for account");
     }
+    UserAccount existingAccount = userAccountDataAccess.getUserById(userAccount.getId());
+    if (existingAccount == null) {
+      logger.warn("User not found for update: {}", userAccount.getId());
+      return false;
+    }
+    if (!isUserNameAndEmailAvailable(userAccount, userAccount.getId())) {
+      return false;
+    }
+    if (!StringUtilities.isStringNullOrBlank(userAccount.getPassword())) {
+      String hashedPassword = BCrypt.hashpw(userAccount.getPassword(), BCrypt.gensalt());
+      userAccount.setPassword(hashedPassword);
+    } else {
+      userAccount.setPassword(existingAccount.getPassword());
+    }
+    boolean result = userAccountDataAccess.updateUser(userAccount);
+    if (result) {
+      logger.info("User account updated successfully for ID: {}", userAccount.getId());
+    } else {
+      logger.error("Failed to update user account for ID: {}", userAccount.getId());
+    }
+    return result;
   }
 
   @Override

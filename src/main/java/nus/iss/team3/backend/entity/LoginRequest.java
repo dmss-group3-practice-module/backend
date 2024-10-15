@@ -1,5 +1,10 @@
 package nus.iss.team3.backend.entity;
 
+/**
+ * Represents a login request containing user credentials.
+ *
+ * @author REN JIARUI
+ */
 public class LoginRequest {
   private String name;
   private String password;

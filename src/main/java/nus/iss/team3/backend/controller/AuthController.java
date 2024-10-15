@@ -11,6 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller class to handle web call for authentication related queries
+ *
+ * @author REN JIARUI
+ */
 @RestController
 @RequestMapping("user")
 public class AuthController {

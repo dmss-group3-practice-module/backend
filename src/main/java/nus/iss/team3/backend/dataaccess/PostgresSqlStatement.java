@@ -3,7 +3,7 @@ package nus.iss.team3.backend.dataaccess;
 /**
  * Contains the postgres connection required content
  *
- * @author Desmond Tan Zhi Heng, Liu Kun
+ * @author Desmond Tan Zhi Heng, Liu Kun, REN JIARUI
  */
 public class PostgresSqlStatement {
 
@@ -106,9 +106,6 @@ public class PostgresSqlStatement {
           + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
           + " = "
           + "now()"
-          + COLUMN_USER_ACCOUNT_EMAIL
-          + " = :"
-          + INPUT_USER_ACCOUNT_EMAIL
           + " WHERE "
           + COLUMN_USER_ACCOUNT_ID
           + " = :"

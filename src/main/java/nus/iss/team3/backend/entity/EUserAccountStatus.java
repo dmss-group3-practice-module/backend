@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * User account status
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 public enum EUserAccountStatus {
   ACTIVE(1),

@@ -68,6 +68,14 @@ public class TestUserAccountService {
   }
 
   @Test
+  public void addUser_invalidEmail_failure() {
+    UserAccount inputUserAccount = createValidUserAccount();
+    inputUserAccount.setEmail("invalid-email");
+    assertThrows(
+        IllegalArgumentException.class, () -> userAccountService.addUser(inputUserAccount));
+  }
+
+  @Test
   public void addUser_validAccount_nullName() {
     UserAccount inputUserAccount = new UserAccount();
     inputUserAccount.setName(null);
@@ -201,13 +209,21 @@ public class TestUserAccountService {
   public void deleteUserById_success() {
     Integer userId = 1;
 
-    UserAccount existingAccount = new UserAccount();
-    existingAccount.setId(userId);
-
-    when(userAccountDataAccess.getUserById(userId)).thenReturn(existingAccount);
     when(userAccountDataAccess.deleteUserById(userId)).thenReturn(true);
 
     assertTrue(userAccountService.deleteUserById(userId));
+  }
+
+  @Test
+  public void deleteUserById_failure() {
+    Integer userId = 1;
+    when(userAccountDataAccess.deleteUserById(userId)).thenReturn(false);
+    assertFalse(userAccountService.deleteUserById(userId));
+  }
+
+  @Test
+  public void deleteUserById_nullId() {
+    assertThrows(IllegalArgumentException.class, () -> userAccountService.deleteUserById(null));
   }
 
   @Test
@@ -227,6 +243,11 @@ public class TestUserAccountService {
     when(userAccountDataAccess.getUserById(userId)).thenReturn(existingAccount);
 
     assertEquals(existingAccount, userAccountService.getUserById(userId));
+  }
+
+  @Test
+  public void getUserById_nullId() {
+    assertThrows(IllegalArgumentException.class, () -> userAccountService.getUserById(null));
   }
 
   @Test

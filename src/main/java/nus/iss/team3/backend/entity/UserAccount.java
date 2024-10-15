@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
  * Contains records that is related to a user account, - userId : used to login, must be unique,
  * primary key to the table - email : required to be unique
  *
- * @author Desmond Tan Zhi Heng
+ * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 // @Entity
 public class UserAccount {

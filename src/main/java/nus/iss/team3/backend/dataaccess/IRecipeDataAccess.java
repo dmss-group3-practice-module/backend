@@ -20,5 +20,9 @@ public interface IRecipeDataAccess {
 
   List<Recipe> getAllRecipes();
 
+  List<Recipe> getAllPublishedRecipes();
+
   List<Recipe> getRecipesByName(String name);
+
+  List<Recipe> getRecipeByCreatorId(int creatorId);
 }

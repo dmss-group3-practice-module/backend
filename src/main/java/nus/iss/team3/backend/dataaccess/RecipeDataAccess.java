@@ -210,6 +210,37 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     }
   }
 
+  /**
+   * @return
+   */
+  @Override
+  public List<Recipe> getAllPublishedRecipes() {
+
+    logger.info("Querying all published recipes");
+    try {
+      // Execute the query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(
+              PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_PUBLISHED, null);
+
+      List<Recipe> recipes = new ArrayList<>();
+      for (Map<String, Object> row : result) {
+        Recipe recipe = mapToRecipe(row);
+        // Query and set the recipe's ingredients
+        recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+        // Query and set the recipe's cooking steps
+        recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+        recipes.add(recipe); // Add to the recipe list
+      }
+
+      logger.info("Querying all recipes completed, count: {}", recipes.size());
+      return recipes;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
   @Override
   public List<Recipe> getRecipesByName(String name) {
     logger.info("Querying recipes by name: Name contains '{}'", name);
@@ -237,6 +268,34 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       logger.error("Exception occurred while querying recipes by name: {}", e.getMessage(), e);
       throw e;
     }
+  }
+
+  /**
+   * @param creatorId
+   * @return
+   */
+  @Override
+  public List<Recipe> getRecipeByCreatorId(int creatorId) {
+
+    logger.info("Querying recipe: creator Id={}", creatorId);
+    // Execute the query
+    List<Map<String, Object>> result =
+        postgresDataAccess.queryStatement(
+            PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID,
+            Collections.singletonMap(
+                PostgresSqlStatementRecipe.INPUT_RECIPE_CREATOR_ID, creatorId));
+
+    if (result == null || result.isEmpty()) {
+      logger.warn("No recipe found with ID={}", creatorId);
+      return null;
+    }
+
+    List<Recipe> recipes = new ArrayList<>();
+    for (Map<String, Object> row : result) {
+      // Query and set the recipe's ingredients
+      recipes.add(mapToRecipe(row)); // Add to the recipe list
+    }
+    return recipes;
   }
 
   // Helper method: Build a map of recipe parameters

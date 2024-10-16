@@ -1,6 +1,8 @@
 /* (C)2024 */
 package nus.iss.team3.backend.dataaccess;
 
+import nus.iss.team3.backend.entity.ERecipeStatus;
+
 /**
  * Contains the postgres connection required content
  *
@@ -232,7 +234,21 @@ public class PostgresSqlStatementRecipe {
       "DELETE FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
   public static final String SQL_RECIPE_GET_BY_ID =
       "SELECT * FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
+  public static final String SQL_RECIPE_GET_BY_CREATOR_ID =
+      "SELECT * FROM "
+          + TABLE_RECIPE
+          + " WHERE "
+          + COLUMN_RECIPE_CREATOR_ID
+          + " = :"
+          + INPUT_RECIPE_CREATOR_ID;
   public static final String SQL_RECIPE_GET_ALL = "SELECT * FROM " + TABLE_RECIPE;
+  public static final String SQL_RECIPE_GET_ALL_PUBLISHED =
+      "SELECT * FROM "
+          + TABLE_RECIPE
+          + " WHERE "
+          + COLUMN_RECIPE_STATUS
+          + " = "
+          + ERecipeStatus.PUBLISHED.code;
   public static final String SQL_RECIPE_GET_BY_NAME =
       "SELECT * FROM "
           + TABLE_RECIPE

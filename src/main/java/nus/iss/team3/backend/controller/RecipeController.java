@@ -154,6 +154,24 @@ public class RecipeController {
   }
 
   /**
+   * Get all recipes.
+   *
+   * @return Response entity containing the list of all recipes.
+   */
+  @GetMapping("/published")
+  public ResponseEntity<List<Recipe>> getAllPublishedRecipes() {
+    logger.info("Received request to get all published recipes");
+    try {
+      List<Recipe> recipes = recipeService.getAllPublishedRecipes();
+      logger.info("Found {} recipes", recipes.size());
+      return new ResponseEntity<>(recipes, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Failed to get all recipes: {}", e.getMessage(), e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
    * Search for recipes by name.
    *
    * @param name The recipe name from the request parameter.
@@ -165,6 +183,25 @@ public class RecipeController {
     try {
       List<Recipe> recipes = recipeService.getRecipesByName(name);
       logger.info("Found {} recipes containing '{}'", recipes.size(), name);
+      return new ResponseEntity<>(recipes, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Failed to search recipes: {}", e.getMessage(), e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Search for recipes by name.
+   *
+   * @param name The recipe name from the request parameter.
+   * @return Response entity containing the matching recipes.
+   */
+  @GetMapping("/creator/{creatorId}")
+  public ResponseEntity<List<Recipe>> searchRecipesByCreatorId(@PathVariable int creatorId) {
+    logger.info("Received request to retrieve recipes by creator Id: creatorId={}", creatorId);
+    try {
+      List<Recipe> recipes = recipeService.getRecipesByCreatorId(creatorId);
+      logger.info("Found {} recipes under '{}'", recipes != null ? recipes.size() : 0, creatorId);
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to search recipes: {}", e.getMessage(), e);

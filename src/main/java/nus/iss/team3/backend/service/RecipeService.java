@@ -113,6 +113,15 @@ public class RecipeService implements IRecipeService {
   }
 
   @Override
+  public List<Recipe> getAllPublishedRecipes() {
+    logger.info("Getting all published recipes");
+    // Get a list of all recipes using the data access layer method
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
+    logger.info("Successfully retrieved {} recipes", recipes.size());
+    return recipes;
+  }
+
+  @Override
   public List<Recipe> getRecipesByName(String name) {
     // Checks if the name passed in is null or empty, if so returns the empty list
     if (name == null || name.trim().isEmpty()) {
@@ -124,6 +133,21 @@ public class RecipeService implements IRecipeService {
     List<Recipe> recipes = recipeDataAccess.getRecipesByName(name);
     logger.info("Found {} recipes with name {}", recipes.size(), name);
     return recipes;
+  }
+
+  @Override
+  public List<Recipe> getRecipesByCreatorId(int creatorId) {
+
+    // Check if the incoming recipe ID is null, if it is null then throw an exception
+    logger.info("Getting recipe for creator Id: {}", creatorId);
+    // Get the recipe with the specified ID using the method of the data access layer
+    List<Recipe> recipeList = recipeDataAccess.getRecipeByCreatorId(creatorId);
+    if (recipeList != null) {
+      logger.info("Successfully retrieved recipe under creator Id: {}", creatorId);
+    } else {
+      logger.warn("Recipe under creator Id {} not found", creatorId);
+    }
+    return recipeList;
   }
 
   // Helper method: Validate the recipe

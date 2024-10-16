@@ -36,8 +36,21 @@ public class RecipeWebCaller implements IRecipeService {
     return List.of();
   }
 
+  /**
+   * @return
+   */
+  @Override
+  public List<Recipe> getAllPublishedRecipes() {
+    return List.of();
+  }
+
   @Override
   public List<Recipe> getRecipesByName(String name) {
+    return List.of();
+  }
+
+  @Override
+  public List<Recipe> getRecipesByCreatorId(int creatorId) {
     return List.of();
   }
 }

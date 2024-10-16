@@ -13,6 +13,11 @@ spring:
 ##############################
 server:
   port: 8089
+
+user:
+  service:
+    url: http://localhost:8089/api
+
 ##############################
 ### database access
 ##############################
@@ -52,6 +57,11 @@ spring:
     url: jdbc:postgresql://${POSTGRES_LOCAL_IP}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+
+user:
+  service:
+    url: http://localhost:8089/api
+
 ---
 spring:
   config:
@@ -73,6 +83,10 @@ spring:
     url: jdbc:postgresql://${POSTGRES_K8_TEST_IP}:${POSTGRES_K8_TEST_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_K8_TEST_USER}
     password: ${POSTGRES_K8_TEST_PASSWORD}
+
+user:
+  service:
+    url: http://user-service:8089/api
 ---
 spring:
   config:

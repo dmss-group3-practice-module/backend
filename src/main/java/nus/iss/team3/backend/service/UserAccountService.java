@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
  * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 @Service
+@Profile("user")
 public class UserAccountService implements IUserAccountService {
 
   private static final Logger logger = LogManager.getLogger(UserAccountService.class);

@@ -9,17 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-/** Interface for doing rest API calls
- *
- * @Author Desmond Tan Zhi Heng, REN JIARUI
- * */
+/** Interface for doing rest API calls @Author Desmond Tan Zhi Heng, REN JIARUI */
 @Service
 public class WebServiceCaller implements IWebserviceCaller {
 
   private static final Logger logger = LogManager.getLogger(WebServiceCaller.class);
 
-  @Autowired
-  private RestTemplate restTemplate;
+  @Autowired private RestTemplate restTemplate;
 
   @PostConstruct
   private void postConstruct() {}

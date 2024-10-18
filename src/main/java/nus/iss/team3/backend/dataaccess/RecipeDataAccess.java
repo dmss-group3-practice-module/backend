@@ -1,7 +1,11 @@
 package nus.iss.team3.backend.dataaccess;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
@@ -210,12 +214,8 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     }
   }
 
-  /**
-   * @return
-   */
   @Override
   public List<Recipe> getAllPublishedRecipes() {
-
     logger.info("Querying all published recipes");
     try {
       // Execute the query
@@ -233,7 +233,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         recipes.add(recipe); // Add to the recipe list
       }
 
-      logger.info("Querying all recipes completed, count: {}", recipes.size());
+      logger.info("Querying all published recipes completed, count: {} ", recipes.size());
       return recipes;
     } catch (Exception e) {
       logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
@@ -270,32 +270,38 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     }
   }
 
-  /**
-   * @param creatorId
-   * @return
-   */
   @Override
   public List<Recipe> getRecipeByCreatorId(int creatorId) {
-
     logger.info("Querying recipe: creator Id={}", creatorId);
-    // Execute the query
-    List<Map<String, Object>> result =
-        postgresDataAccess.queryStatement(
-            PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID,
-            Collections.singletonMap(
-                PostgresSqlStatementRecipe.INPUT_RECIPE_CREATOR_ID, creatorId));
+    try {
+      // Execute the query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(
+              PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID,
+              Collections.singletonMap(
+                  PostgresSqlStatementRecipe.INPUT_RECIPE_CREATOR_ID, creatorId));
+      if (result == null || result.isEmpty()) {
+        logger.warn("No recipe found with creatorID={} ", creatorId);
+        return null;
+      }
+      // TODO: fixed set ingredients and cooking steps, and add try-catch structure
+      List<Recipe> recipes = new ArrayList<>();
+      for (Map<String, Object> row : result) {
+        Recipe recipe = mapToRecipe(row);
+        // Query and set the recipe's ingredients
+        recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+        // Query and set the recipe's cooking steps
+        recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+        recipes.add(recipe); // Add to the recipe list
+      }
 
-    if (result == null || result.isEmpty()) {
-      logger.warn("No recipe found with ID={}", creatorId);
-      return null;
+      logger.info("Querying recipes with creatorId completed, count: {}", recipes.size());
+      return recipes;
+    } catch (Exception e) {
+      logger.error(
+          "Exception occurred while querying recipes with creatorId: {}", e.getMessage(), e);
+      throw e;
     }
-
-    List<Recipe> recipes = new ArrayList<>();
-    for (Map<String, Object> row : result) {
-      // Query and set the recipe's ingredients
-      recipes.add(mapToRecipe(row)); // Add to the recipe list
-    }
-    return recipes;
   }
 
   // Helper method: Build a map of recipe parameters

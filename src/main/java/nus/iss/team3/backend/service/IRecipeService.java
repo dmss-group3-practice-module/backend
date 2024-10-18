@@ -2,6 +2,7 @@ package nus.iss.team3.backend.service;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeWithReviews;
 
 /**
  * Interface for RecipeService, contains logic involving recipe.
@@ -25,4 +26,9 @@ public interface IRecipeService {
   List<Recipe> getRecipesByName(String name);
 
   List<Recipe> getRecipesByCreatorId(int creatorId);
+
+  // Add new method to get recipe with its reviews.
+  RecipeWithReviews getRecipeWithReviewsById(Long recipeId);
+
+  List<RecipeWithReviews> getAllRecipesWithReviews();
 }

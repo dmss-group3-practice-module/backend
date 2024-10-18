@@ -2,6 +2,7 @@ package nus.iss.team3.backend.service;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,9 +37,7 @@ public class RecipeWebCaller implements IRecipeService {
     return List.of();
   }
 
-  /**
-   * @return
-   */
+  // TODO: Get all published recipes.
   @Override
   public List<Recipe> getAllPublishedRecipes() {
     return List.of();
@@ -49,8 +48,19 @@ public class RecipeWebCaller implements IRecipeService {
     return List.of();
   }
 
+  // TODO: Get all recipes by creator ID.
   @Override
   public List<Recipe> getRecipesByCreatorId(int creatorId) {
+    return List.of();
+  }
+
+  @Override
+  public RecipeWithReviews getRecipeWithReviewsById(Long recipeId) {
+    return null;
+  }
+
+  @Override
+  public List<RecipeWithReviews> getAllRecipesWithReviews() {
     return List.of();
   }
 }

@@ -183,8 +183,7 @@ public class PostgresSqlStatementRecipe {
           + ", :"
           + INPUT_RECIPE_CUISINE
           + ", "
-          + "now(), now()) RETURNING "
-          + COLUMN_RECIPE_ID;
+          + "now(), now())";
   public static final String SQL_RECIPE_UPDATE =
       "UPDATE "
           + TABLE_RECIPE
@@ -278,8 +277,7 @@ public class PostgresSqlStatementRecipe {
           + INPUT_INGREDIENT_QUANTITY
           + ", :"
           + INPUT_INGREDIENT_UOM
-          + ") RETURNING "
-          + COLUMN_INGREDIENT_ID;
+          + ")";
   public static final String SQL_INGREDIENT_UPDATE =
       "UPDATE "
           + TABLE_INGREDIENT
@@ -364,4 +362,122 @@ public class PostgresSqlStatementRecipe {
           + " = :"
           + INPUT_COOKING_STEP_RECIPE_ID
           + " ORDER BY id";
+
+  // RecipeReview Input parameters
+  public static final String INPUT_REVIEW_ID = "review_id";
+  public static final String INPUT_REVIEW_RECIPE_ID = "recipe_id";
+  public static final String INPUT_REVIEW_CREATOR_ID = "creator_id";
+  public static final String INPUT_REVIEW_RATING = "rating";
+  public static final String INPUT_REVIEW_CREATE_TIME = "create_datetime";
+  public static final String INPUT_REVIEW_UPDATE_TIME = "update_datetime";
+  public static final String INPUT_REVIEW_COMMENTS = "comments";
+
+  // RecipeReview Table and Column names
+  public static final String TABLE_REVIEW = "recipe_review";
+  public static final String COLUMN_REVIEW_ID = "id";
+  public static final String COLUMN_REVIEW_RECIPE_ID = "recipe_id";
+  public static final String COLUMN_REVIEW_CREATOR_ID = "creator_id";
+  public static final String COLUMN_REVIEW_RATING = "rating";
+  public static final String COLUMN_REVIEW_CREATE_TIME = "create_datetime";
+  public static final String COLUMN_REVIEW_UPDATE_TIME = "update_datetime";
+  public static final String COLUMN_REVIEW_COMMENTS = "comments";
+
+  // SQL statements for RecipeReview
+  public static final String SQL_REVIEW_ADD =
+      "INSERT INTO "
+          + TABLE_REVIEW
+          + " ("
+          + COLUMN_REVIEW_RECIPE_ID
+          + ", "
+          + COLUMN_REVIEW_CREATOR_ID
+          + ", "
+          + COLUMN_REVIEW_RATING
+          + ", "
+          + COLUMN_REVIEW_CREATE_TIME
+          + ", "
+          + COLUMN_REVIEW_UPDATE_TIME
+          + ", "
+          + COLUMN_REVIEW_COMMENTS
+          + ") "
+          + "VALUES (:"
+          + INPUT_REVIEW_RECIPE_ID
+          + ", :"
+          + INPUT_REVIEW_CREATOR_ID
+          + ", :"
+          + INPUT_REVIEW_RATING
+          + ", now(), now(), :"
+          + INPUT_REVIEW_COMMENTS
+          + ")";
+  public static final String SQL_REVIEW_UPDATE =
+      "UPDATE "
+          + TABLE_REVIEW
+          + " SET "
+          + COLUMN_REVIEW_RATING
+          + " = :"
+          + INPUT_REVIEW_RATING
+          + ", "
+          + COLUMN_REVIEW_COMMENTS
+          + " = :"
+          + INPUT_REVIEW_COMMENTS
+          + ", "
+          + COLUMN_REVIEW_UPDATE_TIME
+          + " = now() "
+          + "WHERE "
+          + COLUMN_REVIEW_RECIPE_ID
+          + " = :"
+          + INPUT_REVIEW_RECIPE_ID
+          + " AND "
+          + COLUMN_REVIEW_CREATOR_ID
+          + " = :"
+          + INPUT_REVIEW_CREATOR_ID;
+  public static final String SQL_REVIEW_DELETE =
+      "DELETE FROM "
+          + TABLE_REVIEW
+          + " WHERE "
+          + COLUMN_REVIEW_RECIPE_ID
+          + " = :"
+          + INPUT_REVIEW_RECIPE_ID
+          + " AND "
+          + COLUMN_REVIEW_CREATOR_ID
+          + " = :"
+          + INPUT_REVIEW_CREATOR_ID;
+  public static final String SQL_REVIEW_DELETE_BY_RECIPE_ID =
+      "DELETE FROM "
+          + TABLE_REVIEW
+          + " WHERE "
+          + COLUMN_REVIEW_RECIPE_ID
+          + " = :"
+          + INPUT_REVIEW_RECIPE_ID;
+  public static final String SQL_REVIEW_DELETE_BY_CREATOR_ID =
+      "DELETE FROM "
+          + TABLE_REVIEW
+          + " WHERE "
+          + COLUMN_REVIEW_CREATOR_ID
+          + " = :"
+          + INPUT_REVIEW_CREATOR_ID;
+  public static final String SQL_REVIEW_GET_BY_RECIPE_AND_CREATOR =
+      "SELECT * FROM "
+          + TABLE_REVIEW
+          + " WHERE "
+          + COLUMN_REVIEW_RECIPE_ID
+          + " = :"
+          + INPUT_REVIEW_RECIPE_ID
+          + " AND "
+          + COLUMN_REVIEW_CREATOR_ID
+          + " = :"
+          + INPUT_REVIEW_CREATOR_ID;
+  public static final String SQL_REVIEW_GET_BY_RECIPE_ID =
+      "SELECT * FROM "
+          + TABLE_REVIEW
+          + " WHERE "
+          + COLUMN_REVIEW_RECIPE_ID
+          + " = :"
+          + INPUT_REVIEW_RECIPE_ID;
+  public static final String SQL_REVIEW_GET_BY_CREATOR_ID =
+      "SELECT * FROM "
+          + TABLE_REVIEW
+          + " WHERE "
+          + COLUMN_REVIEW_CREATOR_ID
+          + " = :"
+          + INPUT_REVIEW_CREATOR_ID;
 }

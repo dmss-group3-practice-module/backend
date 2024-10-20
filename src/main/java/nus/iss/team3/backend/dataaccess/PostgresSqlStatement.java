@@ -312,4 +312,108 @@ public class PostgresSqlStatement {
 
   public static final String SQL_INGREDIENTS_DELETE_BY_USER_ID =
       "DELETE FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
+
+  ////////////////// Notification
+  // Table
+  public static final String TABLE_NOTIFICATION = "notifications";
+
+  // Notification column names
+  public static final String COLUMN_NOTIFICATION_ID = "id";
+  public static final String COLUMN_NOTIFICATION_USER_ID = "user_id";
+  public static final String COLUMN_NOTIFICATION_TITLE = "title";
+  public static final String COLUMN_NOTIFICATION_CONTENT = "content";
+  public static final String COLUMN_NOTIFICATION_TYPE = "type";
+  public static final String COLUMN_NOTIFICATION_IS_READ = "is_read";
+  public static final String COLUMN_NOTIFICATION_CREATED_AT = "created_at";
+
+  // Notification input parameter names
+  public static final String INPUT_NOTIFICATION_ID = "id";
+  public static final String INPUT_NOTIFICATION_USER_ID = "userId";
+  public static final String INPUT_NOTIFICATION_TITLE = "title";
+  public static final String INPUT_NOTIFICATION_CONTENT = "content";
+  public static final String INPUT_NOTIFICATION_TYPE = "type";
+  public static final String INPUT_NOTIFICATION_IS_READ = "isRead";
+  public static final String INPUT_NOTIFICATION_CREATED_AT = "createdAt";
+
+  // Notification SQL statements
+  public static final String SQL_NOTIFICATION_ADD =
+      "INSERT INTO "
+          + TABLE_NOTIFICATION
+          + "("
+          + COLUMN_NOTIFICATION_USER_ID
+          + ","
+          + COLUMN_NOTIFICATION_TITLE
+          + ","
+          + COLUMN_NOTIFICATION_CONTENT
+          + ","
+          + COLUMN_NOTIFICATION_TYPE
+          + ","
+          + COLUMN_NOTIFICATION_IS_READ
+          + ","
+          + COLUMN_NOTIFICATION_CREATED_AT
+          + ") VALUES (:"
+          + INPUT_NOTIFICATION_USER_ID
+          + ",:"
+          + INPUT_NOTIFICATION_TITLE
+          + ",:"
+          + INPUT_NOTIFICATION_CONTENT
+          + ",:"
+          + INPUT_NOTIFICATION_TYPE
+          + ",:"
+          + INPUT_NOTIFICATION_IS_READ
+          + ","
+          + "now());";
+
+  public static final String SQL_NOTIFICATION_GET_FOR_USER =
+      "SELECT * FROM "
+          + TABLE_NOTIFICATION
+          + " WHERE "
+          + COLUMN_NOTIFICATION_USER_ID
+          + " = :"
+          + INPUT_NOTIFICATION_USER_ID
+          + " ORDER BY "
+          + COLUMN_NOTIFICATION_CREATED_AT
+          + " DESC"
+          + " LIMIT :limit;";
+
+  public static final String SQL_NOTIFICATION_GET_UNREAD_COUNT =
+      "SELECT COUNT(*) as count FROM "
+          + TABLE_NOTIFICATION
+          + " WHERE "
+          + COLUMN_NOTIFICATION_USER_ID
+          + " = :"
+          + INPUT_NOTIFICATION_USER_ID
+          + " AND "
+          + COLUMN_NOTIFICATION_IS_READ
+          + " = false;";
+
+  public static final String SQL_NOTIFICATION_MARK_AS_READ =
+      "UPDATE "
+          + TABLE_NOTIFICATION
+          + " SET "
+          + COLUMN_NOTIFICATION_IS_READ
+          + " = true"
+          + " WHERE "
+          + COLUMN_NOTIFICATION_ID
+          + " = :"
+          + INPUT_NOTIFICATION_ID
+          + " AND "
+          + COLUMN_NOTIFICATION_USER_ID
+          + " = :"
+          + INPUT_NOTIFICATION_USER_ID
+          + ";";
+
+  public static final String SQL_NOTIFICATION_MARK_ALL_AS_READ_FOR_USER =
+      "UPDATE "
+          + TABLE_NOTIFICATION
+          + " SET "
+          + COLUMN_NOTIFICATION_IS_READ
+          + " = true"
+          + " WHERE "
+          + COLUMN_NOTIFICATION_USER_ID
+          + " = :"
+          + INPUT_NOTIFICATION_USER_ID
+          + " AND "
+          + COLUMN_NOTIFICATION_IS_READ
+          + " = false;";
 }

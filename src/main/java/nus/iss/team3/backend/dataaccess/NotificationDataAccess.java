@@ -35,6 +35,10 @@ public class NotificationDataAccess implements INotificationDataAccess {
       sqlInput.put("limit", limit);
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(SQL_NOTIFICATION_GET_FOR_USER, sqlInput);
+      if (result == null) {
+        logger.warn("Query returned null for user ID: {}. Returning empty list.", userId);
+        return Collections.emptyList();
+      }
       return result.stream().map(this::translateDBRecordToNotification).toList();
     } catch (DataAccessException e) {
       logger.error("Error getting notifications for user ID: {}", userId, e);
@@ -93,8 +97,8 @@ public class NotificationDataAccess implements INotificationDataAccess {
     notification.setContent((String) entity.get(COLUMN_NOTIFICATION_CONTENT));
     notification.setType(ENotificationType.valueOf((String) entity.get(COLUMN_NOTIFICATION_TYPE)));
     notification.setIsRead((Boolean) entity.get(COLUMN_NOTIFICATION_IS_READ));
-    notification.setCreatedAt(
-        ((java.sql.Timestamp) entity.get(COLUMN_NOTIFICATION_CREATED_AT))
+    notification.setCreateDateTime(
+        ((java.sql.Timestamp) entity.get(COLUMN_NOTIFICATION_CREATE_DATETIME))
             .toInstant()
             .atZone(ZoneId.systemDefault()));
     return notification;

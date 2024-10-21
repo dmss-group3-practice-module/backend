@@ -15,7 +15,7 @@ public class Notification {
 
   private Boolean isRead;
 
-  private ZonedDateTime createdAt;
+  private ZonedDateTime createDateTime;
 
   // Constructors, getters, and setters
 
@@ -27,7 +27,7 @@ public class Notification {
     this.content = content;
     this.type = type;
     this.isRead = false;
-    this.createdAt = ZonedDateTime.now();
+    this.createDateTime = ZonedDateTime.now();
   }
 
   // Getters and setters for all fields
@@ -80,11 +80,11 @@ public class Notification {
     this.isRead = isRead;
   }
 
-  public ZonedDateTime getCreatedAt() {
-    return createdAt;
+  public ZonedDateTime getCreateDateTime() {
+    return createDateTime;
   }
 
-  public void setCreatedAt(ZonedDateTime createdAt) {
-    this.createdAt = createdAt;
+  public void setCreateDateTime(ZonedDateTime createDateTime) {
+    this.createDateTime = createDateTime;
   }
 }

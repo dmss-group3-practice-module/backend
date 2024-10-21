@@ -35,7 +35,7 @@ public class TestNotificationController {
     when(notificationService.getNotificationsForUser(1, 10)).thenReturn(mockNotifications);
 
     mockMvc
-        .perform(get("/notifications").param("userId", "1").param("limit", "10"))
+        .perform(get("/notification").param("userId", "1").param("limit", "10"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -45,7 +45,7 @@ public class TestNotificationController {
   @Test
   void testGetNotifications_Failure_InvalidUserId() throws Exception {
     mockMvc
-        .perform(get("/notifications").param("userId", "invalid").param("limit", "10"))
+        .perform(get("/notification").param("userId", "invalid").param("limit", "10"))
         .andExpect(status().isBadRequest());
   }
 
@@ -54,7 +54,7 @@ public class TestNotificationController {
     when(notificationService.getUnreadNotificationCountForUser(1)).thenReturn(5);
 
     mockMvc
-        .perform(get("/notifications/unread-count").param("userId", "1"))
+        .perform(get("/notification/unread-count").param("userId", "1"))
         .andExpect(status().isOk())
         .andExpect(content().string("5"));
 
@@ -66,7 +66,7 @@ public class TestNotificationController {
     when(notificationService.markNotificationAsRead(1, 1)).thenReturn(true);
 
     mockMvc
-        .perform(put("/notifications/1/mark-read").param("userId", "1"))
+        .perform(put("/notification/1/mark-read").param("userId", "1"))
         .andExpect(status().isOk());
 
     verify(notificationService).markNotificationAsRead(1, 1);
@@ -77,7 +77,7 @@ public class TestNotificationController {
     when(notificationService.markNotificationAsRead(1, 1)).thenReturn(false);
 
     mockMvc
-        .perform(put("/notifications/1/mark-read").param("userId", "1"))
+        .perform(put("/notification/1/mark-read").param("userId", "1"))
         .andExpect(status().isNotFound());
 
     verify(notificationService).markNotificationAsRead(1, 1);
@@ -88,7 +88,7 @@ public class TestNotificationController {
     when(notificationService.markAllNotificationsAsReadForUser(1)).thenReturn(true);
 
     mockMvc
-        .perform(put("/notifications/mark-all-read").param("userId", "1"))
+        .perform(put("/notification/mark-all-read").param("userId", "1"))
         .andExpect(status().isOk());
 
     verify(notificationService).markAllNotificationsAsReadForUser(1);
@@ -99,7 +99,7 @@ public class TestNotificationController {
     when(notificationService.markAllNotificationsAsReadForUser(1)).thenReturn(false);
 
     mockMvc
-        .perform(put("/notifications/mark-all-read").param("userId", "1"))
+        .perform(put("/notification/mark-all-read").param("userId", "1"))
         .andExpect(status().isNotFound());
 
     verify(notificationService).markAllNotificationsAsReadForUser(1);

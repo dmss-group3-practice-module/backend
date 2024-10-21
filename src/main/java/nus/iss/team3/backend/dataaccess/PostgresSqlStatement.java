@@ -315,7 +315,7 @@ public class PostgresSqlStatement {
 
   ////////////////// Notification
   // Table
-  public static final String TABLE_NOTIFICATION = "notifications";
+  public static final String TABLE_NOTIFICATION = "notification";
 
   // Notification column names
   public static final String COLUMN_NOTIFICATION_ID = "id";
@@ -324,7 +324,7 @@ public class PostgresSqlStatement {
   public static final String COLUMN_NOTIFICATION_CONTENT = "content";
   public static final String COLUMN_NOTIFICATION_TYPE = "type";
   public static final String COLUMN_NOTIFICATION_IS_READ = "is_read";
-  public static final String COLUMN_NOTIFICATION_CREATED_AT = "created_at";
+  public static final String COLUMN_NOTIFICATION_CREATE_DATETIME = "create_datetime";
 
   // Notification input parameter names
   public static final String INPUT_NOTIFICATION_ID = "id";
@@ -333,7 +333,7 @@ public class PostgresSqlStatement {
   public static final String INPUT_NOTIFICATION_CONTENT = "content";
   public static final String INPUT_NOTIFICATION_TYPE = "type";
   public static final String INPUT_NOTIFICATION_IS_READ = "isRead";
-  public static final String INPUT_NOTIFICATION_CREATED_AT = "createdAt";
+  public static final String INPUT_NOTIFICATION_CREATE_DATETIME = "createDatetime";
 
   // Notification SQL statements
   public static final String SQL_NOTIFICATION_ADD =
@@ -350,7 +350,7 @@ public class PostgresSqlStatement {
           + ","
           + COLUMN_NOTIFICATION_IS_READ
           + ","
-          + COLUMN_NOTIFICATION_CREATED_AT
+          + COLUMN_NOTIFICATION_CREATE_DATETIME
           + ") VALUES (:"
           + INPUT_NOTIFICATION_USER_ID
           + ",:"
@@ -372,7 +372,7 @@ public class PostgresSqlStatement {
           + " = :"
           + INPUT_NOTIFICATION_USER_ID
           + " ORDER BY "
-          + COLUMN_NOTIFICATION_CREATED_AT
+          + COLUMN_NOTIFICATION_CREATE_DATETIME
           + " DESC"
           + " LIMIT :limit;";
 

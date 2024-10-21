@@ -49,7 +49,7 @@ public class NotificationDataAccess implements INotificationDataAccess {
       sqlInput.put(INPUT_NOTIFICATION_USER_ID, userId);
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(SQL_NOTIFICATION_GET_UNREAD_COUNT, sqlInput);
-      return result.isEmpty() ? 0 : ((Number) result.get(0).get("count")).intValue();
+      return result.isEmpty() ? 0 : ((Number) result.getFirst().get("count")).intValue();
     } catch (DataAccessException e) {
       logger.error("Error getting unread notification count for user ID: {}", userId, e);
       return 0;

@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("notifications")
+@RequestMapping("notification")
 public class NotificationController {
 
   private static final Logger logger = LogManager.getLogger(NotificationController.class);
@@ -20,7 +20,7 @@ public class NotificationController {
 
   @GetMapping
   public ResponseEntity<?> getNotifications(
-      @RequestParam Integer userId, @RequestParam(defaultValue = "10") int limit) {
+      @RequestParam int userId, @RequestParam(defaultValue = "10") int limit) {
     try {
       logger.info(
           "Received request to get notifications for user ID: {} with limit: {}", userId, limit);
@@ -34,7 +34,7 @@ public class NotificationController {
   }
 
   @GetMapping("/unread-count")
-  public ResponseEntity<?> getUnreadNotificationCount(@RequestParam Integer userId) {
+  public ResponseEntity<?> getUnreadNotificationCount(@RequestParam int userId) {
     try {
       logger.info("Received request to get unread notification count for user ID: {}", userId);
       int count = notificationService.getUnreadNotificationCountForUser(userId);
@@ -48,7 +48,7 @@ public class NotificationController {
 
   @PutMapping("/{notificationId}/mark-read")
   public ResponseEntity<?> markNotificationAsRead(
-      @PathVariable Integer notificationId, @RequestParam Integer userId) {
+      @PathVariable int notificationId, @RequestParam int userId) {
     try {
       logger.info(
           "Received request to mark notification ID: {} as read for user ID: {}",
@@ -70,7 +70,7 @@ public class NotificationController {
   }
 
   @PutMapping("/mark-all-read")
-  public ResponseEntity<?> markAllNotificationsAsRead(@RequestParam Integer userId) {
+  public ResponseEntity<?> markAllNotificationsAsRead(@RequestParam int userId) {
     try {
       logger.info("Received request to mark all notifications as read for user ID: {}", userId);
       boolean success = notificationService.markAllNotificationsAsReadForUser(userId);

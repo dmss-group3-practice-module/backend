@@ -1,11 +1,14 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.service.auth;
 
+import jakarta.annotation.PostConstruct;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.ProfileConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,11 +17,17 @@ import org.springframework.stereotype.Service;
  * @author REN JIARUI
  */
 @Service
+@Profile(ProfileConfig.PROFILE_AUTHENTICATE)
 public class AuthService implements IAuthService {
 
   private static final Logger logger = LogManager.getLogger(AuthService.class);
 
   @Autowired private IUserAccountDataAccess userAccountDataAccess;
+
+  @PostConstruct
+  public void postContruct() {
+    logger.info("Authenticate Service Logic initialized.");
+  }
 
   @Override
   public UserAccount authenticate(String username, String password)

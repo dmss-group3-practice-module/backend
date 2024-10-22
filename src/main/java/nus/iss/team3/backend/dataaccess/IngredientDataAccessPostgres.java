@@ -126,6 +126,28 @@ public class IngredientDataAccessPostgres implements IIngredientDataAccess {
   }
 
   /**
+   * @param name of the ingredient to be retrieved
+   * @return list of ingredients matching the name
+   */
+  @Override
+  public List<Ingredient> getIngredientsByName(String name) {
+    Map<String, Object> sqlInput = new HashMap<>();
+    sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, name);
+    List<Map<String, Object>> entityReturned =
+        postgresDataAccess.queryStatement(
+            PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_NAME, sqlInput);
+    List<Ingredient> returnList = new ArrayList<>();
+    if (entityReturned != null) {
+      for (Map<String, Object> entity : entityReturned) {
+        returnList.add(translateDBRecordToIngredient(entity));
+      }
+    } else {
+      logger.error("No ingredients found for name {}", name);
+    }
+    return returnList;
+  }
+
+  /**
    * @param userId id of user to be retrieved
    * @return content of retrieved ingredient based on userId
    */

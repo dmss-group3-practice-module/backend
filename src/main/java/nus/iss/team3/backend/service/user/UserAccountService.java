@@ -1,15 +1,18 @@
 /* (C)2024 */
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.service.user;
 
+import jakarta.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.ProfileConfig;
 import nus.iss.team3.backend.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,11 +21,17 @@ import org.springframework.stereotype.Service;
  * @author Desmond Tan Zhi Heng, REN JIARUI
  */
 @Service
+@Profile(ProfileConfig.PROFILE_USER_ACCOUNT)
 public class UserAccountService implements IUserAccountService {
 
   private static final Logger logger = LogManager.getLogger(UserAccountService.class);
 
   @Autowired IUserAccountDataAccess userAccountDataAccess;
+
+  @PostConstruct
+  public void postContruct() {
+    logger.info("User Service Logic initialized.");
+  }
 
   @Override
   public boolean addUser(UserAccount userAccount) {

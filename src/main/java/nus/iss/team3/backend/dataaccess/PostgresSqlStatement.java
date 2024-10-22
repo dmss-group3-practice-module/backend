@@ -310,6 +310,13 @@ public class PostgresSqlStatement {
   public static final String SQL_INGREDIENTS_GET_BY_USER_ID =
       "SELECT * FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
 
+  public static final String SQL_INGREDIENTS_GET_BY_NAME =
+      "SELECT * FROM "
+          + TABLE_INGREDIENT
+          + " WHERE "
+          + COLUMN_INGREDIENT_NAME
+          + " = :"
+          + INPUT_INGREDIENT_NAME;
   public static final String SQL_INGREDIENTS_DELETE_BY_USER_ID =
       "DELETE FROM " + TABLE_INGREDIENT + " WHERE " + COLUMN_USER_ID + " = :" + INPUT_USER_ID;
 

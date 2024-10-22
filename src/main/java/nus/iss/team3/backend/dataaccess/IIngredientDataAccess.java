@@ -17,6 +17,8 @@ public interface IIngredientDataAccess {
 
   public boolean deleteIngredientById(int ingredientId);
 
+  public List<Ingredient> getIngredientsByName(String name);
+
   public List<Ingredient> getIngredientsByUser(int userId);
 
   public boolean deleteIngredientsByUser(int userId);

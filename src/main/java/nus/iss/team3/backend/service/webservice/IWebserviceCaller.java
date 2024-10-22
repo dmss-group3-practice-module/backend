@@ -1,8 +1,17 @@
 package nus.iss.team3.backend.service.webservice;
 
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
+
 public interface IWebserviceCaller {
 
-  Object getCall(String url, Class<?> returnType);
+  <T> ResponseEntity<T> getCall(String url, Class<T> responseType);
 
-  Object postCall(String url, Object bodyObject, Class<?> returnType);
+  <T> ResponseEntity<T> getCall(String url, ParameterizedTypeReference<T> responseType);
+
+  <T> ResponseEntity<T> postCall(String url, Object request, Class<T> responseType);
+
+  <T> ResponseEntity<T> putCall(String url, Object request, Class<T> responseType);
+
+  <T> ResponseEntity<T> deleteCall(String url, Class<T> responseType);
 }

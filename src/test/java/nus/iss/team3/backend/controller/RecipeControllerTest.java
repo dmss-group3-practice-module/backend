@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Recipe;
-import nus.iss.team3.backend.service.IRecipeService;
+import nus.iss.team3.backend.service.recipe.IRecipeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

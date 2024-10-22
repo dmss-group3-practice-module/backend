@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import nus.iss.team3.backend.entity.Ingredient;
-import nus.iss.team3.backend.service.IIngredientService;
+import nus.iss.team3.backend.service.ingredient.IIngredientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

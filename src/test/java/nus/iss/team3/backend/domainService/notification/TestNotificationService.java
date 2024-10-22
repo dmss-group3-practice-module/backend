@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.INotificationDataAccess;
+import nus.iss.team3.backend.entity.ENotificationType;
 import nus.iss.team3.backend.entity.Notification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,111 @@ public class TestNotificationService {
   @BeforeEach
   void setUp() {
     mockNotifications = Arrays.asList(new Notification(), new Notification());
+  }
+
+  @Test
+  void testCreateNotification_Success() {
+    // 准备测试数据
+    Notification notification = new Notification();
+    notification.setUserId(1);
+    notification.setTitle("Test Title");
+    notification.setContent("Test Content");
+    notification.setType(ENotificationType.INFO);
+
+    when(notificationDataAccess.createNotification(notification)).thenReturn(true);
+
+    // 执行测试
+    boolean result = notificationService.createNotification(notification);
+
+    // 验证结果
+    assertTrue(result);
+    assertFalse(notification.getIsRead()); // 验证默认设置为未读
+    verify(notificationDataAccess).createNotification(notification);
+  }
+
+  @Test
+  void testCreateNotification_WithIsReadTrue() {
+    // 准备测试数据
+    Notification notification = new Notification();
+    notification.setUserId(1);
+    notification.setTitle("Test Title");
+    notification.setContent("Test Content");
+    notification.setType(ENotificationType.INFO);
+    notification.setIsRead(true);
+
+    when(notificationDataAccess.createNotification(notification)).thenReturn(true);
+
+    // 执行测试
+    boolean result = notificationService.createNotification(notification);
+
+    // 验证结果
+    assertTrue(result);
+    assertTrue(notification.getIsRead()); // 验证保持原有的已读状态
+    verify(notificationDataAccess).createNotification(notification);
+  }
+
+  @Test
+  void testCreateNotification_NullUserId() {
+    Notification notification = new Notification();
+    notification.setTitle("Test Title");
+    notification.setContent("Test Content");
+
+    assertThrows(
+        IllegalArgumentException.class, () -> notificationService.createNotification(notification));
+
+    verify(notificationDataAccess, never()).createNotification(any());
+  }
+
+  @Test
+  void testCreateNotification_EmptyTitle() {
+    Notification notification = new Notification();
+    notification.setUserId(1);
+    notification.setContent("Test Content");
+    notification.setTitle("");
+
+    assertThrows(
+        IllegalArgumentException.class, () -> notificationService.createNotification(notification));
+
+    verify(notificationDataAccess, never()).createNotification(any());
+  }
+
+  @Test
+  void testCreateNotification_NullTitle() {
+    Notification notification = new Notification();
+    notification.setUserId(1);
+    notification.setContent("Test Content");
+    notification.setTitle(null);
+
+    assertThrows(
+        IllegalArgumentException.class, () -> notificationService.createNotification(notification));
+
+    verify(notificationDataAccess, never()).createNotification(any());
+  }
+
+  @Test
+  void testCreateNotification_EmptyContent() {
+    Notification notification = new Notification();
+    notification.setUserId(1);
+    notification.setTitle("Test Title");
+    notification.setContent("");
+
+    assertThrows(
+        IllegalArgumentException.class, () -> notificationService.createNotification(notification));
+
+    verify(notificationDataAccess, never()).createNotification(any());
+  }
+
+  @Test
+  void testCreateNotification_NullContent() {
+    Notification notification = new Notification();
+    notification.setUserId(1);
+    notification.setTitle("Test Title");
+    notification.setContent(null);
+
+    assertThrows(
+        IllegalArgumentException.class, () -> notificationService.createNotification(notification));
+
+    verify(notificationDataAccess, never()).createNotification(any());
   }
 
   @Test

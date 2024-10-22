@@ -199,4 +199,54 @@ public class TestIngredientController {
     ingredient.setExpiryDate(date);
     return ingredient;
   }
+
+  @Test
+  public void testGetExpiringIngredients() throws Exception {
+    // Prepare test data
+    List<Ingredient> expiringIngredients =
+        Arrays.asList(createValidIngredient(), createValidIngredient());
+    expiringIngredients.get(0).setId(1);
+    expiringIngredients.get(1).setId(2);
+
+    // Test success with default days parameter
+    when(ingredientService.getExpiringIngredients(1, 3)).thenReturn(expiringIngredients);
+    mockMvc
+        .perform(get("/ingredient/expiring-list").param("userId", "1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[1].id").value(2));
+
+    // Test success with custom days parameter
+    when(ingredientService.getExpiringIngredients(1, 5)).thenReturn(expiringIngredients);
+    mockMvc
+        .perform(get("/ingredient/expiring-list").param("userId", "1").param("days", "5"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[1].id").value(2));
+
+    // Test when service throws exception
+    when(ingredientService.getExpiringIngredients(999, 3))
+        .thenThrow(new RuntimeException("Error getting expiring ingredients"));
+    mockMvc
+        .perform(get("/ingredient/expiring-list").param("userId", "999"))
+        .andExpect(status().isInternalServerError());
+  }
+
+  @Test
+  public void testTriggerExpiryCheck() throws Exception {
+    // Test success
+    doNothing().when(ingredientService).checkIngredientsExpiry();
+    mockMvc
+        .perform(post("/ingredient/trigger-expiry-check"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("true"));
+
+    // Test when service throws exception
+    doThrow(new RuntimeException("Error during expiry check"))
+        .when(ingredientService)
+        .checkIngredientsExpiry();
+    mockMvc
+        .perform(post("/ingredient/trigger-expiry-check"))
+        .andExpect(status().isInternalServerError());
+  }
 }

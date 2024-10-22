@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import nus.iss.team3.backend.dataaccess.postgres.IPostgresDataAccess;
 import nus.iss.team3.backend.entity.ENotificationType;
 import nus.iss.team3.backend.entity.Notification;
@@ -36,13 +37,15 @@ public class NotificationDataAccess implements INotificationDataAccess {
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(SQL_NOTIFICATION_GET_FOR_USER, sqlInput);
       if (result == null) {
-        logger.warn("Query returned null for user ID: {}. Returning empty list.", userId);
+        logger.warn("No notifications found for user ID: {}", userId);
         return Collections.emptyList();
       }
-      return result.stream().map(this::translateDBRecordToNotification).toList();
+      return result.stream()
+          .map(this::translateDBRecordToNotification)
+          .collect(Collectors.toList());
     } catch (DataAccessException e) {
-      logger.error("Error getting notifications for user ID: {}", userId, e);
-      return Collections.emptyList();
+      logger.error("Database error while getting notifications for user ID: {}", userId, e);
+      throw new RuntimeException("Failed to retrieve notifications", e);
     }
   }
 
@@ -89,18 +92,66 @@ public class NotificationDataAccess implements INotificationDataAccess {
     }
   }
 
+  @Override
+  public boolean createNotification(Notification notification) {
+    try {
+      Map<String, Object> sqlInput = new HashMap<>();
+      sqlInput.put(INPUT_NOTIFICATION_USER_ID, notification.getUserId());
+      sqlInput.put(INPUT_NOTIFICATION_TITLE, notification.getTitle());
+      sqlInput.put(INPUT_NOTIFICATION_CONTENT, notification.getContent());
+      sqlInput.put(INPUT_NOTIFICATION_TYPE, notification.getType().toString());
+      sqlInput.put(INPUT_NOTIFICATION_IS_READ, notification.getIsRead());
+
+      int result = postgresDataAccess.upsertStatement(SQL_NOTIFICATION_ADD, sqlInput);
+      return result == 1;
+    } catch (DataAccessException e) {
+      logger.error("Error creating notification for user ID: {}", notification.getUserId(), e);
+      return false;
+    }
+  }
+
   private Notification translateDBRecordToNotification(Map<String, Object> entity) {
     Notification notification = new Notification();
-    notification.setId((Integer) entity.get(COLUMN_NOTIFICATION_ID));
-    notification.setUserId((Integer) entity.get(COLUMN_NOTIFICATION_USER_ID));
-    notification.setTitle((String) entity.get(COLUMN_NOTIFICATION_TITLE));
-    notification.setContent((String) entity.get(COLUMN_NOTIFICATION_CONTENT));
-    notification.setType(ENotificationType.valueOf((String) entity.get(COLUMN_NOTIFICATION_TYPE)));
-    notification.setIsRead((Boolean) entity.get(COLUMN_NOTIFICATION_IS_READ));
-    notification.setCreateDateTime(
-        ((java.sql.Timestamp) entity.get(COLUMN_NOTIFICATION_CREATE_DATETIME))
-            .toInstant()
-            .atZone(ZoneId.systemDefault()));
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_ID)
+        && entity.get(COLUMN_NOTIFICATION_ID) instanceof Integer) {
+      notification.setId((Integer) entity.get(COLUMN_NOTIFICATION_ID));
+    }
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_USER_ID)
+        && entity.get(COLUMN_NOTIFICATION_USER_ID) instanceof Integer) {
+      notification.setUserId((Integer) entity.get(COLUMN_NOTIFICATION_USER_ID));
+    }
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_TITLE)
+        && entity.get(COLUMN_NOTIFICATION_TITLE) instanceof String) {
+      notification.setTitle((String) entity.get(COLUMN_NOTIFICATION_TITLE));
+    }
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_CONTENT)
+        && entity.get(COLUMN_NOTIFICATION_CONTENT) instanceof String) {
+      notification.setContent((String) entity.get(COLUMN_NOTIFICATION_CONTENT));
+    }
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_TYPE)
+        && entity.get(COLUMN_NOTIFICATION_TYPE) instanceof String) {
+      notification.setType(
+          ENotificationType.valueOf((String) entity.get(COLUMN_NOTIFICATION_TYPE)));
+    }
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_IS_READ)
+        && entity.get(COLUMN_NOTIFICATION_IS_READ) instanceof Boolean) {
+      notification.setIsRead((Boolean) entity.get(COLUMN_NOTIFICATION_IS_READ));
+    }
+
+    if (entity.containsKey(COLUMN_NOTIFICATION_CREATE_DATETIME)
+        && entity.get(COLUMN_NOTIFICATION_CREATE_DATETIME) instanceof java.sql.Timestamp) {
+      notification.setCreateDateTime(
+          ((java.sql.Timestamp) entity.get(COLUMN_NOTIFICATION_CREATE_DATETIME))
+              .toInstant()
+              .atZone(ZoneId.systemDefault()));
+    }
+
     return notification;
   }
 }

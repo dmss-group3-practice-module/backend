@@ -3,6 +3,7 @@ package nus.iss.team3.backend.domainService.notification;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.INotificationDataAccess;
 import nus.iss.team3.backend.entity.Notification;
+import nus.iss.team3.backend.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,24 @@ public class NotificationService implements INotificationService {
   public boolean markAllNotificationsAsReadForUser(Integer userId) {
     logger.info("Marking all notifications as read for user ID: {}", userId);
     return notificationDataAccess.markAllNotificationsAsReadForUser(userId);
+  }
+
+  @Override
+  public boolean createNotification(Notification notification) {
+    // 基本验证
+    if (notification.getUserId() == null
+        || StringUtilities.isStringNullOrBlank(notification.getTitle())
+        || StringUtilities.isStringNullOrBlank(notification.getContent())) {
+      logger.error("Invalid notification data: {}", notification);
+      throw new IllegalArgumentException("Invalid notification data");
+    }
+
+    // 如果没有设置已读状态，默认为未读
+    if (notification.getIsRead() == null) {
+      notification.setIsRead(false);
+    }
+
+    logger.info("Creating notification for user ID: {}", notification.getUserId());
+    return notificationDataAccess.createNotification(notification);
   }
 }

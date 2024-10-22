@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
+import java.util.stream.Collectors;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.util.StringUtilities;
@@ -120,6 +121,14 @@ public class UserAccountService implements IUserAccountService {
   public UserAccount authenticate(String username, String password)
       throws IllegalArgumentException {
     return userAccountDataAccess.authenticateUser(username, password);
+  }
+  
+  public List<Integer> getAllUserIds() {
+    List<UserAccount> users = getAllUsers();
+    return users.stream()
+        .map(UserAccount::getId)
+        .filter(id -> id != null)
+        .collect(Collectors.toList());
   }
 
   private boolean isUserNameAndEmailAvailable(UserAccount userAccount, Integer currentUserId) {

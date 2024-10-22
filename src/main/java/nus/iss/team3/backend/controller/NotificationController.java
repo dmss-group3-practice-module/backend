@@ -18,6 +18,25 @@ public class NotificationController {
 
   @Autowired private NotificationService notificationService;
 
+  @PostMapping("/create")
+  public ResponseEntity<?> createNotification(@RequestBody Notification notification) {
+    try {
+      logger.info(
+          "Received request to create notification for user ID: {}", notification.getUserId());
+      boolean success = notificationService.createNotification(notification);
+      if (success) {
+        return ResponseEntity.ok().build();
+      } else {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Failed to create notification");
+      }
+    } catch (Exception e) {
+      logger.error("Error creating notification for user ID: {}", notification.getUserId(), e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Error creating notification");
+    }
+  }
+
   @GetMapping
   public ResponseEntity<?> getNotifications(
       @RequestParam int userId, @RequestParam(defaultValue = "10") int limit) {

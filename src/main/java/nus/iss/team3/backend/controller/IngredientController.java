@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller class to handle web call for ingredient related queries
  *
- * @author Liu Kun
+ * @author Liu Kun, Ren Jiarui
  */
 @RestController
 @RequestMapping("ingredient")
@@ -128,6 +128,32 @@ public class IngredientController {
       return new ResponseEntity<>(ingredients, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Error getting all ingredients for user", e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping("/expiring-list")
+  public ResponseEntity<?> getExpiringIngredients(
+      @RequestParam int userId, @RequestParam(defaultValue = "3") int days) {
+    try {
+      List<Ingredient> expiringIngredients = ingredientService.getExpiringIngredients(userId, days);
+      logger.info(
+          "Retrieved {} expiring ingredients for user {}", expiringIngredients.size(), userId);
+      return new ResponseEntity<>(expiringIngredients, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Error getting expiring ingredients for user {}", userId, e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/trigger-expiry-check")
+  public ResponseEntity<?> triggerExpiryCheck() {
+    try {
+      ingredientService.checkIngredientsExpiry();
+      logger.info("Manual expiry check triggered successfully");
+      return new ResponseEntity<>(true, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Error triggering expiry check", e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

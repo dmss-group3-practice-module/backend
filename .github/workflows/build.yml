@@ -73,6 +73,13 @@ jobs:
           docker tag ${{ secrets.REGISTRY_NAME }}/feats-backend:latest ${{ secrets.REGISTRY_NAME }}/feats-backend:$VERSION
           docker push ${{ secrets.REGISTRY_NAME }}/feats-backend:$VERSION
 
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test coverage report
+          path: |
+            ./build/jacocoHtml/index.html
+
   update-image-version:
     needs: ci
 

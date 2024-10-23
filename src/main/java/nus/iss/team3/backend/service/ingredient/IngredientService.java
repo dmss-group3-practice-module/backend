@@ -1,13 +1,16 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.service.ingredient;
 
+import jakarta.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
 import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.service.ProfileConfig;
 import nus.iss.team3.backend.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,11 +19,17 @@ import org.springframework.stereotype.Service;
  * @author liukun
  */
 @Service
+@Profile(ProfileConfig.PROFILE_INGREDIENT)
 public class IngredientService implements IIngredientService {
 
   private static final Logger logger = LogManager.getLogger(IngredientService.class);
 
   @Autowired IIngredientDataAccess ingredientDataAccess;
+
+  @PostConstruct
+  public void postContruct() {
+    logger.info("Ingredient Service Logic initialized.");
+  }
 
   @Override
   public boolean addIngredient(Ingredient ingredient) {
@@ -56,7 +65,20 @@ public class IngredientService implements IIngredientService {
 
   @Override
   public Ingredient getIngredientById(Integer id) {
-    return ingredientDataAccess.getIngredientById(id);
+    Ingredient ingredient = ingredientDataAccess.getIngredientById(id);
+    if (ingredient == null) {
+      logger.warn("ingredient not found for ID: {}", id);
+    }
+    return ingredient;
+  }
+
+  @Override
+  public List<Ingredient> getIngredientsByName(String name) {
+    List<Ingredient> ingredients = ingredientDataAccess.getIngredientsByName(name);
+    if (ingredients == null) {
+      logger.warn("ingredient not found for Name: {}", name);
+    }
+    return ingredients;
   }
 
   @Override

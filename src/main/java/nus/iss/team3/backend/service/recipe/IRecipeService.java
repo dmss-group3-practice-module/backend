@@ -1,4 +1,4 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.service.recipe;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;

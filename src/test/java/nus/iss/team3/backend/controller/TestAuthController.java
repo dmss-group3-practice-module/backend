@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.service.IAuthService;
+import nus.iss.team3.backend.service.auth.IAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class TestAuthController {
 
     mockMvc
         .perform(
-            post("/user/login")
+            post("/authenticate/login")
                 .session(session)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"password\"}"))
@@ -60,7 +60,7 @@ public class TestAuthController {
 
     mockMvc
         .perform(
-            post("/user/login")
+            post("/authenticate/login")
                 .session(session)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"wrongpassword\"}"))
@@ -77,7 +77,7 @@ public class TestAuthController {
 
     mockMvc
         .perform(
-            post("/user/login")
+            post("/authenticate/login")
                 .session(session)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":null,\"password\":\"password\"}"))
@@ -94,7 +94,7 @@ public class TestAuthController {
 
     mockMvc
         .perform(
-            post("/user/login")
+            post("/authenticate/login")
                 .session(session)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"\"}"))
@@ -107,7 +107,8 @@ public class TestAuthController {
     MockHttpSession session = new MockHttpSession();
 
     mockMvc
-        .perform(post("/user/login").session(session).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            post("/authenticate/login").session(session).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
@@ -120,7 +121,7 @@ public class TestAuthController {
 
     mockMvc
         .perform(
-            post("/user/login")
+            post("/authenticate/login")
                 .session(session)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"password\"}"))
@@ -137,7 +138,7 @@ public class TestAuthController {
     session.setAttribute("user", user);
 
     mockMvc
-        .perform(post("/user/logout").session(session))
+        .perform(post("/authenticate/logout").session(session))
         .andExpect(status().isOk())
         .andExpect(content().string("Logged out successfully"));
   }
@@ -147,7 +148,7 @@ public class TestAuthController {
     MockHttpSession session = new MockHttpSession();
 
     mockMvc
-        .perform(post("/user/logout").session(session))
+        .perform(post("/authenticate/logout").session(session))
         .andExpect(status().isBadRequest())
         .andExpect(content().string("No active session"));
   }
@@ -158,7 +159,7 @@ public class TestAuthController {
     session.setAttribute("user", null);
 
     mockMvc
-        .perform(post("/user/logout").session(session))
+        .perform(post("/authenticate/logout").session(session))
         .andExpect(status().isBadRequest())
         .andExpect(content().string("No active session"));
   }
@@ -178,7 +179,7 @@ public class TestAuthController {
     session.setAttribute("user", user);
 
     mockMvc
-        .perform(post("/user/logout").session(session))
+        .perform(post("/authenticate/logout").session(session))
         .andExpect(status().isInternalServerError())
         .andExpect(content().string("An unexpected error occurred"));
   }

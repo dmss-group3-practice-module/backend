@@ -4,7 +4,7 @@ package nus.iss.team3.backend.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.service.IUserAccountService;
+import nus.iss.team3.backend.service.user.IUserAccountService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ public class UserAccountController {
 
   @PostMapping("/add")
   public ResponseEntity<?> addUser(@RequestBody UserAccount userAccount) {
+    logger.info("account info received for adding user :" + userAccount.toString());
     try {
       if (userAccountService.addUser(userAccount)) {
         logger.info("Creation of User Account: {} completed", userAccount.getName());

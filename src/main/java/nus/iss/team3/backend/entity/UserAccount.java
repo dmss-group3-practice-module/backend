@@ -1,7 +1,6 @@
 /* (C)2024 */
 package nus.iss.team3.backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.time.ZonedDateTime;
 
@@ -24,7 +23,7 @@ public class UserAccount {
   private String name;
 
   // @JsonIgnore private String password;
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  //  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonView(WithPasswordView.class)
   private String password;
 

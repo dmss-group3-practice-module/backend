@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
 import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.service.ingredient.IngredientService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,5 +1,5 @@
 /* (C)2024 */
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.service.ingredient;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Ingredient;
@@ -17,6 +17,8 @@ public interface IIngredientService {
   public boolean deleteIngredientById(Integer id);
 
   public Ingredient getIngredientById(Integer id);
+
+  public List<Ingredient> getIngredientsByName(String name);
 
   public List<Ingredient> getIngredientsByUser(Integer userId);
 

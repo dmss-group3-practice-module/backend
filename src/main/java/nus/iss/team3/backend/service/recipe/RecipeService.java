@@ -1,11 +1,14 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.service.recipe;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.service.ProfileConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,8 +17,7 @@ import org.springframework.stereotype.Service;
  * @author Mao Weining
  */
 @Service
-// TODO: Activate Spring Profile
-// @Profile("recipe")
+@Profile(ProfileConfig.PROFILE_RECIPE)
 public class RecipeService implements IRecipeService {
 
   private static final Logger logger = LogManager.getLogger(RecipeService.class);
@@ -23,6 +25,11 @@ public class RecipeService implements IRecipeService {
 
   public RecipeService(IRecipeDataAccess recipeDataAccess) {
     this.recipeDataAccess = recipeDataAccess;
+  }
+
+  @PostConstruct
+  public void postContruct() {
+    logger.info("Recipe Service Logic initialized.");
   }
 
   @Override

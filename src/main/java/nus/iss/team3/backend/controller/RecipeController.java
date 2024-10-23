@@ -2,7 +2,7 @@ package nus.iss.team3.backend.controller;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;
-import nus.iss.team3.backend.service.IRecipeService;
+import nus.iss.team3.backend.service.recipe.IRecipeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -72,6 +72,7 @@ public class RecipeController {
   @PutMapping("/{id}")
   public ResponseEntity<String> updateRecipe(@PathVariable Long id, @RequestBody Recipe recipe) {
     logger.info("Received request to update recipe: ID={}, Name={}", id, recipe.getName());
+
     try {
       recipe.setId(id);
       boolean updated = recipeService.updateRecipe(recipe);
@@ -193,7 +194,7 @@ public class RecipeController {
   /**
    * Search for recipes by name.
    *
-   * @param name The recipe name from the request parameter.
+   * @param creatorId The creator Id of the requested recipes.
    * @return Response entity containing the matching recipes.
    */
   @GetMapping("/creator/{creatorId}")

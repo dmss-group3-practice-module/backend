@@ -2,7 +2,7 @@ package nus.iss.team3.backend.controller;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Ingredient;
-import nus.iss.team3.backend.service.IIngredientService;
+import nus.iss.team3.backend.service.ingredient.IIngredientService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +71,21 @@ public class IngredientController {
     }
   }
 
+  @DeleteMapping("/delete/user/{userId}")
+  public ResponseEntity<Boolean> deleteIngredientByUserId(@PathVariable int userId) {
+    try {
+      if (ingredientService.deleteIngredientsByUser(userId)) {
+        logger.info("Deletion of Ingredient By user: {} completed", userId);
+        return new ResponseEntity<>(true, HttpStatus.OK);
+      }
+      logger.info("Deletion of Ingredient by user: {} failed", userId);
+      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (Exception e) {
+      logger.error("Error deleting ingredient", e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @GetMapping("/get/{id}")
   public ResponseEntity<?> getIngredient(@PathVariable int id) {
     try {
@@ -80,6 +95,23 @@ public class IngredientController {
         return new ResponseEntity<Ingredient>(ingredient, HttpStatus.OK);
       } else {
         logger.info("Ingredient not found: {}", id);
+        return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    } catch (Exception e) {
+      logger.error("Error getting ingredient", e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping("/get/name/{name}")
+  public ResponseEntity<?> getIngredientByName(@PathVariable String name) {
+    try {
+      List<Ingredient> ingredientList = ingredientService.getIngredientsByName(name);
+      if (ingredientList != null) {
+        logger.info("Retrieved Ingredient: {}", name);
+        return new ResponseEntity<List<Ingredient>>(ingredientList, HttpStatus.OK);
+      } else {
+        logger.info("Ingredient not found: {}", name);
         return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     } catch (Exception e) {

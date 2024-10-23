@@ -1,13 +1,10 @@
 package nus.iss.team3.backend;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import nus.iss.team3.backend.controller.UserAccountController;
 import nus.iss.team3.backend.entity.EUserAccountStatus;
 import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.service.IUserAccountService;
+import nus.iss.team3.backend.service.user.IUserAccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

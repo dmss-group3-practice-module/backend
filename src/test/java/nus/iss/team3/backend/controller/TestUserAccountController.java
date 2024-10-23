@@ -12,7 +12,7 @@ import java.util.List;
 import nus.iss.team3.backend.entity.EUserAccountStatus;
 import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.service.IUserAccountService;
+import nus.iss.team3.backend.service.user.IUserAccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

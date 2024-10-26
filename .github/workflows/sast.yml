@@ -7,9 +7,9 @@ jobs:
   sast-scan:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        java-version: [17] # Use a stable and supported Java version
+    # strategy:
+    #   matrix:
+    #     java-version: [17] # Use a stable and supported Java version
 
     steps:
       - name: Checkout repository

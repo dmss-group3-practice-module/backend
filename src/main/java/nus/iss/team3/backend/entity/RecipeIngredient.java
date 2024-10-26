@@ -3,7 +3,7 @@ package nus.iss.team3.backend.entity;
 import java.util.Objects;
 
 /**
- * Ingredient Class
+ * Recipe Ingredient Class
  *
  * @author Mao Weining
  */

@@ -19,6 +19,8 @@ import java.sql.Timestamp;
 import java.util.List;
 import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeReview;
+import nus.iss.team3.backend.entity.RecipeWithReviews;
 import nus.iss.team3.backend.service.recipe.IRecipeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 /**
  * Unit test class: RecipeControllerTest is used to test various endpoints of the RecipeController
  * class to ensure its behavior meets expectations.
+ *
+ * @author Mao Weining
  */
 @WebMvcTest(RecipeController.class)
 class RecipeControllerTest {
@@ -42,6 +46,7 @@ class RecipeControllerTest {
   @Autowired private ObjectMapper objectMapper; // Used to serialize objects to JSON
 
   private Recipe sampleRecipe; // Sample recipe object for testing
+  private RecipeWithReviews sampleRecipeWithReviews; // Sample RecipeWithReviews object for testing
 
   /** Initializes the sample recipe object before each test method is executed */
   @BeforeEach
@@ -59,6 +64,17 @@ class RecipeControllerTest {
     sampleRecipe.setCuisine("Chinese");
     sampleRecipe.setCreateDatetime(new Timestamp(System.currentTimeMillis()));
     sampleRecipe.setUpdateDatetime(new Timestamp(System.currentTimeMillis()));
+
+    // Initialize sample RecipeWithReviews
+    RecipeReview review = new RecipeReview();
+    review.setRecipeId(sampleRecipe.getId());
+    review.setCreatorId(2L);
+    review.setRating(5.0);
+    review.setComments("Excellent recipe!");
+    review.setCreateDatetime(new Timestamp(System.currentTimeMillis()));
+    review.setUpdateDatetime(new Timestamp(System.currentTimeMillis()));
+
+    sampleRecipeWithReviews = new RecipeWithReviews(sampleRecipe, List.of(review));
   }
 
   /**
@@ -226,5 +242,79 @@ class RecipeControllerTest {
 
     // Verify the service layer method is called once
     verify(recipeService, times(1)).getRecipesByName(searchName);
+  }
+
+  @Test
+  void testGetRecipeWithReviews_Success() throws Exception {
+    // Arrange
+    Long recipeId = 1L;
+    when(recipeService.getRecipeWithReviewsById(recipeId)).thenReturn(sampleRecipeWithReviews);
+
+    // Act & Assert
+    mockMvc
+        .perform(get("/recipe/{id}/with-reviews", recipeId))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.recipe.id").value(sampleRecipe.getId()))
+        .andExpect(jsonPath("$.recipe.name").value(sampleRecipe.getName()))
+        .andExpect(jsonPath("$.reviews[0].comments").value("Excellent recipe!"));
+
+    verify(recipeService, times(1)).getRecipeWithReviewsById(recipeId);
+  }
+
+  @Test
+  void testGetRecipeWithReviews_NotFound() throws Exception {
+    // Arrange
+    Long recipeId = 1L;
+    when(recipeService.getRecipeWithReviewsById(recipeId)).thenReturn(null);
+
+    // Act & Assert
+    mockMvc.perform(get("/recipe/{id}/with-reviews", recipeId)).andExpect(status().isNotFound());
+
+    verify(recipeService, times(1)).getRecipeWithReviewsById(recipeId);
+  }
+
+  @Test
+  void testGetAllRecipesWithReviews_Success() throws Exception {
+    // Arrange
+    when(recipeService.getAllRecipesWithReviews()).thenReturn(List.of(sampleRecipeWithReviews));
+
+    // Act & Assert
+    mockMvc
+        .perform(get("/recipe/with-reviews"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].recipe.id").value(sampleRecipe.getId()))
+        .andExpect(jsonPath("$[0].recipe.name").value(sampleRecipe.getName()))
+        .andExpect(jsonPath("$[0].reviews[0].comments").value("Excellent recipe!"));
+
+    verify(recipeService, times(1)).getAllRecipesWithReviews();
+  }
+
+  @Test
+  void testGetAllRecipesWithReviews_EmptyList() throws Exception {
+    // Arrange
+    when(recipeService.getAllRecipesWithReviews()).thenReturn(List.of());
+
+    // Act & Assert
+    mockMvc
+        .perform(get("/recipe/with-reviews"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$").isEmpty());
+
+    verify(recipeService, times(1)).getAllRecipesWithReviews();
+  }
+
+  @Test
+  void testGetAllRecipesWithReviews_Error() throws Exception {
+    // Arrange
+    when(recipeService.getAllRecipesWithReviews()).thenThrow(new RuntimeException("Service error"));
+
+    // Act & Assert
+    mockMvc.perform(get("/recipe/with-reviews")).andExpect(status().isInternalServerError());
+
+    verify(recipeService, times(1)).getAllRecipesWithReviews();
   }
 }

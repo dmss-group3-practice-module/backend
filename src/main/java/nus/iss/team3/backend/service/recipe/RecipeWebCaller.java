@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeWithReviews;
 import nus.iss.team3.backend.service.ProfileConfig;
 import nus.iss.team3.backend.service.webservice.IWebserviceCaller;
 import org.apache.logging.log4j.LogManager;
@@ -24,11 +25,8 @@ import org.springframework.stereotype.Service;
 public class RecipeWebCaller implements IRecipeService {
 
   private static final Logger logger = LogManager.getLogger(RecipeWebCaller.class);
-
   private final IWebserviceCaller webServiceCaller;
-
   private final String serviceUrl;
-
   private final String servicePort;
 
   public RecipeWebCaller(
@@ -54,6 +52,9 @@ public class RecipeWebCaller implements IRecipeService {
     String url = getUrl("/recipe");
     try {
       ResponseEntity<Recipe> response = webServiceCaller.postCall(url, recipe, Recipe.class);
+      //      ResponseEntity<String> response = webServiceCaller.postCall(url, recipe,
+      // String.class);
+
       if (response.getStatusCode().is2xxSuccessful()) {
         logger.info("Recipe added successfully.");
         return true;
@@ -142,9 +143,6 @@ public class RecipeWebCaller implements IRecipeService {
     }
   }
 
-  /**
-   * @return
-   */
   @Override
   public List<Recipe> getAllPublishedRecipes() {
     String url = getUrl("/recipe/published");
@@ -202,6 +200,46 @@ public class RecipeWebCaller implements IRecipeService {
       }
     } catch (Exception e) {
       logger.error("Error retrieving recipes by creator ID {}: {}", creatorId, e.getMessage());
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public RecipeWithReviews getRecipeWithReviewsById(Long recipeId) {
+    String url = getUrl("/recipe/" + recipeId + "/with-reviews");
+    try {
+      ResponseEntity<RecipeWithReviews> response =
+          webServiceCaller.getCall(url, RecipeWithReviews.class);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        return response.getBody();
+      } else {
+        logger.error(
+            "Failed to retrieve recipe with reviews. Status code: {}", response.getStatusCode());
+        return null;
+      }
+    } catch (Exception e) {
+      logger.error("Error retrieving recipe with reviews by ID {}: {}", recipeId, e.getMessage());
+      return null;
+    }
+  }
+
+  @Override
+  public List<RecipeWithReviews> getAllRecipesWithReviews() {
+    String url = getUrl("/recipe/with-reviews");
+    try {
+      ParameterizedTypeReference<List<RecipeWithReviews>> typeRef =
+          new ParameterizedTypeReference<>() {};
+      ResponseEntity<List<RecipeWithReviews>> response = webServiceCaller.getCall(url, typeRef);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        return response.getBody();
+      } else {
+        logger.error(
+            "Failed to retrieve all recipes with reviews. Status code: {}",
+            response.getStatusCode());
+        return Collections.emptyList();
+      }
+    } catch (Exception e) {
+      logger.error("Error retrieving all recipes with reviews: {}", e.getMessage());
       return Collections.emptyList();
     }
   }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Recipe Class
+ * Recipe Status ENUM Class
  *
  * @author Mao Weining
  */

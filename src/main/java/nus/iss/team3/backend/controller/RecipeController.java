@@ -1,8 +1,8 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.entity.Recipe;
-import nus.iss.team3.backend.service.recipe.IRecipeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;

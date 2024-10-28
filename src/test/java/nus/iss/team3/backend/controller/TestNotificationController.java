@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 import nus.iss.team3.backend.entity.Notification;
-import nus.iss.team3.backend.service.notification.NotificationService;
+import nus.iss.team3.backend.domainService.notification.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

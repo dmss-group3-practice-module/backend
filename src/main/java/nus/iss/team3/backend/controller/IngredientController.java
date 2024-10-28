@@ -2,7 +2,7 @@ package nus.iss.team3.backend.controller;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.Ingredient;
-import nus.iss.team3.backend.service.ingredient.IIngredientService;
+import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

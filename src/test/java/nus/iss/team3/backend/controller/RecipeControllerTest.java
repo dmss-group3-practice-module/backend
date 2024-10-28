@@ -17,10 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.util.List;
-import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
-import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,14 +33,11 @@ import org.springframework.test.web.servlet.MockMvc;
  * class to ensure its behavior meets expectations.
  */
 @WebMvcTest(RecipeController.class)
-public class RecipeControllerTest {
+class RecipeControllerTest {
 
   @Autowired private MockMvc mockMvc; // Tool for simulating HTTP requests
 
   @MockBean private IRecipeService recipeService; // Mocking the service layer dependency
-
-  @MockBean
-  private IRecipeReviewService recipeReviewService; // Mocking the service layer dependency
 
   @Autowired private ObjectMapper objectMapper; // Used to serialize objects to JSON
 

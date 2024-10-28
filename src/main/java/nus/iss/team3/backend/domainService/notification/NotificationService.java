@@ -42,7 +42,7 @@ public class NotificationService implements INotificationService {
 
   @Override
   public boolean createNotification(Notification notification) {
-    // 基本验证
+    // Basic verification
     if (notification.getUserId() == null
         || StringUtilities.isStringNullOrBlank(notification.getTitle())
         || StringUtilities.isStringNullOrBlank(notification.getContent())) {
@@ -50,7 +50,7 @@ public class NotificationService implements INotificationService {
       throw new IllegalArgumentException("Invalid notification data");
     }
 
-    // 如果没有设置已读状态，默认为未读
+    // If the read status is not set, it is unread by default
     if (notification.getIsRead() == null) {
       notification.setIsRead(false);
     }

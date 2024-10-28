@@ -32,7 +32,7 @@ public class TestNotificationService {
 
   @Test
   void testCreateNotification_Success() {
-    // 准备测试数据
+
     Notification notification = new Notification();
     notification.setUserId(1);
     notification.setTitle("Test Title");
@@ -41,18 +41,16 @@ public class TestNotificationService {
 
     when(notificationDataAccess.createNotification(notification)).thenReturn(true);
 
-    // 执行测试
     boolean result = notificationService.createNotification(notification);
 
-    // 验证结果
     assertTrue(result);
-    assertFalse(notification.getIsRead()); // 验证默认设置为未读
+    assertFalse(notification.getIsRead());
     verify(notificationDataAccess).createNotification(notification);
   }
 
   @Test
   void testCreateNotification_WithIsReadTrue() {
-    // 准备测试数据
+
     Notification notification = new Notification();
     notification.setUserId(1);
     notification.setTitle("Test Title");
@@ -62,12 +60,10 @@ public class TestNotificationService {
 
     when(notificationDataAccess.createNotification(notification)).thenReturn(true);
 
-    // 执行测试
     boolean result = notificationService.createNotification(notification);
 
-    // 验证结果
     assertTrue(result);
-    assertTrue(notification.getIsRead()); // 验证保持原有的已读状态
+    assertTrue(notification.getIsRead());
     verify(notificationDataAccess).createNotification(notification);
   }
 

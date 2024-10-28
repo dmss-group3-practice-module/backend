@@ -40,12 +40,12 @@ public class IngredientBusinessService implements IIngredientBusinessService {
 
         long daysUntilExpiry = today.until(expiryDate).getDays();
 
-        // 只处理3天和1天的提醒
+        // Only process 3 and 1 day reminders
         if (daysUntilExpiry != 3 && daysUntilExpiry != 1) {
           continue;
         }
 
-        // 检查是否已经发送过该天数的提醒
+        // Check whether the alert has already been sent
         boolean alreadyNotified =
             hasExistingNotification(recentNotifications, ingredient.getId(), daysUntilExpiry);
 

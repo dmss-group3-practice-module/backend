@@ -55,7 +55,7 @@ public class TestNotificationController {
 
   @Test
   void testCreateNotification_Success_AllTypes() throws Exception {
-    // 在循环外设置 mock 行为
+
     when(notificationService.createNotification(any(Notification.class))).thenReturn(true);
 
     // Test creating notifications with each type
@@ -71,7 +71,6 @@ public class TestNotificationController {
           .andExpect(status().isOk());
     }
 
-    // 在循环外验证，验证调用次数等于枚举类型的数量
     verify(notificationService, times(ENotificationType.values().length))
         .createNotification(any(Notification.class));
   }

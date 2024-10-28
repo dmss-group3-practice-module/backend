@@ -57,7 +57,7 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
     UserAccount user =
         jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
     if (user != null && BCrypt.checkpw(password, user.getPassword())) {
-      user.setPassword(null); // 清除密码
+      user.setPassword(null);
       return user;
     }
     return null;

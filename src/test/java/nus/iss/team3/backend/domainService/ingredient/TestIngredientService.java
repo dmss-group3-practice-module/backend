@@ -151,4 +151,41 @@ public class TestIngredientService {
     when(ingredientDataAccess.deleteIngredientById(ingredientId)).thenReturn(true);
     assertTrue(ingredientService.deleteIngredientById(ingredientId));
   }
+
+  @Test
+  public void getExpiringIngredients() {
+    Integer userId = 1;
+
+    // 创建测试数据
+    UserIngredient expiringSoon = new UserIngredient();
+    expiringSoon.setId(1);
+    expiringSoon.setName("Milk");
+    expiringSoon.setExpiryDate(
+        Date.from(LocalDate.now().plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+    UserIngredient expiringLater = new UserIngredient();
+    expiringLater.setId(2);
+    expiringLater.setName("Cheese");
+    expiringLater.setExpiryDate(
+        Date.from(LocalDate.now().plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+    UserIngredient expired = new UserIngredient();
+    expired.setId(3);
+    expired.setName("Yogurt");
+    expired.setExpiryDate(
+        Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+    List<UserIngredient> userIngredients = Arrays.asList(expiringSoon, expiringLater, expired);
+
+    when(ingredientDataAccess.getIngredientsByUser(userId)).thenReturn(userIngredients);
+
+    // 测试7天内过期的食材
+    List<UserIngredient> expiringIn7Days = ingredientService.getExpiringIngredients(userId, 7);
+    assertEquals(1, expiringIn7Days.size());
+    assertEquals("Milk", expiringIn7Days.get(0).getName());
+
+    // 测试14天内过期的食材
+    List<UserIngredient> expiringIn14Days = ingredientService.getExpiringIngredients(userId, 14);
+    assertEquals(2, expiringIn14Days.size());
+  }
 }

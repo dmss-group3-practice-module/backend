@@ -45,7 +45,7 @@ public class TestAuthService {
     assertEquals(TEST_USERNAME, result.getName(), "Username should match");
     assertNull(result.getPassword(), "Password should be cleared");
 
-    verify(userAccountService).authenticate(TEST_USERNAME, TEST_PASSWORD); // 验证方法被调用
+    verify(userAccountService).authenticate(TEST_USERNAME, TEST_PASSWORD);
   }
 
   @Test

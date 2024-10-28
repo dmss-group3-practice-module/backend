@@ -40,7 +40,6 @@ public class TestBusinessIngredientService {
   public void checkIngredientsExpiry() {
     Integer userId = 1;
 
-    // 创建测试数据
     Ingredient expiringIn3Days = new Ingredient();
     expiringIn3Days.setId(1);
     expiringIn3Days.setName("Fish");
@@ -60,16 +59,13 @@ public class TestBusinessIngredientService {
     List<Ingredient> userIngredients = Arrays.asList(expiringIn3Days, expiringIn1Day);
     List<Integer> userIds = Arrays.asList(userId);
 
-    // Mock相关方法
     when(userAccountService.getAllUserIds()).thenReturn(userIds);
     when(ingredientService.getIngredientsByUser(userId)).thenReturn(userIngredients);
     when(notificationService.getNotificationsForUser(eq(userId), anyInt()))
         .thenReturn(Arrays.asList());
 
-    // 执行检查
     ingredientBusinessService.checkIngredientsExpiry();
 
-    // 验证是否创建了正确的通知
     verify(notificationService, times(2))
         .createNotification(
             argThat(
@@ -85,7 +81,6 @@ public class TestBusinessIngredientService {
   public void checkIngredientsExpiryWithExistingNotifications() {
     Integer userId = 1;
 
-    // 创建测试数据
     Ingredient expiringIn3Days = new Ingredient();
     expiringIn3Days.setId(1);
     expiringIn3Days.setName("Fish");
@@ -94,7 +89,7 @@ public class TestBusinessIngredientService {
     expiringIn3Days.setExpiryDate(
         Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-    // 创建已存在的通知 - 使用与 IngredientService 完全相同的格式
+    // Create an existing notification
     Notification existingNotification = new Notification();
     existingNotification.setContent(
         String.format(
@@ -104,17 +99,14 @@ public class TestBusinessIngredientService {
     List<Ingredient> userIngredients = Arrays.asList(expiringIn3Days);
     List<Integer> userIds = Arrays.asList(userId);
 
-    // Mock相关方法
     when(userAccountService.getAllUserIds()).thenReturn(userIds);
     when(ingredientService.getIngredientsByUser(userId)).thenReturn(userIngredients);
     when(notificationService.getNotificationsForUser(eq(userId), anyInt()))
         .thenReturn(Arrays.asList(existingNotification));
     when(ingredientService.getIngredientById(1)).thenReturn(expiringIn3Days);
 
-    // 执行检查
     ingredientBusinessService.checkIngredientsExpiry();
 
-    // 验证没有创建重复的通知
     verify(notificationService, never()).createNotification(any());
   }
 }

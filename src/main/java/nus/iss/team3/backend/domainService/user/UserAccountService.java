@@ -4,8 +4,9 @@ package nus.iss.team3.backend.domainService.user;
 import jakarta.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.util.List;
-import nus.iss.team3.backend.ProfileConfig;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.util.StringUtilities;
@@ -127,7 +128,7 @@ public class UserAccountService implements IUserAccountService {
     List<UserAccount> users = getAllUsers();
     return users.stream()
         .map(UserAccount::getId)
-        .filter(id -> id != null)
+        .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
 

@@ -22,8 +22,6 @@ public class UserAccount {
   @JsonView(WithoutPasswordView.class)
   private String name;
 
-  // @JsonIgnore private String password;
-  //  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonView(WithPasswordView.class)
   private String password;
 

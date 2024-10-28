@@ -7,26 +7,15 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
-import nus.iss.team3.backend.domainService.notification.NotificationService;
-import nus.iss.team3.backend.domainService.user.UserAccountService;
 import nus.iss.team3.backend.entity.UserIngredient;
 import nus.iss.team3.backend.service.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import java.util.stream.Collectors;
-// import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
-import nus.iss.team3.backend.entity.ENotificationType;
-import nus.iss.team3.backend.entity.Ingredient;
-import nus.iss.team3.backend.entity.Notification;
-// import nus.iss.team3.backend.util.StringUtilities;
-// import org.apache.logging.log4j.LogManager;
-// import org.apache.logging.log4j.Logger;
-// import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -40,11 +29,7 @@ public class IngredientService implements IIngredientService {
 
   private static final Logger logger = LogManager.getLogger(IngredientService.class);
 
-  @Autowired private NotificationService notificationService;
-
   @Autowired private IIngredientDataAccess ingredientDataAccess;
-
-  @Autowired private UserAccountService userAccountService;
 
   @PostConstruct
   public void postConstruct() {
@@ -107,6 +92,27 @@ public class IngredientService implements IIngredientService {
   }
 
   @Override
+  public List<UserIngredient> getExpiringIngredients(Integer userId, int days) {
+    List<UserIngredient> userIngredients = getIngredientsByUser(userId);
+    LocalDate today = LocalDate.now();
+    LocalDate futureDate = today.plusDays(days);
+
+    return userIngredients.stream()
+        .filter(
+            ingredient -> {
+              LocalDate expiryDate =
+                  ingredient
+                      .getExpiryDate()
+                      .toInstant()
+                      .atZone(ZoneId.systemDefault())
+                      .toLocalDate();
+              return !expiryDate.isBefore(today) && !expiryDate.isAfter(futureDate);
+            })
+        .sorted(Comparator.comparing(UserIngredient::getExpiryDate))
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public boolean deleteIngredientsByUser(Integer userId) {
     return ingredientDataAccess.deleteIngredientsByUser(userId);
   }
@@ -141,26 +147,5 @@ public class IngredientService implements IIngredientService {
     if (ingredient.getExpiryDate().before(new Date())) {
       throw new IllegalArgumentException("Ingredient expiry date cannot be in the past");
     }
-  }
-
-  @Override
-  public List<UserIngredient> getExpiringIngredients(Integer userId, int days) {
-    List<UserIngredient> userIngredients = getIngredientsByUser(userId);
-    LocalDate today = LocalDate.now();
-    LocalDate futureDate = today.plusDays(days);
-
-    return userIngredients.stream()
-        .filter(
-            ingredient -> {
-              LocalDate expiryDate =
-                  ingredient
-                      .getExpiryDate()
-                      .toInstant()
-                      .atZone(ZoneId.systemDefault())
-                      .toLocalDate();
-              return !expiryDate.isBefore(today) && !expiryDate.isAfter(futureDate);
-            })
-        .sorted(Comparator.comparing(UserIngredient::getExpiryDate))
-        .collect(Collectors.toList());
   }
 }

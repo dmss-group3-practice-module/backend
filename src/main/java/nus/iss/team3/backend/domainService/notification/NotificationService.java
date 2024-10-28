@@ -3,7 +3,7 @@ package nus.iss.team3.backend.domainService.notification;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.INotificationDataAccess;
 import nus.iss.team3.backend.entity.Notification;
-import nus.iss.team3.backend.util.StringUtilities;
+import nus.iss.team3.backend.service.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

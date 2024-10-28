@@ -123,7 +123,21 @@ public class IngredientWebCaller implements IIngredientService {
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
     } else {
-      logger.error("Failed to retrieve all recipes. Status code: {}", response.getStatusCode());
+      logger.error("Failed to retrieve all ingredients. Status code: {}", response.getStatusCode());
+      return null;
+    }
+  }
+
+  @Override
+  public List<Ingredient> getExpiringIngredients(Integer userId, int days) {
+    String url = getUrl("/ingredient/expiring-list/?userId=" + userId + "&days=" + days);
+    ParameterizedTypeReference<List<Ingredient>> typeRef = new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<Ingredient>> response = webServiceCaller.getCall(url, typeRef);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return response.getBody();
+    } else {
+      logger.error(
+          "Failed to retrieve expiring ingredients. Status code: {}", response.getStatusCode());
       return null;
     }
   }

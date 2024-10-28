@@ -1,8 +1,10 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.businessService.ingredient.IIngredientBusinessService;
 import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import nus.iss.team3.backend.entity.UserIngredient;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class IngredientController {
   private static final Logger logger = LogManager.getLogger(IngredientController.class);
 
   @Autowired private IIngredientService ingredientService;
+
+  @Autowired private IIngredientBusinessService ingredientBusinessService;
 
   @PostMapping("/add")
   public ResponseEntity<?> addIngredient(@RequestBody UserIngredient ingredient) {
@@ -136,7 +140,7 @@ public class IngredientController {
   public ResponseEntity<?> getExpiringIngredients(
       @RequestParam int userId, @RequestParam(defaultValue = "3") int days) {
     try {
-      List<Ingredient> expiringIngredients = ingredientService.getExpiringIngredients(userId, days);
+      List<UserIngredient> expiringIngredients = ingredientService.getExpiringIngredients(userId, days);
       logger.info(
           "Retrieved {} expiring ingredients for user {}", expiringIngredients.size(), userId);
       return new ResponseEntity<>(expiringIngredients, HttpStatus.OK);
@@ -149,7 +153,7 @@ public class IngredientController {
   @PostMapping("/trigger-expiry-check")
   public ResponseEntity<?> triggerExpiryCheck() {
     try {
-      ingredientService.checkIngredientsExpiry();
+      ingredientBusinessService.checkIngredientsExpiry();
       logger.info("Manual expiry check triggered successfully");
       return new ResponseEntity<>(true, HttpStatus.OK);
     } catch (Exception e) {

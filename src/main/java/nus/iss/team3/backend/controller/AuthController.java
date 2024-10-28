@@ -1,7 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import jakarta.servlet.http.HttpSession;
-import nus.iss.team3.backend.businessService.auth.IAuthService;
+import nus.iss.team3.backend.businessService.auth.IAuthBusinessService;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +22,7 @@ public class AuthController {
 
   private static final Logger logger = LogManager.getLogger(AuthController.class);
 
-  @Autowired private IAuthService authService;
+  @Autowired private IAuthBusinessService authService;
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {

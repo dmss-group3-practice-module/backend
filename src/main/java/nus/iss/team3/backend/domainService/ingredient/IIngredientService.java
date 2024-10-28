@@ -7,7 +7,7 @@ import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.entity.UserIngredient;
 
 /**
- * Interface for userAccountService, contains logic involving userAccounts.
+ * Interface for Ingredients, contains logic involving ingredient.
  *
  * @author Liu Kun
  */
@@ -25,6 +25,8 @@ public interface IIngredientService {
   List<UserIngredient> getIngredientsByUser(Integer userId);
 
   List<UserIngredient> getExpiringIngredients(Integer userId, int days);
+
+  List<Ingredient> getExpiringIngredients(Integer userId, int days);
 
   boolean deleteIngredientsByUser(Integer userId);
 }

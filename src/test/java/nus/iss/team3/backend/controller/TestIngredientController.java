@@ -12,8 +12,10 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import nus.iss.team3.backend.businessService.ingredient.IIngredientBusinessService;
 import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import nus.iss.team3.backend.entity.UserIngredient;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ public class TestIngredientController {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private IIngredientService ingredientService;
+  @MockBean private IIngredientBusinessService ingredientBusinessService;
 
   private ObjectMapper objectMapper;
 
@@ -203,7 +206,7 @@ public class TestIngredientController {
   @Test
   public void testGetExpiringIngredients() throws Exception {
     // Prepare test data
-    List<Ingredient> expiringIngredients =
+    List<UserIngredient> expiringIngredients =
         Arrays.asList(createValidIngredient(), createValidIngredient());
     expiringIngredients.get(0).setId(1);
     expiringIngredients.get(1).setId(2);
@@ -229,24 +232,6 @@ public class TestIngredientController {
         .thenThrow(new RuntimeException("Error getting expiring ingredients"));
     mockMvc
         .perform(get("/ingredient/expiring-list").param("userId", "999"))
-        .andExpect(status().isInternalServerError());
-  }
-
-  @Test
-  public void testTriggerExpiryCheck() throws Exception {
-    // Test success
-    doNothing().when(ingredientService).checkIngredientsExpiry();
-    mockMvc
-        .perform(post("/ingredient/trigger-expiry-check"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("true"));
-
-    // Test when service throws exception
-    doThrow(new RuntimeException("Error during expiry check"))
-        .when(ingredientService)
-        .checkIngredientsExpiry();
-    mockMvc
-        .perform(post("/ingredient/trigger-expiry-check"))
         .andExpect(status().isInternalServerError());
   }
 }

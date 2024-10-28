@@ -92,9 +92,24 @@ public class UserAccountWebCaller implements IUserAccountService {
    */
   @Override
   public List<UserAccount> getAllUsers() {
-    String url = getUrl("/user/getAll/");
+    String url = getUrl("/user/getAll");
     ParameterizedTypeReference<List<UserAccount>> typeRef = new ParameterizedTypeReference<>() {};
     ResponseEntity<List<UserAccount>> response = webServiceCaller.getCall(url, typeRef);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return response.getBody();
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  /**
+   * @return
+   */
+  @Override
+  public List<Integer> getAllUserIds() {
+    String url = getUrl("/user/getAllUserIds");
+    ParameterizedTypeReference<List<Integer>> typeRef = new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<Integer>> response = webServiceCaller.getCall(url, typeRef);
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
     } else {

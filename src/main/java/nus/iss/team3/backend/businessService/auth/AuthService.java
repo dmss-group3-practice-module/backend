@@ -1,13 +1,11 @@
 package nus.iss.team3.backend.businessService.auth;
 
 import jakarta.annotation.PostConstruct;
-import nus.iss.team3.backend.ProfileConfig;
-import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
  * @author REN JIARUI
  */
 @Service
-@Profile(ProfileConfig.PROFILE_AUTHENTICATE)
 public class AuthService implements IAuthService {
 
   private static final Logger logger = LogManager.getLogger(AuthService.class);

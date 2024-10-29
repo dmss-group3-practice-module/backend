@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PostgresDataAccess implements IPostgresDataAccess {
 
+  private static final int MAX_RETRY = 5;
+  private static final int BUFFER_BETWEEN_TRY = 2;
   private static final Logger logger = LogManager.getLogger(PostgresDataAccess.class);
 
   @Autowired private NamedParameterJdbcTemplate jdbcTemplate;
@@ -23,9 +26,12 @@ public class PostgresDataAccess implements IPostgresDataAccess {
   @PostConstruct
   public void postConstruct() {
     try {
-      logger.info(
-          "Connection details : {}",
-          jdbcTemplate.getJdbcTemplate().getDataSource().getConnection().toString());
+      if (jdbcTemplate.getJdbcTemplate().getDataSource() != null) {
+
+        logger.info(
+            "Connection details : {}",
+            jdbcTemplate.getJdbcTemplate().getDataSource().getConnection().toString());
+      }
     } catch (SQLException e) {
 
       logger.info("Connection details : ERROR, connection to database not enabled.");
@@ -38,23 +44,40 @@ public class PostgresDataAccess implements IPostgresDataAccess {
     if (inputs == null) {
       inputs = new HashMap<>();
     }
-    try {
-      return jdbcTemplate.queryForList(sql, inputs);
-    } catch (DataAccessException e) {
-      logger.error("Error when executing query statement: {}", sql);
-      return null;
+    for (int i = 0; i < MAX_RETRY; i++) {
+      try {
+        return jdbcTemplate.queryForList(sql, inputs);
+      } catch (DataAccessException e) {
+        logger.error("[{}/{}] Error when executing query statement: {}", (i + 1), MAX_RETRY, sql);
+        logger.error(
+            "[{}/{}] Error when executing query statement: {}", (i + 1), MAX_RETRY, e.getMessage());
+        try {
+          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+        } catch (InterruptedException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
     }
+    return null;
   }
 
   public int upsertStatement(String sql, Map<String, ?> inputs) {
 
-    try {
-      return jdbcTemplate.update(sql, inputs);
+    for (int i = 0; i < MAX_RETRY; i++) {
+      try {
+        return jdbcTemplate.update(sql, inputs);
 
-    } catch (DataAccessException e) {
-      logger.error("Error when executing update statement: {}", sql);
-      logger.error("Error when executing update statement: {}", e.getMessage());
-      return -1;
+      } catch (DataAccessException e) {
+        logger.error("[{}/{}]Error when executing update statement: {}", (i + 1), MAX_RETRY, sql);
+        logger.error(
+            "[{}/{}]Error when executing update statement: {}", (i + 1), MAX_RETRY, e.getMessage());
+        try {
+          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+        } catch (InterruptedException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
     }
+    return -1;
   }
 }

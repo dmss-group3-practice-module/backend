@@ -1,4 +1,4 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,10 +17,10 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
+import nus.iss.team3.backend.domainService.recipe.RecipeService;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeReview;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
-import nus.iss.team3.backend.service.recipe.RecipeService;
 import nus.iss.team3.backend.service.review.IRecipeReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

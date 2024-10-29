@@ -1,4 +1,4 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,11 +13,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import nus.iss.team3.backend.domainService.recipe.RecipeWebCaller;
+import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeReview;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
-import nus.iss.team3.backend.service.recipe.RecipeWebCaller;
-import nus.iss.team3.backend.service.webservice.IWebserviceCaller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -3,10 +3,9 @@ package nus.iss.team3.backend.controller;
 import java.util.List;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.entity.Recipe;
-import nus.iss.team3.backend.entity.RecipeWithReviews;
-import nus.iss.team3.backend.service.recipe.IRecipeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,6 +33,7 @@ public class RecipeController {
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
 
+  @Autowired
   public RecipeController(IRecipeService recipeService) {
     this.recipeService = recipeService;
   }

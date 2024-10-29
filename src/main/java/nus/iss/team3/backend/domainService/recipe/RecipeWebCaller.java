@@ -1,12 +1,12 @@
-package nus.iss.team3.backend.service.recipe;
+package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
+import nus.iss.team3.backend.ProfileConfig;
+import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
-import nus.iss.team3.backend.service.ProfileConfig;
-import nus.iss.team3.backend.service.webservice.IWebserviceCaller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;

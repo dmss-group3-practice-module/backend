@@ -5,17 +5,13 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
- * Contains records that is related to a Ingredient, - id : must be unique
+ * Contains records that is related to a user's Ingredient. - id : must be unique
  *
- * @author Liu Kun
+ * @author Liu Kun, Pinardy
  */
-// @Entity
-public class UserIngredient {
+public class UserIngredient extends Ingredient {
   private int id;
-  private String name;
   private int userId;
-  private String uom;
-  private Double quantity;
   private Date expiryDate;
   private ZonedDateTime createDateTime;
   private ZonedDateTime updateDateTime;
@@ -32,10 +28,7 @@ public class UserIngredient {
       ZonedDateTime createDateTime,
       ZonedDateTime updateDateTime) {
     this.id = id;
-    this.name = name;
     this.userId = userId;
-    this.uom = uom;
-    this.quantity = quantity;
     this.expiryDate = expiryDate;
     this.createDateTime = createDateTime;
     this.updateDateTime = updateDateTime;
@@ -49,36 +42,12 @@ public class UserIngredient {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public int getUserId() {
     return userId;
   }
 
   public void setUserId(int userId) {
     this.userId = userId;
-  }
-
-  public String getUom() {
-    return uom;
-  }
-
-  public void setUom(String uom) {
-    this.uom = uom;
-  }
-
-  public Double getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(Double quantity) {
-    this.quantity = quantity;
   }
 
   public Date getExpiryDate() {

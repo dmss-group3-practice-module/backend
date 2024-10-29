@@ -1,7 +1,6 @@
 package nus.iss.team3.backend.dataaccess;
 
 import java.util.List;
-
 import nus.iss.team3.backend.entity.UserIngredient;
 
 /**
@@ -23,4 +22,6 @@ public interface IIngredientDataAccess {
   List<UserIngredient> getIngredientsByUser(int userId);
 
   boolean deleteIngredientsByUser(int userId);
+
+  List<UserIngredient> getExpiringIngredientsInRange();
 }

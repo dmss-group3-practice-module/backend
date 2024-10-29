@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -117,11 +118,30 @@ public class IngredientService implements IIngredientService {
     return ingredientDataAccess.deleteIngredientsByUser(userId);
   }
 
-  /**
-   * Check whether the input Ingredient contains acceptable values
-   *
-   * @return whether boolean on whether ingredient is valid
-   */
+  @Override
+  public List<UserIngredient> getExpiringIngredientsInRange() {
+    logger.info("Fetching ingredients expiring in next 3 days");
+    try {
+      // Delegate to data access layer to perform the optimized query
+      List<UserIngredient> ingredients = ingredientDataAccess.getExpiringIngredientsInRange();
+
+      if (ingredients == null) {
+        logger.warn("No expiring ingredients found in range");
+        return new ArrayList<>();
+      }
+
+      // Sort by user ID and expiry date for consistent results
+      return ingredients.stream()
+          .sorted(
+              Comparator.comparing(UserIngredient::getUserId)
+                  .thenComparing(UserIngredient::getExpiryDate))
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      logger.error("Error fetching expiring ingredients", e);
+      return new ArrayList<>();
+    }
+  }
+
   private void validateIngredient(UserIngredient ingredient, boolean isUpdate) {
     if (ingredient == null) {
       throw new IllegalArgumentException("Ingredient cannot be null");

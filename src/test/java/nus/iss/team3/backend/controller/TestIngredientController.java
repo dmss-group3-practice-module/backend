@@ -15,7 +15,6 @@ import java.util.List;
 import nus.iss.team3.backend.businessService.ingredient.IIngredientBusinessService;
 import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import nus.iss.team3.backend.entity.UserIngredient;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,7 +7,7 @@ import nus.iss.team3.backend.entity.UserAccount;
  *
  * @author REN JIARUI
  */
-public interface IAuthService {
+public interface IAuthBusinessService {
 
   /**
    * Authenticates a user based on username and password

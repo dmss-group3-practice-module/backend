@@ -2,8 +2,6 @@
 package nus.iss.team3.backend.domainService.ingredient;
 
 import java.util.List;
-
-import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.entity.UserIngredient;
 
 /**
@@ -26,7 +24,7 @@ public interface IIngredientService {
 
   List<UserIngredient> getExpiringIngredients(Integer userId, int days);
 
-  List<Ingredient> getExpiringIngredients(Integer userId, int days);
-
   boolean deleteIngredientsByUser(Integer userId);
+
+  List<UserIngredient> getExpiringIngredientsInRange();
 }

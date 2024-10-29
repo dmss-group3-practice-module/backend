@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -17,8 +16,8 @@ import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import nus.iss.team3.backend.domainService.notification.NotificationService;
 import nus.iss.team3.backend.domainService.user.UserAccountService;
 import nus.iss.team3.backend.entity.ENotificationType;
-import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.entity.Notification;
+import nus.iss.team3.backend.entity.UserIngredient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,34 +37,39 @@ public class TestBusinessIngredientService {
 
   @Test
   public void checkIngredientsExpiry() {
+    // Prepare test data
     Integer userId = 1;
 
-    Ingredient expiringIn3Days = new Ingredient();
+    UserIngredient expiringIn3Days = new UserIngredient();
     expiringIn3Days.setId(1);
+    expiringIn3Days.setUserId(userId);
     expiringIn3Days.setName("Fish");
     expiringIn3Days.setQuantity(1.0);
     expiringIn3Days.setUom("kg");
     expiringIn3Days.setExpiryDate(
         Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-    Ingredient expiringIn1Day = new Ingredient();
+    UserIngredient expiringIn1Day = new UserIngredient();
     expiringIn1Day.setId(2);
+    expiringIn1Day.setUserId(userId);
     expiringIn1Day.setName("Meat");
     expiringIn1Day.setQuantity(0.5);
     expiringIn1Day.setUom("kg");
     expiringIn1Day.setExpiryDate(
         Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-    List<Ingredient> userIngredients = Arrays.asList(expiringIn3Days, expiringIn1Day);
-    List<Integer> userIds = Arrays.asList(userId);
+    List<UserIngredient> expiringIngredients = Arrays.asList(expiringIn3Days, expiringIn1Day);
 
-    when(userAccountService.getAllUserIds()).thenReturn(userIds);
-    when(ingredientService.getIngredientsByUser(userId)).thenReturn(userIngredients);
+    // Setup mock behavior
+    when(ingredientService.getExpiringIngredientsInRange()).thenReturn(expiringIngredients);
     when(notificationService.getNotificationsForUser(eq(userId), anyInt()))
         .thenReturn(Arrays.asList());
 
+    // Execute test
     ingredientBusinessService.checkIngredientsExpiry();
 
+    // Verify expected method calls
+    verify(ingredientService, times(1)).getExpiringIngredientsInRange();
     verify(notificationService, times(2))
         .createNotification(
             argThat(
@@ -79,34 +83,37 @@ public class TestBusinessIngredientService {
 
   @Test
   public void checkIngredientsExpiryWithExistingNotifications() {
+    // Prepare test data
     Integer userId = 1;
 
-    Ingredient expiringIn3Days = new Ingredient();
+    UserIngredient expiringIn3Days = new UserIngredient();
     expiringIn3Days.setId(1);
+    expiringIn3Days.setUserId(userId);
     expiringIn3Days.setName("Fish");
     expiringIn3Days.setQuantity(1.0);
     expiringIn3Days.setUom("kg");
     expiringIn3Days.setExpiryDate(
         Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-    // Create an existing notification
+    // Create existing notification
     Notification existingNotification = new Notification();
     existingNotification.setContent(
         String.format(
             "Your ingredient '%s' will expire in %d day(s), quantity: %.1f%s, please use it before it expires.",
             expiringIn3Days.getName(), 3, expiringIn3Days.getQuantity(), expiringIn3Days.getUom()));
 
-    List<Ingredient> userIngredients = Arrays.asList(expiringIn3Days);
-    List<Integer> userIds = Arrays.asList(userId);
+    List<UserIngredient> expiringIngredients = Arrays.asList(expiringIn3Days);
 
-    when(userAccountService.getAllUserIds()).thenReturn(userIds);
-    when(ingredientService.getIngredientsByUser(userId)).thenReturn(userIngredients);
+    // Setup mock behavior
+    when(ingredientService.getExpiringIngredientsInRange()).thenReturn(expiringIngredients);
     when(notificationService.getNotificationsForUser(eq(userId), anyInt()))
         .thenReturn(Arrays.asList(existingNotification));
     when(ingredientService.getIngredientById(1)).thenReturn(expiringIn3Days);
 
+    // Execute test
     ingredientBusinessService.checkIngredientsExpiry();
 
+    // Verify that no new notifications are created
     verify(notificationService, never()).createNotification(any());
   }
 }

@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
  * @author REN JIARUI
  */
 @Service
-public class AuthService implements IAuthService {
+public class AuthBusinessService implements IAuthBusinessService {
 
-  private static final Logger logger = LogManager.getLogger(AuthService.class);
+  private static final Logger logger = LogManager.getLogger(AuthBusinessService.class);
 
   @Autowired private IUserAccountService userAccountService;
 

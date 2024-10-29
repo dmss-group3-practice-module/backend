@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import nus.iss.team3.backend.businessService.auth.AuthService;
-import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.businessService.auth.AuthBusinessService;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.util.EncryptionUtilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 public class TestAuthService {
-  @Spy @InjectMocks private AuthService authService;
+  @Spy @InjectMocks private AuthBusinessService authService;
 
   @Mock private IUserAccountService userAccountService;
 

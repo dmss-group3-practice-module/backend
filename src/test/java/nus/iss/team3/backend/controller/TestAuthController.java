@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nus.iss.team3.backend.businessService.auth.IAuthService;
+import nus.iss.team3.backend.businessService.auth.IAuthBusinessService;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class TestAuthController {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockBean private IAuthService authService;
+  @MockBean private IAuthBusinessService authService;
 
   private ObjectMapper objectMapper;
 

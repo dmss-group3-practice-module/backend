@@ -31,7 +31,7 @@ public class UserAccountService implements IUserAccountService {
   @Autowired IUserAccountDataAccess userAccountDataAccess;
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("User Service Logic initialized.");
   }
 
@@ -123,7 +123,7 @@ public class UserAccountService implements IUserAccountService {
       throws IllegalArgumentException {
     return userAccountDataAccess.authenticateUser(username, password);
   }
-  
+
   public List<Integer> getAllUserIds() {
     List<UserAccount> users = getAllUsers();
     return users.stream()

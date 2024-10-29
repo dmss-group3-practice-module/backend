@@ -4,7 +4,6 @@ import java.util.List;
 import nus.iss.team3.backend.businessService.ingredient.IIngredientBusinessService;
 import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import nus.iss.team3.backend.entity.UserIngredient;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,12 +139,25 @@ public class IngredientController {
   public ResponseEntity<?> getExpiringIngredients(
       @RequestParam int userId, @RequestParam(defaultValue = "3") int days) {
     try {
-      List<UserIngredient> expiringIngredients = ingredientService.getExpiringIngredients(userId, days);
+      List<UserIngredient> expiringIngredients =
+          ingredientService.getExpiringIngredients(userId, days);
       logger.info(
           "Retrieved {} expiring ingredients for user {}", expiringIngredients.size(), userId);
       return new ResponseEntity<>(expiringIngredients, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Error getting expiring ingredients for user {}", userId, e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping("/expiring-range")
+  public ResponseEntity<?> getExpiringIngredientsInRange() {
+    try {
+      List<UserIngredient> expiringIngredients = ingredientService.getExpiringIngredientsInRange();
+      logger.info("Retrieved {} ingredients expiring in range", expiringIngredients.size());
+      return new ResponseEntity<>(expiringIngredients, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Error getting ingredients expiring in range", e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

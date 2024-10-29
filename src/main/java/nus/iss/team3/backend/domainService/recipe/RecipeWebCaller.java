@@ -52,8 +52,6 @@ public class RecipeWebCaller implements IRecipeService {
     String url = getUrl("/recipe");
     try {
       ResponseEntity<Recipe> response = webServiceCaller.postCall(url, recipe, Recipe.class);
-      //      ResponseEntity<String> response = webServiceCaller.postCall(url, recipe,
-      // String.class);
 
       if (response.getStatusCode().is2xxSuccessful()) {
         logger.info("Recipe added successfully.");

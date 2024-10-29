@@ -27,7 +27,7 @@ public class IngredientService implements IIngredientService {
   @Autowired IIngredientDataAccess ingredientDataAccess;
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Ingredient Service Logic initialized.");
   }
 

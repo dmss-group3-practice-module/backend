@@ -760,6 +760,7 @@ class RecipeDataAccessTest {
     recipe.setDifficultyLevel(2);
     recipe.setRating(4.5);
     recipe.setStatus(ERecipeStatus.DRAFT);
+    recipe.setCuisine("Chinese");
     recipe.setCreateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
     recipe.setUpdateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
 

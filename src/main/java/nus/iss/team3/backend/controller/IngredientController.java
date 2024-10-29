@@ -1,7 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
-import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserIngredient;
 import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +24,7 @@ public class IngredientController {
   @Autowired private IIngredientService ingredientService;
 
   @PostMapping("/add")
-  public ResponseEntity<?> addIngredient(@RequestBody Ingredient ingredient) {
+  public ResponseEntity<?> addIngredient(@RequestBody UserIngredient ingredient) {
     try {
       if (ingredientService.addIngredient(ingredient)) {
         logger.info("Creation of Ingredient: {} completed", ingredient.getName());
@@ -42,7 +42,7 @@ public class IngredientController {
   }
 
   @PostMapping("/update")
-  public ResponseEntity<Boolean> updateIngredient(@RequestBody Ingredient ingredient) {
+  public ResponseEntity<Boolean> updateIngredient(@RequestBody UserIngredient ingredient) {
     try {
       if (ingredientService.updateIngredient(ingredient)) {
         logger.info("Update of Ingredient: {} completed", ingredient.getName());
@@ -89,10 +89,10 @@ public class IngredientController {
   @GetMapping("/get/{id}")
   public ResponseEntity<?> getIngredient(@PathVariable int id) {
     try {
-      Ingredient ingredient = ingredientService.getIngredientById(id);
+      UserIngredient ingredient = ingredientService.getIngredientById(id);
       if (ingredient != null) {
         logger.info("Retrieved Ingredient: {}", id);
-        return new ResponseEntity<Ingredient>(ingredient, HttpStatus.OK);
+        return new ResponseEntity<UserIngredient>(ingredient, HttpStatus.OK);
       } else {
         logger.info("Ingredient not found: {}", id);
         return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,10 +106,10 @@ public class IngredientController {
   @GetMapping("/get/name/{name}")
   public ResponseEntity<?> getIngredientByName(@PathVariable String name) {
     try {
-      List<Ingredient> ingredientList = ingredientService.getIngredientsByName(name);
+      List<UserIngredient> ingredientList = ingredientService.getIngredientsByName(name);
       if (ingredientList != null) {
         logger.info("Retrieved Ingredient: {}", name);
-        return new ResponseEntity<List<Ingredient>>(ingredientList, HttpStatus.OK);
+        return new ResponseEntity<List<UserIngredient>>(ingredientList, HttpStatus.OK);
       } else {
         logger.info("Ingredient not found: {}", name);
         return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -121,9 +121,9 @@ public class IngredientController {
   }
 
   @GetMapping("/getAll/{userId}")
-  public ResponseEntity<List<Ingredient>> getIngredientsByUser(@PathVariable int userId) {
+  public ResponseEntity<List<UserIngredient>> getIngredientsByUser(@PathVariable int userId) {
     try {
-      List<Ingredient> ingredients = ingredientService.getIngredientsByUser(userId);
+      List<UserIngredient> ingredients = ingredientService.getIngredientsByUser(userId);
       logger.info("Retrieved {} Ingredient", ingredients.size());
       return new ResponseEntity<>(ingredients, HttpStatus.OK);
     } catch (Exception e) {

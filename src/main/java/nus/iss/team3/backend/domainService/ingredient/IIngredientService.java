@@ -2,7 +2,7 @@
 package nus.iss.team3.backend.domainService.ingredient;
 
 import java.util.List;
-import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserIngredient;
 
 /**
  * Interface for userAccountService, contains logic involving userAccounts.
@@ -10,17 +10,17 @@ import nus.iss.team3.backend.entity.Ingredient;
  * @author Liu Kun
  */
 public interface IIngredientService {
-  public boolean addIngredient(Ingredient ingredient);
+  public boolean addIngredient(UserIngredient ingredient);
 
-  public boolean updateIngredient(Ingredient ingredient);
+  public boolean updateIngredient(UserIngredient ingredient);
 
   public boolean deleteIngredientById(Integer id);
 
-  public Ingredient getIngredientById(Integer id);
+  public UserIngredient getIngredientById(Integer id);
 
-  public List<Ingredient> getIngredientsByName(String name);
+  public List<UserIngredient> getIngredientsByName(String name);
 
-  public List<Ingredient> getIngredientsByUser(Integer userId);
+  public List<UserIngredient> getIngredientsByUser(Integer userId);
 
   public boolean deleteIngredientsByUser(Integer userId);
 }

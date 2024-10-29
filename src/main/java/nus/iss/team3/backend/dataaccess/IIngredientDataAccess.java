@@ -1,7 +1,7 @@
 package nus.iss.team3.backend.dataaccess;
 
 import java.util.List;
-import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserIngredient;
 
 /**
  * Contains the postgres connection required content
@@ -9,17 +9,17 @@ import nus.iss.team3.backend.entity.Ingredient;
  * @author Liu Kun
  */
 public interface IIngredientDataAccess {
-  public boolean addIngredient(Ingredient ingredient);
+  public boolean addIngredient(UserIngredient ingredient);
 
-  public boolean updateIngredient(Ingredient ingredient);
+  public boolean updateIngredient(UserIngredient ingredient);
 
-  public Ingredient getIngredientById(int ingredientId);
+  public UserIngredient getIngredientById(int ingredientId);
 
   public boolean deleteIngredientById(int ingredientId);
 
-  public List<Ingredient> getIngredientsByName(String name);
+  public List<UserIngredient> getIngredientsByName(String name);
 
-  public List<Ingredient> getIngredientsByUser(int userId);
+  public List<UserIngredient> getIngredientsByUser(int userId);
 
   public boolean deleteIngredientsByUser(int userId);
 }

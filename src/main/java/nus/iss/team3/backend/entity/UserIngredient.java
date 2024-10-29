@@ -10,7 +10,7 @@ import java.util.Date;
  * @author Liu Kun
  */
 // @Entity
-public class Ingredient {
+public class UserIngredient {
   private int id;
   private String name;
   private int userId;
@@ -20,9 +20,9 @@ public class Ingredient {
   private ZonedDateTime createDateTime;
   private ZonedDateTime updateDateTime;
 
-  public Ingredient() {}
+  public UserIngredient() {}
 
-  public Ingredient(
+  public UserIngredient(
       int id,
       String name,
       int userId,

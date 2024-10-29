@@ -431,7 +431,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         ingredientParams.put(
             PostgresSqlStatementRecipe.INPUT_INGREDIENT_QUANTITY, ingredient.getQuantity());
         ingredientParams.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_UOM, ingredient.getUom());
-        postgresDataAccess.upsertStatement(
+        postgresDataAccess.queryStatement(
             PostgresSqlStatementRecipe.SQL_INGREDIENT_ADD, ingredientParams);
         logger.debug("Inserted ingredient: {}", ingredient.getName());
       } catch (Exception e) {
@@ -476,7 +476,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         stepParams.put(
             PostgresSqlStatementRecipe.INPUT_COOKING_STEP_DESCRIPTION, step.getDescription());
         stepParams.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_IMAGE, step.getImage());
-        postgresDataAccess.upsertStatement(
+        postgresDataAccess.queryStatement(
             PostgresSqlStatementRecipe.SQL_COOKING_STEP_ADD, stepParams);
         logger.debug("Inserted cooking step: {}", step.getDescription());
       } catch (Exception e) {

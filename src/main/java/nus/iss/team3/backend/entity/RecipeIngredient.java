@@ -7,14 +7,9 @@ import java.util.Objects;
  *
  * @author Mao Weining
  */
-// Entity
-public class RecipeIngredient {
-
+public class RecipeIngredient extends Ingredient {
   private Long id;
   private Long recipeId;
-  private String name;
-  private Double quantity;
-  private String uom;
 
   // Constructors
   public RecipeIngredient() {}
@@ -25,6 +20,55 @@ public class RecipeIngredient {
     this.name = name;
     this.quantity = quantity;
     this.uom = uom;
+  }
+
+  public RecipeIngredient(Builder builder) {
+    this.id = builder.id;
+    this.recipeId = builder.recipeId;
+    this.name = builder.name;
+    this.quantity = builder.quantity;
+    this.uom = builder.uom;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private Long id;
+    private Long recipeId;
+    private String name;
+    private Double quantity;
+    private String uom;
+
+    public Builder id(Long id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder recipeId(Long recipeId) {
+      this.recipeId = recipeId;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder quantity(Double quantity) {
+      this.quantity = quantity;
+      return this;
+    }
+
+    public Builder uom(String uom) {
+      this.uom = uom;
+      return this;
+    }
+
+    public RecipeIngredient build() {
+      return new RecipeIngredient(this);
+    }
   }
 
   // Getters and Setters
@@ -42,30 +86,6 @@ public class RecipeIngredient {
 
   public void setRecipeId(Long recipeId) {
     this.recipeId = recipeId;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Double getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(Double quantity) {
-    this.quantity = quantity;
-  }
-
-  public String getUom() {
-    return uom;
-  }
-
-  public void setUom(String uom) {
-    this.uom = uom;
   }
 
   @Override

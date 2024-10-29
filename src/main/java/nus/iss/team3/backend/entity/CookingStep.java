@@ -18,11 +18,46 @@ public class CookingStep {
   // Constructors
   public CookingStep() {}
 
-  public CookingStep(Long id, Long recipeId, String description, String image) {
-    this.id = id;
-    this.recipeId = recipeId;
-    this.description = description;
-    this.image = image;
+  public CookingStep(Builder builder) {
+    this.id = builder.id;
+    this.recipeId = builder.recipeId;
+    this.description = builder.description;
+    this.image = builder.image;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private Long id;
+    private Long recipeId;
+    private String description;
+    private String image;
+
+    public Builder id(Long id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder recipeId(Long recipeId) {
+      this.recipeId = recipeId;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder image(String image) {
+      this.image = image;
+      return this;
+    }
+
+    public CookingStep build() {
+      return new CookingStep(this);
+    }
   }
 
   // Getters and Setters

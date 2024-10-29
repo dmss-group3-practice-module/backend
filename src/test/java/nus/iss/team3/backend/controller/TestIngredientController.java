@@ -12,8 +12,8 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import nus.iss.team3.backend.entity.Ingredient;
-import nus.iss.team3.backend.service.ingredient.IIngredientService;
+import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
+import nus.iss.team3.backend.entity.UserIngredient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +39,8 @@ public class TestIngredientController {
   @Test
   public void testAddIngredient() throws Exception {
     // Success
-    Ingredient ingredient = createValidIngredient();
-    when(ingredientService.addIngredient(any(Ingredient.class))).thenReturn(true);
+    UserIngredient ingredient = createValidIngredient();
+    when(ingredientService.addIngredient(any(UserIngredient.class))).thenReturn(true);
 
     mockMvc
         .perform(
@@ -60,37 +60,37 @@ public class TestIngredientController {
 
     // Failure - invalid ingredient name
     ingredient.setUserId(0);
-    when(ingredientService.addIngredient(any(Ingredient.class)))
+    when(ingredientService.addIngredient(any(UserIngredient.class)))
         .thenThrow(new IllegalArgumentException("Ingredient userId must be valid"));
 
     // Failure - invalid ingredient name
     ingredient.setUserId(1);
     ingredient.setName(null);
-    when(ingredientService.addIngredient(any(Ingredient.class)))
+    when(ingredientService.addIngredient(any(UserIngredient.class)))
         .thenThrow(new IllegalArgumentException("Ingredient name cannot be empty or blank"));
 
     // Failure - invalid ingredient uom
     ingredient.setName("apple");
     ingredient.setUom(null);
-    when(ingredientService.addIngredient(any(Ingredient.class)))
+    when(ingredientService.addIngredient(any(UserIngredient.class)))
         .thenThrow(new IllegalArgumentException("Ingredient uom cannot be empty or blank"));
 
     // Failure - invalid ingredient quantity
     ingredient.setUom("kg");
     ingredient.setQuantity(0.0);
-    when(ingredientService.addIngredient(any(Ingredient.class)))
+    when(ingredientService.addIngredient(any(UserIngredient.class)))
         .thenThrow(new IllegalArgumentException("Ingredient quantity must be greater than 0"));
 
     // Failure - missing date
     ingredient.setQuantity(1.0);
     ingredient.setExpiryDate(null);
-    when(ingredientService.addIngredient(any(Ingredient.class)))
+    when(ingredientService.addIngredient(any(UserIngredient.class)))
         .thenThrow(new IllegalArgumentException("Ingredient expiry date cannot be null"));
   }
 
   @Test
   public void testGetIngredient() throws Exception {
-    Ingredient ingredient = createValidIngredient();
+    UserIngredient ingredient = createValidIngredient();
     ingredient.setId(1);
 
     // success
@@ -113,7 +113,7 @@ public class TestIngredientController {
         .andExpect(content().string("false"));
 
     // get all ingredients belonging to a user
-    List<Ingredient> ingredientList =
+    List<UserIngredient> ingredientList =
         Arrays.asList(createValidIngredient(), createValidIngredient());
     ingredientList.get(0).setId(1);
     ingredientList.get(1).setId(2);
@@ -131,11 +131,11 @@ public class TestIngredientController {
 
   @Test
   public void testUpdateIngredient() throws Exception {
-    Ingredient ingredient = createValidIngredient();
+    UserIngredient ingredient = createValidIngredient();
     ingredient.setId(1);
 
     // success
-    when(ingredientService.updateIngredient(any(Ingredient.class))).thenReturn(true);
+    when(ingredientService.updateIngredient(any(UserIngredient.class))).thenReturn(true);
     mockMvc
         .perform(
             post("/ingredient/update")
@@ -150,7 +150,7 @@ public class TestIngredientController {
         .andExpect(status().isBadRequest());
 
     // missing ingredient id
-    when(ingredientService.updateIngredient(any(Ingredient.class)))
+    when(ingredientService.updateIngredient(any(UserIngredient.class)))
         .thenThrow(new IllegalArgumentException("Ingredient id must be valid"));
     mockMvc
         .perform(
@@ -161,7 +161,7 @@ public class TestIngredientController {
 
     // non existing ingredient
     ingredient.setId(999);
-    when(ingredientService.updateIngredient(any(Ingredient.class))).thenReturn(false);
+    when(ingredientService.updateIngredient(any(UserIngredient.class))).thenReturn(false);
 
     mockMvc
         .perform(
@@ -188,8 +188,8 @@ public class TestIngredientController {
         .andExpect(content().string("false"));
   }
 
-  private Ingredient createValidIngredient() {
-    Ingredient ingredient = new Ingredient();
+  private UserIngredient createValidIngredient() {
+    UserIngredient ingredient = new UserIngredient();
     ingredient.setName("apple");
     ingredient.setUserId(1);
     ingredient.setUom("kg");

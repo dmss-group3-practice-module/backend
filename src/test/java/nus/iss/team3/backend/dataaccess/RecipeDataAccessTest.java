@@ -68,14 +68,14 @@ class RecipeDataAccessTest {
     assertEquals(1L, recipe.getId());
 
     // Verify that the SQL statement to insert the recipe was called once
-    verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe"), anyMap());
+    verify(postgresDataAccess, times(3)).queryStatement(contains("INSERT INTO recipe"), anyMap());
 
     // Verify that the INSERT statement for each ingredient was called correctly
     for (RecipeIngredient ingredient : recipe.getIngredients()) {
       // argThat(params -> { ... }) is a parameter matcher used to verify that the parameters passed
       // to the upsertStatement method are correct.
       verify(postgresDataAccess, times(1))
-          .upsertStatement(
+          .queryStatement(
               contains("INSERT INTO recipe_ingredients"),
               argThat(
                   params ->
@@ -88,7 +88,7 @@ class RecipeDataAccessTest {
     // Verify that the INSERT statement for each cooking step was called correctly
     for (CookingStep step : recipe.getCookingSteps()) {
       verify(postgresDataAccess, times(1))
-          .upsertStatement(
+          .queryStatement(
               contains("INSERT INTO recipe_cooking_step"),
               argThat(
                   params ->
@@ -125,9 +125,9 @@ class RecipeDataAccessTest {
     // cooking steps
     verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe"), anyMap());
     verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
+        .queryStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
     verify(postgresDataAccess, never())
-        .upsertStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
+        .queryStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
   }
 
   /**
@@ -223,7 +223,7 @@ class RecipeDataAccessTest {
     // Verify that the INSERT statement for each ingredient was called correctly
     for (RecipeIngredient ingredient : recipe.getIngredients()) {
       verify(postgresDataAccess, times(1))
-          .upsertStatement(
+          .queryStatement(
               contains("INSERT INTO recipe_ingredients"),
               argThat(
                   params ->
@@ -245,7 +245,7 @@ class RecipeDataAccessTest {
     // Verify that the INSERT statement for each cooking step was called correctly
     for (CookingStep step : recipe.getCookingSteps()) {
       verify(postgresDataAccess, times(1))
-          .upsertStatement(
+          .queryStatement(
               contains("INSERT INTO recipe_cooking_step"),
               argThat(
                   params ->
@@ -766,6 +766,7 @@ class RecipeDataAccessTest {
     recipe.setDifficultyLevel(2);
     recipe.setRating(4.5);
     recipe.setStatus(ERecipeStatus.DRAFT);
+    recipe.setCuisine("Chinese");
     recipe.setCreateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
     recipe.setUpdateDatetime(Timestamp.valueOf(java.time.LocalDateTime.now()));
 

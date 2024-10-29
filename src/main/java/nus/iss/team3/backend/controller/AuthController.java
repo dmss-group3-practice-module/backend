@@ -1,9 +1,9 @@
 package nus.iss.team3.backend.controller;
 
 import jakarta.servlet.http.HttpSession;
+import nus.iss.team3.backend.businessService.auth.IAuthService;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.service.auth.IAuthService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,28 +60,6 @@ public class AuthController {
       }
     } catch (Exception e) {
       logger.error("Unexpected error during logout", e);
-      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  // for microservice call from AuthWebCaller
-  @PostMapping("/check")
-  public ResponseEntity<?> loginCall(@RequestBody LoginRequest loginRequest) {
-    try {
-      UserAccount user =
-          authService.authenticate(loginRequest.getName(), loginRequest.getPassword());
-      if (user != null) {
-        logger.info("User logged in successfully: {}", user.getName());
-        return new ResponseEntity<>(user, HttpStatus.OK);
-      } else {
-        logger.warn("Login failed for user: {}", loginRequest.getName());
-        return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
-      }
-    } catch (IllegalArgumentException e) {
-      logger.warn("Login attempt with invalid input: {}", e.getMessage());
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    } catch (Exception e) {
-      logger.error("Unexpected error during login", e);
       return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

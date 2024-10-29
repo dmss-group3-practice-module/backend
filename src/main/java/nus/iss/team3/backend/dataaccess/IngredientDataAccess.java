@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.IPostgresDataAccess;
-import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class IngredientDataAccess implements IIngredientDataAccess {
    * @return boolean of whether adding ingredient was successful
    */
   @Override
-  public boolean addIngredient(Ingredient ingredient) {
+  public boolean addIngredient(UserIngredient ingredient) {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, ingredient.getName());
     sqlInput.put(PostgresSqlStatement.INPUT_USER_ID, ingredient.getUserId());
@@ -55,7 +55,7 @@ public class IngredientDataAccess implements IIngredientDataAccess {
    * @return boolean of whether updating ingredient was successful
    */
   @Override
-  public boolean updateIngredient(Ingredient ingredient) {
+  public boolean updateIngredient(UserIngredient ingredient) {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, ingredient.getId());
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, ingredient.getName());
@@ -106,7 +106,7 @@ public class IngredientDataAccess implements IIngredientDataAccess {
    * @return content of the retrieved ingredient
    */
   @Override
-  public Ingredient getIngredientById(int id) {
+  public UserIngredient getIngredientById(int id) {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_ID, id);
 
@@ -130,13 +130,13 @@ public class IngredientDataAccess implements IIngredientDataAccess {
    * @return list of ingredients matching the name
    */
   @Override
-  public List<Ingredient> getIngredientsByName(String name) {
+  public List<UserIngredient> getIngredientsByName(String name) {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_NAME, name);
     List<Map<String, Object>> entityReturned =
         postgresDataAccess.queryStatement(
             PostgresSqlStatement.SQL_INGREDIENTS_GET_BY_NAME, sqlInput);
-    List<Ingredient> returnList = new ArrayList<>();
+    List<UserIngredient> returnList = new ArrayList<>();
     if (entityReturned != null) {
       for (Map<String, Object> entity : entityReturned) {
         returnList.add(translateDBRecordToIngredient(entity));
@@ -152,7 +152,7 @@ public class IngredientDataAccess implements IIngredientDataAccess {
    * @return content of retrieved ingredient based on userId
    */
   @Override
-  public List<Ingredient> getIngredientsByUser(int userId) {
+  public List<UserIngredient> getIngredientsByUser(int userId) {
     Map<String, Object> sqlInput = new HashMap<>();
     sqlInput.put(PostgresSqlStatement.INPUT_INGREDIENT_USER_ACCOUNT_ID, userId);
 
@@ -163,7 +163,7 @@ public class IngredientDataAccess implements IIngredientDataAccess {
       logger.error("No ingredients found for user {}", userId);
       return new ArrayList<>();
     }
-    List<Ingredient> returnList = new ArrayList<>();
+    List<UserIngredient> returnList = new ArrayList<>();
     for (Map<String, Object> entity : entityReturned) {
       returnList.add(translateDBRecordToIngredient(entity));
     }
@@ -192,8 +192,8 @@ public class IngredientDataAccess implements IIngredientDataAccess {
   }
 
   // private functions
-  private Ingredient translateDBRecordToIngredient(Map<String, Object> entity) {
-    Ingredient returnItem = new Ingredient();
+  private UserIngredient translateDBRecordToIngredient(Map<String, Object> entity) {
+    UserIngredient returnItem = new UserIngredient();
 
     if (entity.containsKey(PostgresSqlStatement.COLUMN_INGREDIENT_ID)
         && (entity.get(PostgresSqlStatement.COLUMN_INGREDIENT_ID) instanceof Integer)) {

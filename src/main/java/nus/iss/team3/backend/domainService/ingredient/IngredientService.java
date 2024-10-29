@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
-import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserIngredient;
 import nus.iss.team3.backend.service.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,7 +32,7 @@ public class IngredientService implements IIngredientService {
   }
 
   @Override
-  public boolean addIngredient(Ingredient ingredient) {
+  public boolean addIngredient(UserIngredient ingredient) {
     validateIngredient(ingredient, false);
 
     ZonedDateTime now = ZonedDateTime.now();
@@ -43,9 +43,9 @@ public class IngredientService implements IIngredientService {
   }
 
   @Override
-  public boolean updateIngredient(Ingredient ingredient) {
+  public boolean updateIngredient(UserIngredient ingredient) {
     validateIngredient(ingredient, true);
-    Ingredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getId());
+    UserIngredient existingIngredient = ingredientDataAccess.getIngredientById(ingredient.getId());
     if (existingIngredient == null) {
       throw new IllegalArgumentException("Missing ingredient for updateUser {}");
     }
@@ -64,8 +64,8 @@ public class IngredientService implements IIngredientService {
   }
 
   @Override
-  public Ingredient getIngredientById(Integer id) {
-    Ingredient ingredient = ingredientDataAccess.getIngredientById(id);
+  public UserIngredient getIngredientById(Integer id) {
+    UserIngredient ingredient = ingredientDataAccess.getIngredientById(id);
     if (ingredient == null) {
       logger.warn("ingredient not found for ID: {}", id);
     }
@@ -73,8 +73,8 @@ public class IngredientService implements IIngredientService {
   }
 
   @Override
-  public List<Ingredient> getIngredientsByName(String name) {
-    List<Ingredient> ingredients = ingredientDataAccess.getIngredientsByName(name);
+  public List<UserIngredient> getIngredientsByName(String name) {
+    List<UserIngredient> ingredients = ingredientDataAccess.getIngredientsByName(name);
     if (ingredients == null) {
       logger.warn("ingredient not found for Name: {}", name);
     }
@@ -82,7 +82,7 @@ public class IngredientService implements IIngredientService {
   }
 
   @Override
-  public List<Ingredient> getIngredientsByUser(Integer userId) {
+  public List<UserIngredient> getIngredientsByUser(Integer userId) {
     return ingredientDataAccess.getIngredientsByUser(userId);
   }
 
@@ -96,7 +96,7 @@ public class IngredientService implements IIngredientService {
    *
    * @return whether boolean on whether ingredient is valid
    */
-  private void validateIngredient(Ingredient ingredient, boolean isUpdate) {
+  private void validateIngredient(UserIngredient ingredient, boolean isUpdate) {
     if (ingredient == null) {
       throw new IllegalArgumentException("Ingredient cannot be null");
     }

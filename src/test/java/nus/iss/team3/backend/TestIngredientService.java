@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
-import nus.iss.team3.backend.entity.Ingredient;
 import nus.iss.team3.backend.domainService.ingredient.IngredientService;
+import nus.iss.team3.backend.entity.UserIngredient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,7 +30,7 @@ public class TestIngredientService {
     assertThrows(IllegalArgumentException.class, () -> ingredientService.addIngredient(null));
 
     // null/empty name
-    Ingredient inputIngredient = new Ingredient();
+    UserIngredient inputIngredient = new UserIngredient();
 
     inputIngredient.setName(null);
     assertThrows(
@@ -85,7 +85,7 @@ public class TestIngredientService {
     assertNull(ingredientService.getIngredientById(ingredientId));
 
     // existing ingredient
-    Ingredient existingIngredient = new Ingredient();
+    UserIngredient existingIngredient = new UserIngredient();
     existingIngredient.setId(ingredientId);
     when(ingredientDataAccess.getIngredientById(ingredientId)).thenReturn(existingIngredient);
     assertEquals(existingIngredient, ingredientService.getIngredientById(ingredientId));
@@ -93,16 +93,16 @@ public class TestIngredientService {
     // get all ingredients by userId (no ingredients)
     Integer userId = 1;
     when(ingredientDataAccess.getIngredientsByUser(userId)).thenReturn(Arrays.asList());
-    List<Ingredient> result = ingredientService.getIngredientsByUser(userId);
+    List<UserIngredient> result = ingredientService.getIngredientsByUser(userId);
     assertTrue(result.isEmpty());
 
     // get all ingredients by userId (with ingredients)
-    Ingredient apple = new Ingredient();
-    Ingredient orange = new Ingredient();
-    List<Ingredient> ingredientList = Arrays.asList(apple, orange);
+    UserIngredient apple = new UserIngredient();
+    UserIngredient orange = new UserIngredient();
+    List<UserIngredient> ingredientList = Arrays.asList(apple, orange);
     when(ingredientDataAccess.getIngredientsByUser(userId)).thenReturn(ingredientList);
 
-    List<Ingredient> ingredients = ingredientService.getIngredientsByUser(userId);
+    List<UserIngredient> ingredients = ingredientService.getIngredientsByUser(userId);
     assertEquals(2, ingredients.size());
   }
 
@@ -112,7 +112,7 @@ public class TestIngredientService {
     assertThrows(IllegalArgumentException.class, () -> ingredientService.updateIngredient(null));
 
     // missing ingredient id
-    Ingredient inputIngredient = new Ingredient();
+    UserIngredient inputIngredient = new UserIngredient();
     inputIngredient.setName("apple");
     inputIngredient.setQuantity(1.0);
     inputIngredient.setUom("kg");
@@ -145,7 +145,7 @@ public class TestIngredientService {
     assertFalse(ingredientService.deleteIngredientById(ingredientId));
 
     // delete an existing ingredient
-    Ingredient existingIngredient = new Ingredient();
+    UserIngredient existingIngredient = new UserIngredient();
     existingIngredient.setId(ingredientId);
     when(ingredientDataAccess.getIngredientById(ingredientId)).thenReturn(existingIngredient);
     when(ingredientDataAccess.deleteIngredientById(ingredientId)).thenReturn(true);

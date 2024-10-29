@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
-import nus.iss.team3.backend.entity.Ingredient;
+import nus.iss.team3.backend.entity.UserIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class IngredientWebCaller implements IIngredientService {
    * @return
    */
   @Override
-  public boolean addIngredient(Ingredient ingredient) {
+  public boolean addIngredient(UserIngredient ingredient) {
     String url = getUrl("/ingredient/add");
 
     ResponseEntity<Boolean> response = webServiceCaller.postCall(url, ingredient, Boolean.class);
@@ -56,7 +56,7 @@ public class IngredientWebCaller implements IIngredientService {
    * @return
    */
   @Override
-  public boolean updateIngredient(Ingredient ingredient) {
+  public boolean updateIngredient(UserIngredient ingredient) {
     String url = getUrl("/ingredient/update");
     ResponseEntity<Boolean> response = webServiceCaller.postCall(url, ingredient, Boolean.class);
     if (response.getStatusCode().is2xxSuccessful()) {
@@ -84,9 +84,9 @@ public class IngredientWebCaller implements IIngredientService {
    * @return
    */
   @Override
-  public Ingredient getIngredientById(Integer id) {
+  public UserIngredient getIngredientById(Integer id) {
     String url = getUrl("/ingredient/get/" + id);
-    ResponseEntity<Ingredient> response = webServiceCaller.getCall(url, Ingredient.class);
+    ResponseEntity<UserIngredient> response = webServiceCaller.getCall(url, UserIngredient.class);
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
     }
@@ -98,10 +98,11 @@ public class IngredientWebCaller implements IIngredientService {
    * @return
    */
   @Override
-  public List<Ingredient> getIngredientsByName(String name) {
+  public List<UserIngredient> getIngredientsByName(String name) {
     String url = getUrl("/ingredient/get/name/" + name);
-    ParameterizedTypeReference<List<Ingredient>> typeRef = new ParameterizedTypeReference<>() {};
-    ResponseEntity<List<Ingredient>> response = webServiceCaller.getCall(url, typeRef);
+    ParameterizedTypeReference<List<UserIngredient>> typeRef =
+        new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<UserIngredient>> response = webServiceCaller.getCall(url, typeRef);
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
     } else {
@@ -114,10 +115,11 @@ public class IngredientWebCaller implements IIngredientService {
    * @return
    */
   @Override
-  public List<Ingredient> getIngredientsByUser(Integer id) {
+  public List<UserIngredient> getIngredientsByUser(Integer id) {
     String url = getUrl("/ingredient/getAll/" + id);
-    ParameterizedTypeReference<List<Ingredient>> typeRef = new ParameterizedTypeReference<>() {};
-    ResponseEntity<List<Ingredient>> response = webServiceCaller.getCall(url, typeRef);
+    ParameterizedTypeReference<List<UserIngredient>> typeRef =
+        new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<UserIngredient>> response = webServiceCaller.getCall(url, typeRef);
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
     } else {

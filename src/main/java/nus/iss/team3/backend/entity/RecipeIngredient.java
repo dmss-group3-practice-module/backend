@@ -7,14 +7,9 @@ import java.util.Objects;
  *
  * @author Mao Weining
  */
-// Entity
-public class RecipeIngredient {
-
+public class RecipeIngredient extends Ingredient {
   private Long id;
   private Long recipeId;
-  private String name;
-  private Double quantity;
-  private String uom;
 
   // Constructors
   public RecipeIngredient() {}
@@ -22,9 +17,6 @@ public class RecipeIngredient {
   public RecipeIngredient(Long id, Long recipeId, String name, Double quantity, String uom) {
     this.id = id;
     this.recipeId = recipeId;
-    this.name = name;
-    this.quantity = quantity;
-    this.uom = uom;
   }
 
   // Getters and Setters
@@ -42,30 +34,6 @@ public class RecipeIngredient {
 
   public void setRecipeId(Long recipeId) {
     this.recipeId = recipeId;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Double getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(Double quantity) {
-    this.quantity = quantity;
-  }
-
-  public String getUom() {
-    return uom;
-  }
-
-  public void setUom(String uom) {
-    this.uom = uom;
   }
 
   @Override

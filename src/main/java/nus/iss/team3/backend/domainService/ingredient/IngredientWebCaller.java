@@ -100,7 +100,8 @@ public class IngredientWebCaller implements IIngredientService {
   @Override
   public List<UserIngredient> getIngredientsByName(String name) {
     String url = getUrl("/ingredient/get/name/" + name);
-    ParameterizedTypeReference<List<UserIngredient>> typeRef = new ParameterizedTypeReference<>() {};
+    ParameterizedTypeReference<List<UserIngredient>> typeRef =
+        new ParameterizedTypeReference<>() {};
     ResponseEntity<List<UserIngredient>> response = webServiceCaller.getCall(url, typeRef);
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
@@ -116,7 +117,8 @@ public class IngredientWebCaller implements IIngredientService {
   @Override
   public List<UserIngredient> getIngredientsByUser(Integer id) {
     String url = getUrl("/ingredient/getAll/" + id);
-    ParameterizedTypeReference<List<UserIngredient>> typeRef = new ParameterizedTypeReference<>() {};
+    ParameterizedTypeReference<List<UserIngredient>> typeRef =
+        new ParameterizedTypeReference<>() {};
     ResponseEntity<List<UserIngredient>> response = webServiceCaller.getCall(url, typeRef);
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();

@@ -115,7 +115,7 @@ public class RecipeService implements IRecipeService {
     logger.info("Getting all recipes");
     // Get a list of all recipes using the data access layer method
     List<Recipe> recipes = recipeDataAccess.getAllRecipes();
-    logger.info("Successfully retrieved {} recipes", recipes.size());
+    logger.info("Successfully retrieved {} recipes", recipes == null ? 0 : recipes.size());
     return recipes;
   }
 
@@ -124,7 +124,9 @@ public class RecipeService implements IRecipeService {
     logger.info("Getting all published recipes");
     // Get a list of all recipes using the data access layer method
     List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
-    logger.info("Successfully retrieved {} recipes", recipes.size());
+
+    logger.info(
+        "Successfully retrieved {} published recipes", recipes == null ? 0 : recipes.size());
     return recipes;
   }
 

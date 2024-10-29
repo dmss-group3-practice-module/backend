@@ -223,6 +223,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
           postgresDataAccess.queryStatement(
               PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_PUBLISHED, null);
 
+      if (result == null) {
+        return null;
+      }
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
         Recipe recipe = mapToRecipe(row);

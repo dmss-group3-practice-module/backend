@@ -1,7 +1,11 @@
 package nus.iss.team3.backend.dataaccess;
 
+import static nus.iss.team3.backend.service.util.SqlUtilities.getLongValue;
+import static nus.iss.team3.backend.service.util.SqlUtilities.getStringValue;
+
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
@@ -25,6 +29,30 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   public RecipeDataAccess(PostgresDataAccess postgresDataAccess) {
     this.postgresDataAccess = postgresDataAccess;
+  }
+
+  public static class RecipeIngredientMapper {
+    public RecipeIngredient map(Map<String, Object> row) {
+      return RecipeIngredient.builder()
+          .id(getLongValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID))
+          .recipeId(getLongValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID))
+          .name(getStringValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME))
+          .quantity(getDoubleValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY))
+          .uom(getStringValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM))
+          .build();
+    }
+
+    private Long getLongValue(Map<String, Object> row, String column) {
+      return row.get(column) != null ? ((Number) row.get(column)).longValue() : null;
+    }
+
+    private String getStringValue(Map<String, Object> row, String column) {
+      return row.get(column) != null ? (String) row.get(column) : null;
+    }
+
+    private Double getDoubleValue(Map<String, Object> row, String column) {
+      return row.get(column) != null ? ((Number) row.get(column)).doubleValue() : null;
+    }
   }
 
   @Override
@@ -103,12 +131,22 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       // Update ingredients: first delete existing ingredients, then insert new ones
       deleteIngredients(recipe.getId());
-      insertIngredients(recipe);
+      if (recipe.getIngredients() != null && !recipe.getIngredients().isEmpty()) {
+        insertIngredients(recipe);
+        logger.debug("Ingredients updated successfully");
+      } else {
+        logger.debug("No ingredients to update for the recipe");
+      }
       logger.debug("Ingredients updated successfully");
 
       // Update cooking steps: first delete existing steps, then insert new ones
       deleteCookingSteps(recipe.getId());
-      insertCookingSteps(recipe);
+      if (recipe.getCookingSteps() != null && !recipe.getCookingSteps().isEmpty()) {
+        insertCookingSteps(recipe);
+        logger.debug("Cooking steps updated successfully");
+      } else {
+        logger.debug("No cooking steps to update for the recipe");
+      }
       logger.debug("Cooking steps updated successfully");
 
       logger.info("Recipe update completed: ID={}", recipe.getId());
@@ -377,7 +415,6 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     return recipe;
   }
 
-  // Helper method: Validate the recipe
   private void validateRecipe(Recipe recipe) {
     logger.debug("Validating recipe: {}", recipe.getName());
     if (recipe.getCreatorId() == null
@@ -385,14 +422,13 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         || recipe.getCookingTimeInSec() == null
         || recipe.getDifficultyLevel() == null
         || recipe.getRating() == null
-        || recipe.getStatus() == null) {
-      // TODO: if "cuisine" is not null, it should be added here.
+        || recipe.getStatus() == null
+        || recipe.getCuisine() == null) {
       logger.error("Recipe validation failed, required fields are empty");
       throw new IllegalArgumentException("Required fields for recipe cannot be null");
     }
   }
 
-  // Helper method: Validate the ingredient
   private void validateIngredient(RecipeIngredient ingredient) {
     logger.debug("Validating ingredient: {}", ingredient.getName());
     if (ingredient.getName() == null
@@ -403,7 +439,6 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     }
   }
 
-  // Helper method: Validate the cooking step
   private void validateCookingStep(CookingStep step) {
     logger.debug("Validating cooking step");
     if (step.getDescription() == null) {
@@ -503,48 +538,18 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     }
   }
 
-  // Helper method: Get ingredients associated with the recipe
   private List<RecipeIngredient> getIngredientsForRecipe(Long recipeId) {
     logger.info("Getting ingredients, Recipe ID={}", recipeId);
 
-    // Construct query parameters
-    Map<String, Object> params = new HashMap<>();
-    params.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
-
-    // Execute the query
+    Map<String, Object> params =
+        Map.of(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
     List<Map<String, Object>> result =
         postgresDataAccess.queryStatement(
             PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID, params);
 
-    // Construct the list of ingredients
-    List<RecipeIngredient> ingredients = new ArrayList<>();
-    for (Map<String, Object> row : result) {
-      RecipeIngredient ingredient = new RecipeIngredient();
-      ingredient.setId(
-          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID) != null
-              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID)).longValue()
-              : null);
-      ingredient.setRecipeId(
-          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID) != null
-              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID))
-                  .longValue()
-              : null);
-      ingredient.setName(
-          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME) != null
-              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME)
-              : null);
-      ingredient.setQuantity(
-          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY) != null
-              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY))
-                  .doubleValue()
-              : null);
-      ingredient.setUom(
-          row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM) != null
-              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM)
-              : null);
-      ingredients.add(ingredient);
-      logger.debug("Loaded ingredient: {}", ingredient.getName());
-    }
+    RecipeIngredientMapper mapper = new RecipeIngredientMapper();
+    List<RecipeIngredient> ingredients =
+        result.stream().map(mapper::map).collect(Collectors.toList());
 
     logger.info("Ingredients loading completed, count={}", ingredients.size());
     return ingredients;
@@ -554,39 +559,29 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   private List<CookingStep> getCookingStepsForRecipe(Long recipeId) {
     logger.info("Getting cooking steps, Recipe ID={}", recipeId);
 
-    // Construct query parameters
-    Map<String, Object> params = new HashMap<>();
-    params.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
-
-    // Execute the query
+    Map<String, Object> params =
+        Map.of(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
     List<Map<String, Object>> result =
         postgresDataAccess.queryStatement(
             PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID, params);
 
-    // Construct the list of cooking steps
-    List<CookingStep> steps = new ArrayList<>();
-    for (Map<String, Object> row : result) {
-      CookingStep step = new CookingStep();
-      step.setId(
-          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID) != null
-              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID)).longValue()
-              : null);
-      step.setRecipeId(
-          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_RECIPE_ID) != null
-              ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_RECIPE_ID))
-                  .longValue()
-              : null);
-      step.setDescription(
-          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_DESCRIPTION) != null
-              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_DESCRIPTION)
-              : null);
-      step.setImage(
-          row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE) != null
-              ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE)
-              : null);
-      steps.add(step);
-      logger.debug("Loaded cooking step: {}", step.getDescription());
-    }
+    List<CookingStep> steps =
+        result.stream()
+            .map(
+                row ->
+                    CookingStep.builder()
+                        .id(getLongValue(row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID))
+                        .recipeId(
+                            getLongValue(
+                                row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_RECIPE_ID))
+                        .description(
+                            getStringValue(
+                                row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_DESCRIPTION))
+                        .image(
+                            getStringValue(
+                                row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE))
+                        .build())
+            .collect(Collectors.toList());
 
     logger.info("Cooking steps loading completed, count={}", steps.size());
     return steps;

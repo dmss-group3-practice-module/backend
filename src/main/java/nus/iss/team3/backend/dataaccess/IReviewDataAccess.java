@@ -1,14 +1,14 @@
-package nus.iss.team3.backend.service.review;
+package nus.iss.team3.backend.dataaccess;
 
 import java.util.List;
 import nus.iss.team3.backend.entity.RecipeReview;
 
 /**
- * Interface for RecipeReviewService, contains logic involving recipe reviews.
+ * Interface class for RecipeReviewDataAccess, should contain all functionality needed for recipe.
  *
  * @author Mao Weining
  */
-public interface IRecipeReviewService {
+public interface IReviewDataAccess {
 
   void addReview(RecipeReview review);
 
@@ -18,11 +18,11 @@ public interface IRecipeReviewService {
 
   void deleteReviewsByRecipeId(Long recipeId);
 
-  void deleteReviewsByCreatorId(Long recipeId, Long creatorId);
+  void deleteReviewsByCreatorId(Long creatorId);
 
   RecipeReview getReviewByRecipeAndCreator(Long recipeId, Long creatorId);
 
   List<RecipeReview> getReviewsByRecipeId(Long recipeId);
 
-  List<RecipeReview> getReviewsByCreatorId(Long recipeId, Long creatorId);
+  List<RecipeReview> getReviewsByCreatorId(Long creatorId);
 }

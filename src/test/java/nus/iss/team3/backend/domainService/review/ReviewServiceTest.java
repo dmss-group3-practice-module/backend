@@ -1,4 +1,4 @@
-package nus.iss.team3.backend.service;
+package nus.iss.team3.backend.domainService.review;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,9 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import nus.iss.team3.backend.dataaccess.IRecipeReviewDataAccess;
+import nus.iss.team3.backend.dataaccess.IReviewDataAccess;
 import nus.iss.team3.backend.entity.RecipeReview;
-import nus.iss.team3.backend.service.review.RecipeReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,11 +22,11 @@ import org.mockito.MockitoAnnotations;
  *
  * @author Mao Weining
  */
-public class RecipeReviewServiceTest {
+public class ReviewServiceTest {
 
-  @Mock private IRecipeReviewDataAccess recipeReviewDataAccess;
+  @Mock private IReviewDataAccess recipeReviewDataAccess;
 
-  @InjectMocks private RecipeReviewService recipeReviewService;
+  @InjectMocks private ReviewService reviewService;
 
   @BeforeEach
   public void setUp() {
@@ -41,7 +40,7 @@ public class RecipeReviewServiceTest {
     review.setCreatorId(1L);
     review.setRating(5.0);
 
-    recipeReviewService.addReview(review);
+    reviewService.addReview(review);
 
     verify(recipeReviewDataAccess, times(1)).addReview(review);
   }
@@ -49,7 +48,7 @@ public class RecipeReviewServiceTest {
   @Test
   public void testAddReview_NullReview() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> recipeReviewService.addReview(null));
+        assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(null));
     assertEquals("Review cannot be null", exception.getMessage());
   }
 
@@ -60,7 +59,7 @@ public class RecipeReviewServiceTest {
     review.setRating(5.0);
 
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> recipeReviewService.addReview(review));
+        assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(review));
     assertEquals("Recipe ID cannot be null", exception.getMessage());
   }
 
@@ -71,7 +70,7 @@ public class RecipeReviewServiceTest {
     review.setRating(5.0);
 
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> recipeReviewService.addReview(review));
+        assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(review));
     assertEquals("Creator ID cannot be null", exception.getMessage());
   }
 
@@ -83,7 +82,7 @@ public class RecipeReviewServiceTest {
     review.setRating(6.0); // Invalid rating
 
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> recipeReviewService.addReview(review));
+        assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(review));
     assertEquals("Rating must be between 0 and 5", exception.getMessage());
   }
 
@@ -94,28 +93,28 @@ public class RecipeReviewServiceTest {
     review.setCreatorId(1L);
     review.setRating(5.0);
 
-    recipeReviewService.updateReview(1L, 1L, review);
+    reviewService.updateReview(1L, 1L, review);
 
     verify(recipeReviewDataAccess, times(1)).updateReview(1L, 1L, review);
   }
 
   @Test
   public void testDeleteReview_Success() {
-    recipeReviewService.deleteReview(1L, 1L);
+    reviewService.deleteReview(1L, 1L);
 
     verify(recipeReviewDataAccess, times(1)).deleteReview(1L, 1L);
   }
 
   @Test
   public void testDeleteReviewsByRecipeId_Success() {
-    recipeReviewService.deleteReviewsByRecipeId(1L);
+    reviewService.deleteReviewsByRecipeId(1L);
 
     verify(recipeReviewDataAccess, times(1)).deleteReviewsByRecipeId(1L);
   }
 
   @Test
   public void testDeleteReviewsByCreatorId_Success() {
-    recipeReviewService.deleteReviewsByCreatorId(1L, 1L);
+    reviewService.deleteReviewsByCreatorId(1L, 1L);
 
     verify(recipeReviewDataAccess, times(1)).deleteReviewsByCreatorId(1L);
   }
@@ -129,7 +128,7 @@ public class RecipeReviewServiceTest {
 
     when(recipeReviewDataAccess.getReviewByRecipeAndCreator(1L, 1L)).thenReturn(review);
 
-    RecipeReview result = recipeReviewService.getReviewByRecipeAndCreator(1L, 1L);
+    RecipeReview result = reviewService.getReviewByRecipeAndCreator(1L, 1L);
 
     assertEquals(review, result);
   }
@@ -144,7 +143,7 @@ public class RecipeReviewServiceTest {
 
     when(recipeReviewDataAccess.getReviewsByRecipeId(1L)).thenReturn(reviews);
 
-    List<RecipeReview> result = recipeReviewService.getReviewsByRecipeId(1L);
+    List<RecipeReview> result = reviewService.getReviewsByRecipeId(1L);
 
     assertEquals(reviews, result);
   }
@@ -159,7 +158,7 @@ public class RecipeReviewServiceTest {
 
     when(recipeReviewDataAccess.getReviewsByCreatorId(1L)).thenReturn(reviews);
 
-    List<RecipeReview> result = recipeReviewService.getReviewsByCreatorId(1L, 1L);
+    List<RecipeReview> result = reviewService.getReviewsByCreatorId(1L, 1L);
 
     assertEquals(reviews, result);
   }

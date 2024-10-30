@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
@@ -33,10 +34,12 @@ public class RecipeController {
 
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
+  private final IRecipeReviewService recipeReviewService;
 
   @Autowired
-  public RecipeController(IRecipeService recipeService) {
+  public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
     this.recipeService = recipeService;
+    this.recipeReviewService = recipeReviewService;
   }
 
   /**
@@ -222,7 +225,7 @@ public class RecipeController {
   public ResponseEntity<RecipeWithReviews> getRecipeWithReviews(@PathVariable Long id) {
     logger.info("Received request to get recipe with reviews: ID={}", id);
     try {
-      RecipeWithReviews recipeWithReviews = recipeService.getRecipeWithReviewsById(id);
+      RecipeWithReviews recipeWithReviews = recipeReviewService.getRecipeWithReviewsById(id);
       if (recipeWithReviews != null) {
         logger.info(
             "Found recipe with reviews: ID={}, Name={}",
@@ -248,7 +251,7 @@ public class RecipeController {
   public ResponseEntity<List<RecipeWithReviews>> getAllRecipesWithReviews() {
     logger.info("Received request to get all recipes with reviews");
     try {
-      List<RecipeWithReviews> recipesWithReviews = recipeService.getAllRecipesWithReviews();
+      List<RecipeWithReviews> recipesWithReviews = recipeReviewService.getAllRecipesWithReviews();
       logger.info("Found {} recipes with reviews", recipesWithReviews.size());
       return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
     } catch (Exception e) {

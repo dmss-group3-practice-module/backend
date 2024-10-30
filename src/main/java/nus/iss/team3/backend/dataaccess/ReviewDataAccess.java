@@ -38,12 +38,12 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Mao Weining
  */
 @Repository
-public class RecipeReviewDataAccess implements IRecipeReviewDataAccess {
+public class ReviewDataAccess implements IReviewDataAccess {
 
-  private static final Logger logger = LogManager.getLogger(RecipeReviewDataAccess.class);
+  private static final Logger logger = LogManager.getLogger(ReviewDataAccess.class);
   private final PostgresDataAccess postgresDataAccess;
 
-  public RecipeReviewDataAccess(PostgresDataAccess postgresDataAccess) {
+  public ReviewDataAccess(PostgresDataAccess postgresDataAccess) {
     this.postgresDataAccess = postgresDataAccess;
   }
 

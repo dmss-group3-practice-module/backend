@@ -9,54 +9,53 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import nus.iss.team3.backend.domainService.review.IReviewService;
 import nus.iss.team3.backend.entity.RecipeReview;
-import nus.iss.team3.backend.service.review.IRecipeReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Unit test class: RecipeReviewControllerTest is used to test various endpoints of the
- * RecipeReviewController class to ensure its behavior meets expectations.
+ * RecipeReviewController class to ensure its behavior meets expectations. This class testes the
+ * logic in controller but not the MVC calls...
  *
  * @author Mao Weining
  */
-public class RecipeReviewControllerTest {
+@ExtendWith(SpringExtension.class)
+public class ReviewControllerTest {
 
-  @Mock private IRecipeReviewService recipeReviewService;
+  @Mock private IReviewService reviewService;
 
-  @InjectMocks private RecipeReviewController recipeReviewController;
+  @InjectMocks private ReviewController reviewController;
 
   @BeforeEach
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
+  public void setUp() {}
 
   @Test
   public void testAddReview_Success() {
     RecipeReview review = new RecipeReview();
     review.setComments("Great recipe!");
 
-    ResponseEntity<String> response = recipeReviewController.addReview(1L, review);
+    ResponseEntity<String> response = reviewController.addReview(1L, review);
 
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     assertEquals("Review added successfully", response.getBody());
-    verify(recipeReviewService, times(1)).addReview(any(RecipeReview.class));
+    verify(reviewService, times(1)).addReview(any(RecipeReview.class));
   }
 
   @Test
   public void testAddReview_ValidationError() {
     RecipeReview review = new RecipeReview(); // Assume this causes validation error
 
-    doThrow(new IllegalArgumentException("Invalid review"))
-        .when(recipeReviewService)
-        .addReview(any());
+    doThrow(new IllegalArgumentException("Invalid review")).when(reviewService).addReview(any());
 
-    ResponseEntity<String> response = recipeReviewController.addReview(1L, review);
+    ResponseEntity<String> response = reviewController.addReview(1L, review);
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     assertEquals("Invalid review", response.getBody());
@@ -67,38 +66,38 @@ public class RecipeReviewControllerTest {
     RecipeReview review = new RecipeReview();
     review.setComments("Updated review");
 
-    ResponseEntity<String> response = recipeReviewController.updateReview(1L, 1L, review);
+    ResponseEntity<String> response = reviewController.updateReview(1L, 1L, review);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("Review updated successfully", response.getBody());
-    verify(recipeReviewService, times(1)).updateReview(1L, 1L, review);
+    verify(reviewService, times(1)).updateReview(1L, 1L, review);
   }
 
   @Test
   public void testDeleteReview_Success() {
-    ResponseEntity<String> response = recipeReviewController.deleteReview(1L, 1L);
+    ResponseEntity<String> response = reviewController.deleteReview(1L, 1L);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("Review deleted successfully", response.getBody());
-    verify(recipeReviewService, times(1)).deleteReview(1L, 1L);
+    verify(reviewService, times(1)).deleteReview(1L, 1L);
   }
 
   @Test
   public void testDeleteReviewsByCreator_Success() {
-    ResponseEntity<String> response = recipeReviewController.deleteReviewsByCreator(1L, 1L);
+    ResponseEntity<String> response = reviewController.deleteReviewsByCreator(1L, 1L);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("All reviews by the same creator ID deleted successfully", response.getBody());
-    verify(recipeReviewService, times(1)).deleteReviewsByCreatorId(1L, 1L);
+    verify(reviewService, times(1)).deleteReviewsByCreatorId(1L, 1L);
   }
 
   @Test
   public void testDeleteReviewsByCreator_Failure() {
     doThrow(new RuntimeException("Deletion failed"))
-        .when(recipeReviewService)
+        .when(reviewService)
         .deleteReviewsByCreatorId(1L, 1L);
 
-    ResponseEntity<String> response = recipeReviewController.deleteReviewsByCreator(1L, 1L);
+    ResponseEntity<String> response = reviewController.deleteReviewsByCreator(1L, 1L);
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     assertEquals("Failed to delete reviews", response.getBody());
@@ -109,10 +108,9 @@ public class RecipeReviewControllerTest {
     RecipeReview review = new RecipeReview();
     review.setComments("Great recipe!");
 
-    when(recipeReviewService.getReviewByRecipeAndCreator(1L, 1L)).thenReturn(review);
+    when(reviewService.getReviewByRecipeAndCreator(1L, 1L)).thenReturn(review);
 
-    ResponseEntity<RecipeReview> response =
-        recipeReviewController.getReviewByRecipeAndCreator(1L, 1L);
+    ResponseEntity<RecipeReview> response = reviewController.getReviewByRecipeAndCreator(1L, 1L);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(review, response.getBody());
@@ -124,9 +122,9 @@ public class RecipeReviewControllerTest {
     review.setComments("Great recipe!");
     List<RecipeReview> reviews = Collections.singletonList(review);
 
-    when(recipeReviewService.getReviewsByRecipeId(1L)).thenReturn(reviews);
+    when(reviewService.getReviewsByRecipeId(1L)).thenReturn(reviews);
 
-    ResponseEntity<List<RecipeReview>> response = recipeReviewController.getReviewsByRecipeId(1L);
+    ResponseEntity<List<RecipeReview>> response = reviewController.getReviewsByRecipeId(1L);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(reviews, response.getBody());
@@ -138,10 +136,9 @@ public class RecipeReviewControllerTest {
     review.setComments("Great recipe!");
     List<RecipeReview> reviews = Collections.singletonList(review);
 
-    when(recipeReviewService.getReviewsByCreatorId(1L, 1L)).thenReturn(reviews);
+    when(reviewService.getReviewsByCreatorId(1L, 1L)).thenReturn(reviews);
 
-    ResponseEntity<List<RecipeReview>> response =
-        recipeReviewController.getReviewsByCreatorId(1L, 1L);
+    ResponseEntity<List<RecipeReview>> response = reviewController.getReviewsByCreatorId(1L, 1L);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(reviews, response.getBody());

@@ -1,11 +1,13 @@
-package nus.iss.team3.backend.service.review;
+package nus.iss.team3.backend.domainService.review;
 
 import java.util.List;
 import java.util.Objects;
-import nus.iss.team3.backend.dataaccess.IRecipeReviewDataAccess;
+import nus.iss.team3.backend.ProfileConfig;
+import nus.iss.team3.backend.dataaccess.IReviewDataAccess;
 import nus.iss.team3.backend.entity.RecipeReview;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,15 +16,13 @@ import org.springframework.stereotype.Service;
  * @author Mao Weining
  */
 @Service
-// TODO: Activate Spring Profile
-// @Profile("recipe")
-// @Profile(ProfileConfig.PROFILE_RECIPE)
-public class RecipeReviewService implements IRecipeReviewService {
+@Profile(ProfileConfig.PROFILE_RECIPE)
+public class ReviewService implements IReviewService {
 
-  private static final Logger logger = LogManager.getLogger(RecipeReviewService.class);
-  private final IRecipeReviewDataAccess recipeReviewDataAccess;
+  private static final Logger logger = LogManager.getLogger(ReviewService.class);
+  private final IReviewDataAccess recipeReviewDataAccess;
 
-  public RecipeReviewService(IRecipeReviewDataAccess recipeReviewDataAccess) {
+  public ReviewService(IReviewDataAccess recipeReviewDataAccess) {
     this.recipeReviewDataAccess = recipeReviewDataAccess;
   }
 

@@ -1,4 +1,4 @@
-package nus.iss.team3.backend;
+package nus.iss.team3.backend.domainService.recipe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import nus.iss.team3.backend.domainService.recipe.RecipeWebCaller;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeReview;
@@ -299,68 +298,5 @@ public class RecipeWebCallerTest {
     verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
 
     assertEquals(expectedRecipes, actualRecipes);
-  }
-
-  /** Test getRecipeWithReviewsById when the operation is successful. */
-  @Test
-  public void testGetRecipeWithReviewsById_Success() {
-    Long recipeId = 1L;
-    Recipe recipe = new Recipe();
-    recipe.setId(recipeId);
-    List<RecipeReview> reviews = Arrays.asList(new RecipeReview(), new RecipeReview());
-    RecipeWithReviews expectedRecipeWithReviews = new RecipeWithReviews(recipe, reviews);
-
-    String url = getUrl("/recipe/" + recipeId + "/with-reviews");
-
-    ResponseEntity<RecipeWithReviews> responseEntity =
-        new ResponseEntity<>(expectedRecipeWithReviews, HttpStatus.OK);
-
-    when(webServiceCaller.getCall(eq(url), eq(RecipeWithReviews.class))).thenReturn(responseEntity);
-
-    RecipeWithReviews actualRecipeWithReviews = recipeWebCaller.getRecipeWithReviewsById(recipeId);
-
-    verify(webServiceCaller, times(1)).getCall(eq(url), eq(RecipeWithReviews.class));
-
-    assertEquals(expectedRecipeWithReviews, actualRecipeWithReviews);
-  }
-
-  /** Test getAllRecipesWithReviews when the operation is successful. */
-  @Test
-  @SuppressWarnings("unchecked")
-  public void testGetAllRecipesWithReviews_Success() {
-    List<RecipeWithReviews> expectedRecipes = getRecipeWithReviews();
-
-    String url = getUrl("/recipe/with-reviews");
-
-    ResponseEntity<List<RecipeWithReviews>> responseEntity =
-        new ResponseEntity<>(expectedRecipes, HttpStatus.OK);
-
-    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
-        .thenReturn(responseEntity);
-
-    List<RecipeWithReviews> actualRecipes = recipeWebCaller.getAllRecipesWithReviews();
-
-    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
-
-    assertEquals(expectedRecipes, actualRecipes);
-  }
-
-  /** Test getAllRecipesWithReviews when the operation fails. */
-  @Test
-  @SuppressWarnings("unchecked")
-  public void testGetAllRecipesWithReviews_Failure() {
-    String url = getUrl("/recipe/with-reviews");
-
-    ResponseEntity<List<RecipeWithReviews>> responseEntity =
-        new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
-    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
-        .thenReturn(responseEntity);
-
-    List<RecipeWithReviews> actualRecipes = recipeWebCaller.getAllRecipesWithReviews();
-
-    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
-
-    assertEquals(Collections.emptyList(), actualRecipes);
   }
 }

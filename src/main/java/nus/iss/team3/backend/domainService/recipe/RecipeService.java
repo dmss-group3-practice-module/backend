@@ -1,15 +1,11 @@
 package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.entity.Recipe;
-import nus.iss.team3.backend.entity.RecipeReview;
-import nus.iss.team3.backend.entity.RecipeWithReviews;
-import nus.iss.team3.backend.service.review.IRecipeReviewService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Profile;
@@ -26,12 +22,9 @@ public class RecipeService implements IRecipeService {
 
   private static final Logger logger = LogManager.getLogger(RecipeService.class);
   private final IRecipeDataAccess recipeDataAccess;
-  private final IRecipeReviewService recipeReviewService;
 
-  public RecipeService(
-      IRecipeDataAccess recipeDataAccess, IRecipeReviewService recipeReviewService) {
+  public RecipeService(IRecipeDataAccess recipeDataAccess) {
     this.recipeDataAccess = recipeDataAccess;
-    this.recipeReviewService = recipeReviewService;
   }
 
   @PostConstruct
@@ -161,45 +154,6 @@ public class RecipeService implements IRecipeService {
       logger.warn("Recipe under creator Id {} not found", creatorId);
     }
     return recipeList;
-  }
-
-  @Override
-  public RecipeWithReviews getRecipeWithReviewsById(Long recipeId) {
-    logger.info("Fetching recipe with ID: {}", recipeId);
-
-    // Get Recipe
-    Recipe recipe = recipeDataAccess.getRecipeById(recipeId);
-    if (recipe == null) {
-      logger.warn("Recipe with ID: {} not found", recipeId);
-      return null;
-    }
-
-    // Get relevant Reviews
-    List<RecipeReview> reviews = recipeReviewService.getReviewsByRecipeId(recipeId);
-    logger.info("Fetched {} reviews for recipe ID: {}", reviews.size(), recipeId);
-
-    // Returns a combination of Recipe and Reviews
-    return new RecipeWithReviews(recipe, reviews);
-  }
-
-  @Override
-  public List<RecipeWithReviews> getAllRecipesWithReviews() {
-    logger.info("Fetching all recipes with reviews");
-
-    // Get all Recipes
-    List<Recipe> recipes = recipeDataAccess.getAllRecipes();
-    List<RecipeWithReviews> recipesWithReviews = new ArrayList<>();
-
-    for (Recipe recipe : recipes) {
-      // Get Reviews for each Recipe
-      List<RecipeReview> reviews = recipeReviewService.getReviewsByRecipeId(recipe.getId());
-      // Combining Recipes and Reviews
-      recipesWithReviews.add(new RecipeWithReviews(recipe, reviews));
-      logger.info("Fetched {} all reviews for one recipe ID: {}", reviews.size(), recipe.getId());
-    }
-
-    logger.info("Fetched {} recipes with reviews", recipesWithReviews.size());
-    return recipesWithReviews;
   }
 
   // Helper method: Validate the recipe

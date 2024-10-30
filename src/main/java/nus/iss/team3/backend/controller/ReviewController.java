@@ -1,8 +1,8 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.domainService.review.IReviewService;
 import nus.iss.team3.backend.entity.RecipeReview;
-import nus.iss.team3.backend.service.review.IRecipeReviewService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -23,13 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/recipe/{recipeId}/reviews")
-public class RecipeReviewController {
+public class ReviewController {
 
-  private static final Logger logger = LogManager.getLogger(RecipeReviewController.class);
-  private final IRecipeReviewService recipeReviewService;
+  private static final Logger logger = LogManager.getLogger(ReviewController.class);
 
-  public RecipeReviewController(IRecipeReviewService recipeReviewService) {
-    this.recipeReviewService = recipeReviewService;
+  private final IReviewService reviewService;
+
+  public ReviewController(IReviewService reviewService) {
+    this.reviewService = reviewService;
   }
 
   /**
@@ -45,7 +46,7 @@ public class RecipeReviewController {
     review.setRecipeId(recipeId);
     logger.info("Received request to add review for recipe ID: {}", recipeId);
     try {
-      recipeReviewService.addReview(review);
+      reviewService.addReview(review);
       logger.info("Added review for recipe ID: {}", recipeId);
       return new ResponseEntity<>("Review added successfully", HttpStatus.CREATED);
     } catch (IllegalArgumentException e) {
@@ -75,7 +76,7 @@ public class RecipeReviewController {
         recipeId,
         creatorId);
     try {
-      recipeReviewService.updateReview(recipeId, creatorId, review);
+      reviewService.updateReview(recipeId, creatorId, review);
       logger.info("Updated review for recipe ID: {} by creator ID: {}", recipeId, creatorId);
       return new ResponseEntity<>("Review updated successfully", HttpStatus.OK);
     } catch (IllegalArgumentException e) {
@@ -103,7 +104,7 @@ public class RecipeReviewController {
         recipeId,
         creatorId);
     try {
-      recipeReviewService.deleteReview(recipeId, creatorId);
+      reviewService.deleteReview(recipeId, creatorId);
       logger.info("Deleted review for recipe ID: {} by creator ID: {}", recipeId, creatorId);
       return new ResponseEntity<>("Review deleted successfully", HttpStatus.OK);
     } catch (Exception e) {
@@ -123,7 +124,7 @@ public class RecipeReviewController {
   public ResponseEntity<String> deleteReviewsByRecipeId(@PathVariable Long recipeId) {
     logger.info("Received request to delete all reviews for recipe ID: {}", recipeId);
     try {
-      recipeReviewService.deleteReviewsByRecipeId(recipeId);
+      reviewService.deleteReviewsByRecipeId(recipeId);
       logger.info("Deleted all reviews for recipe ID: {}", recipeId);
       return new ResponseEntity<>("Review deleted successfully", HttpStatus.OK);
     } catch (Exception e) {
@@ -144,7 +145,7 @@ public class RecipeReviewController {
       @PathVariable Long recipeId, @PathVariable Long creatorId) {
     logger.info("Received request to delete all reviews by creator ID: {}", creatorId);
     try {
-      recipeReviewService.deleteReviewsByCreatorId(recipeId, creatorId);
+      reviewService.deleteReviewsByCreatorId(recipeId, creatorId);
       logger.info("Deleted all reviews by creator ID: {}", creatorId);
       return new ResponseEntity<>(
           "All reviews by the same creator ID deleted successfully", HttpStatus.OK);
@@ -166,7 +167,7 @@ public class RecipeReviewController {
       @PathVariable Long recipeId, @PathVariable Long creatorId) {
     logger.info(
         "Received request to get review for recipe ID: {} by creator ID: {}", recipeId, creatorId);
-    RecipeReview review = recipeReviewService.getReviewByRecipeAndCreator(recipeId, creatorId);
+    RecipeReview review = reviewService.getReviewByRecipeAndCreator(recipeId, creatorId);
     if (review != null) {
       logger.info("Retrieved review for recipe ID: {} by creator ID: {}", recipeId, creatorId);
       return new ResponseEntity<>(review, HttpStatus.OK);
@@ -185,7 +186,7 @@ public class RecipeReviewController {
   @GetMapping
   public ResponseEntity<List<RecipeReview>> getReviewsByRecipeId(@PathVariable Long recipeId) {
     logger.info("Received request to get reviews for recipe ID: {}", recipeId);
-    List<RecipeReview> reviews = recipeReviewService.getReviewsByRecipeId(recipeId);
+    List<RecipeReview> reviews = reviewService.getReviewsByRecipeId(recipeId);
     logger.info(
         "Retrieved reviews for recipe ID: {}, count: {}",
         recipeId,
@@ -203,7 +204,7 @@ public class RecipeReviewController {
   public ResponseEntity<List<RecipeReview>> getReviewsByCreatorId(
       @PathVariable Long recipeId, @PathVariable Long creatorId) {
     logger.info("Received request to get reviews by creator ID: {}", creatorId);
-    List<RecipeReview> reviews = recipeReviewService.getReviewsByCreatorId(recipeId, creatorId);
+    List<RecipeReview> reviews = reviewService.getReviewsByCreatorId(recipeId, creatorId);
     logger.info(
         "Retrieved reviews by creator ID: {}, count: {}",
         creatorId,

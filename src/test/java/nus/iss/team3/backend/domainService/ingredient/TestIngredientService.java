@@ -1,4 +1,4 @@
-package nus.iss.team3.backend;
+package nus.iss.team3.backend.domainService.ingredient;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
-import nus.iss.team3.backend.domainService.ingredient.IngredientService;
 import nus.iss.team3.backend.entity.UserIngredient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

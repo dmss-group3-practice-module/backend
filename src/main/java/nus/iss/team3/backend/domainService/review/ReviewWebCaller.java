@@ -1,13 +1,15 @@
-package nus.iss.team3.backend.service.review;
+package nus.iss.team3.backend.domainService.review;
 
 import jakarta.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
+import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.RecipeReview;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,17 +20,15 @@ import org.springframework.stereotype.Service;
  * @author Mao Weining
  */
 @Service
-// TODO: Activate Spring Profile
-// @Profile("!recipe")
-// @Profile(ProfileConfig.PROFILE_NOT + ProfileConfig.PROFILE_RECIPE)
-public class RecipeReviewWebCaller implements IRecipeReviewService {
+@Profile(ProfileConfig.PROFILE_NOT + ProfileConfig.PROFILE_RECIPE)
+public class ReviewWebCaller implements IReviewService {
 
-  private static final Logger logger = LogManager.getLogger(RecipeReviewWebCaller.class);
+  private static final Logger logger = LogManager.getLogger(ReviewWebCaller.class);
   private final IWebserviceCaller webServiceCaller;
   private final String serviceUrl;
   private final String servicePort;
 
-  public RecipeReviewWebCaller(
+  public ReviewWebCaller(
       @Value("${service.url.recipe.address}") String serviceUrl,
       @Value("${service.url.recipe.port}") String servicePort,
       IWebserviceCaller webServiceCaller) {

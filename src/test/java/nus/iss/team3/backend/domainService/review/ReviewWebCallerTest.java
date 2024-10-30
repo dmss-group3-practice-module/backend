@@ -1,4 +1,4 @@
-package nus.iss.team3.backend;
+package nus.iss.team3.backend.domainService.review;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.RecipeReview;
-import nus.iss.team3.backend.service.review.RecipeReviewWebCaller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -28,9 +27,9 @@ import org.springframework.http.ResponseEntity;
  *
  * @author Mao Weining
  */
-public class RecipeReviewWebCallerTest {
+public class ReviewWebCallerTest {
 
-  @InjectMocks private RecipeReviewWebCaller recipeReviewWebCaller;
+  @InjectMocks private ReviewWebCaller reviewWebCaller;
 
   @Mock private IWebserviceCaller webServiceCaller;
 
@@ -43,7 +42,7 @@ public class RecipeReviewWebCallerTest {
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    recipeReviewWebCaller = new RecipeReviewWebCaller(serviceUrl, servicePort, webServiceCaller);
+    reviewWebCaller = new ReviewWebCaller(serviceUrl, servicePort, webServiceCaller);
   }
 
   /** Test addReview when the operation is successful. */
@@ -59,7 +58,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
     // Call the method under test
-    recipeReviewWebCaller.addReview(review);
+    reviewWebCaller.addReview(review);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).postCall(eq(url), eq(review), eq(String.class));
@@ -78,7 +77,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
     // Call the method under test
-    recipeReviewWebCaller.addReview(review);
+    reviewWebCaller.addReview(review);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).postCall(eq(url), eq(review), eq(String.class));
@@ -97,7 +96,7 @@ public class RecipeReviewWebCallerTest {
         .thenThrow(new RuntimeException("Connection error"));
 
     // Call the method under test
-    recipeReviewWebCaller.addReview(review);
+    reviewWebCaller.addReview(review);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).postCall(eq(url), eq(review), eq(String.class));
@@ -117,7 +116,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
     // Call the method under test
-    recipeReviewWebCaller.updateReview(recipeId, creatorId, review);
+    reviewWebCaller.updateReview(recipeId, creatorId, review);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).putCall(eq(url), eq(review), eq(String.class));
@@ -136,7 +135,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
     // Call the method under test
-    recipeReviewWebCaller.deleteReview(recipeId, creatorId);
+    reviewWebCaller.deleteReview(recipeId, creatorId);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).deleteCall(eq(url), eq(String.class));
@@ -154,7 +153,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
     // Call the method under test
-    recipeReviewWebCaller.deleteReviewsByRecipeId(recipeId);
+    reviewWebCaller.deleteReviewsByRecipeId(recipeId);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).deleteCall(eq(url), eq(String.class));
@@ -177,8 +176,7 @@ public class RecipeReviewWebCallerTest {
     when(webServiceCaller.getCall(eq(url), eq(RecipeReview.class))).thenReturn(responseEntity);
 
     // Call the method under test
-    RecipeReview actualReview =
-        recipeReviewWebCaller.getReviewByRecipeAndCreator(recipeId, creatorId);
+    RecipeReview actualReview = reviewWebCaller.getReviewByRecipeAndCreator(recipeId, creatorId);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).getCall(eq(url), eq(RecipeReview.class));
@@ -203,7 +201,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(responseEntity);
 
     // Call the method under test
-    List<RecipeReview> actualReviews = recipeReviewWebCaller.getReviewsByRecipeId(recipeId);
+    List<RecipeReview> actualReviews = reviewWebCaller.getReviewsByRecipeId(recipeId);
 
     // Verify method calls
     verify(webServiceCaller, times(1))
@@ -230,8 +228,7 @@ public class RecipeReviewWebCallerTest {
         .thenReturn(responseEntity);
 
     // Call the method under test
-    List<RecipeReview> actualReviews =
-        recipeReviewWebCaller.getReviewsByCreatorId(recipeId, creatorId);
+    List<RecipeReview> actualReviews = reviewWebCaller.getReviewsByCreatorId(recipeId, creatorId);
 
     // Verify method calls
     verify(webServiceCaller, times(1))
@@ -254,8 +251,7 @@ public class RecipeReviewWebCallerTest {
     when(webServiceCaller.getCall(eq(url), eq(RecipeReview.class))).thenReturn(responseEntity);
 
     // Call the method under test
-    RecipeReview actualReview =
-        recipeReviewWebCaller.getReviewByRecipeAndCreator(recipeId, creatorId);
+    RecipeReview actualReview = reviewWebCaller.getReviewByRecipeAndCreator(recipeId, creatorId);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).getCall(eq(url), eq(RecipeReview.class));
@@ -277,7 +273,7 @@ public class RecipeReviewWebCallerTest {
         .thenThrow(new RuntimeException("Connection timeout"));
 
     // Call the method under test
-    List<RecipeReview> actualReviews = recipeReviewWebCaller.getReviewsByRecipeId(recipeId);
+    List<RecipeReview> actualReviews = reviewWebCaller.getReviewsByRecipeId(recipeId);
 
     // Verify method calls
     verify(webServiceCaller, times(1))
@@ -300,7 +296,7 @@ public class RecipeReviewWebCallerTest {
         .thenThrow(new RuntimeException("Internal server error"));
 
     // Call the method under test
-    recipeReviewWebCaller.deleteReview(recipeId, creatorId);
+    reviewWebCaller.deleteReview(recipeId, creatorId);
 
     // Verify method calls
     verify(webServiceCaller, times(1)).deleteCall(eq(url), eq(String.class));

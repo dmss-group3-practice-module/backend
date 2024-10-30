@@ -46,7 +46,7 @@ public class RecipeReviewDataAccessTest {
 
   @Mock private PostgresDataAccess postgresDataAccess;
 
-  @InjectMocks private RecipeReviewDataAccess recipeReviewDataAccess;
+  @InjectMocks private ReviewDataAccess recipeReviewDataAccess;
 
   @BeforeEach
   public void setUp() {

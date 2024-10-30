@@ -115,7 +115,7 @@ public class RecipeService implements IRecipeService {
     logger.info("Getting all recipes");
     // Get a list of all recipes using the data access layer method
     List<Recipe> recipes = recipeDataAccess.getAllRecipes();
-    logger.info("Successfully retrieved {} recipes", recipes == null ? 0 : recipes.size());
+    logger.info("Successfully retrieved {} recipes", recipes.size());
     return recipes;
   }
 
@@ -124,9 +124,7 @@ public class RecipeService implements IRecipeService {
     logger.info("Getting all published recipes");
     // Get a list of all recipes using the data access layer method
     List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
-
-    logger.info(
-        "Successfully retrieved {} published recipes", recipes == null ? 0 : recipes.size());
+    logger.info("Successfully retrieved {} published recipes ", recipes.size());
     return recipes;
   }
 
@@ -146,7 +144,6 @@ public class RecipeService implements IRecipeService {
 
   @Override
   public List<Recipe> getRecipesByCreatorId(int creatorId) {
-
     // Check if the incoming recipe ID is null, if it is null then throw an exception
     logger.info("Getting recipe for creator Id: {}", creatorId);
     // Get the recipe with the specified ID using the method of the data access layer

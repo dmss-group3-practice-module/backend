@@ -1,5 +1,5 @@
 /* (C)2024 */
-package nus.iss.team3.backend;
+package nus.iss.team3.backend.domainService.user;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -11,7 +11,6 @@ import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
 import nus.iss.team3.backend.entity.EUserAccountStatus;
 import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.domainService.user.UserAccountService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

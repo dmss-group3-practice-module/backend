@@ -24,11 +24,8 @@ import org.springframework.stereotype.Service;
 public class RecipeWebCaller implements IRecipeService {
 
   private static final Logger logger = LogManager.getLogger(RecipeWebCaller.class);
-
   private final IWebserviceCaller webServiceCaller;
-
   private final String serviceUrl;
-
   private final String servicePort;
 
   public RecipeWebCaller(
@@ -54,6 +51,7 @@ public class RecipeWebCaller implements IRecipeService {
     String url = getUrl("/recipe");
     try {
       ResponseEntity<Recipe> response = webServiceCaller.postCall(url, recipe, Recipe.class);
+
       if (response.getStatusCode().is2xxSuccessful()) {
         logger.info("Recipe added successfully.");
         return true;
@@ -142,9 +140,6 @@ public class RecipeWebCaller implements IRecipeService {
     }
   }
 
-  /**
-   * @return
-   */
   @Override
   public List<Recipe> getAllPublishedRecipes() {
     String url = getUrl("/recipe/published");

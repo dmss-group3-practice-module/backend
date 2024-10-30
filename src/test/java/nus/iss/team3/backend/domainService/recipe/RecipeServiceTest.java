@@ -1,4 +1,4 @@
-package nus.iss.team3.backend;
+package nus.iss.team3.backend.domainService.recipe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,18 +18,24 @@ import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.entity.Recipe;
-import nus.iss.team3.backend.domainService.recipe.RecipeService;
+import nus.iss.team3.backend.entity.RecipeReview;
+import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit test class: RecipeServiceTest is used to test the methods of the RecipeService class to
  * ensure its behavior meets expectations.
+ *
+ * @author Mao Weining
  */
 class RecipeServiceTest {
 
   private IRecipeDataAccess mockDataAccess; // Mocked data access layer
   private RecipeService recipeService; // Service class under test
+
+  private Recipe sampleRecipe; // Sample recipe object for testing
+  private RecipeWithReviews sampleRecipeWithReviews; // Sample RecipeWithReviews object for testing
 
   /**
    * Initializes the test environment by creating new mock objects and RecipeService instance before
@@ -39,6 +45,17 @@ class RecipeServiceTest {
   void setUp() {
     mockDataAccess = mock(IRecipeDataAccess.class);
     recipeService = new RecipeService(mockDataAccess);
+
+    // Initialize sample Recipe object
+    sampleRecipe = new Recipe();
+    sampleRecipe.setId(1L);
+    sampleRecipe.setName("Sample Recipe");
+
+    // Initialize sample RecipeWithReviews object
+    RecipeReview review = new RecipeReview();
+    review.setRecipeId(sampleRecipe.getId());
+    review.setComments("Excellent recipe!");
+    sampleRecipeWithReviews = new RecipeWithReviews(sampleRecipe, List.of(review));
   }
 
   /**

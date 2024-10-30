@@ -1,10 +1,13 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.entity.Recipe;
+import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,9 +34,12 @@ public class RecipeController {
 
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
+  private final IRecipeReviewService recipeReviewService;
 
-  public RecipeController(IRecipeService recipeService) {
+  @Autowired
+  public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
     this.recipeService = recipeService;
+    this.recipeReviewService = recipeReviewService;
   }
 
   /**
@@ -72,7 +78,6 @@ public class RecipeController {
   @PutMapping("/{id}")
   public ResponseEntity<String> updateRecipe(@PathVariable Long id, @RequestBody Recipe recipe) {
     logger.info("Received request to update recipe: ID={}, Name={}", id, recipe.getName());
-
     try {
       recipe.setId(id);
       boolean updated = recipeService.updateRecipe(recipe);
@@ -155,19 +160,19 @@ public class RecipeController {
   }
 
   /**
-   * Get all recipes.
+   * Get all published recipes.
    *
-   * @return Response entity containing the list of all recipes.
+   * @return Response entity containing the list of all published recipes.
    */
   @GetMapping("/published")
   public ResponseEntity<List<Recipe>> getAllPublishedRecipes() {
     logger.info("Received request to get all published recipes");
     try {
       List<Recipe> recipes = recipeService.getAllPublishedRecipes();
-      logger.info("Found {} recipes", recipes.size());
+      logger.info("{} published recipes were found", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
-      logger.error("Failed to get all recipes: {}", e.getMessage(), e);
+      logger.error("Failed to get all published recipes: {}", e.getMessage(), e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -192,10 +197,10 @@ public class RecipeController {
   }
 
   /**
-   * Search for recipes by name.
+   * Get all recipes from the same creator by creatorId.
    *
-   * @param creatorId The creator Id of the requested recipes.
-   * @return Response entity containing the matching recipes.
+   * @param creatorId The recipe ID from the path variable.
+   * @return Response entity containing the list of all recipes from the same creator.
    */
   @GetMapping("/creator/{creatorId}")
   public ResponseEntity<List<Recipe>> searchRecipesByCreatorId(@PathVariable int creatorId) {
@@ -206,6 +211,51 @@ public class RecipeController {
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to search recipes: {}", e.getMessage(), e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Get a specific recipe by ID along with its reviews.
+   *
+   * @param id The recipe ID from the path variable.
+   * @return Response entity containing the recipe with reviews.
+   */
+  @GetMapping("/{id}/with-reviews")
+  public ResponseEntity<RecipeWithReviews> getRecipeWithReviews(@PathVariable Long id) {
+    logger.info("Received request to get recipe with reviews: ID={}", id);
+    try {
+      RecipeWithReviews recipeWithReviews = recipeReviewService.getRecipeWithReviewsById(id);
+      if (recipeWithReviews != null) {
+        logger.info(
+            "Found recipe with reviews: ID={}, Name={}",
+            recipeWithReviews.getRecipe().getId(),
+            recipeWithReviews.getRecipe().getName());
+        return new ResponseEntity<>(recipeWithReviews, HttpStatus.OK);
+      } else {
+        logger.warn("Recipe with ID {} not found ", id);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+    } catch (Exception e) {
+      logger.error("Failed to get recipe with reviews: {}", e.getMessage(), e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Get all recipes along with their reviews.
+   *
+   * @return Response entity containing the list of all recipes with reviews.
+   */
+  @GetMapping("/with-reviews")
+  public ResponseEntity<List<RecipeWithReviews>> getAllRecipesWithReviews() {
+    logger.info("Received request to get all recipes with reviews");
+    try {
+      List<RecipeWithReviews> recipesWithReviews = recipeReviewService.getAllRecipesWithReviews();
+      logger.info("Found {} recipes with reviews", recipesWithReviews.size());
+      return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Failed to get all recipes with reviews: {}", e.getMessage(), e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

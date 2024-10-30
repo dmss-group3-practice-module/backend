@@ -35,6 +35,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * Unit test class: RecipeDataAccessTest is used to test various endpoints of the RecipeDataAccess
+ * class to ensure its behavior meets expectations.
+ *
+ * @author Mao Weining
+ */
 @ExtendWith(MockitoExtension.class)
 class RecipeDataAccessTest {
 

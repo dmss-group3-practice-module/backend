@@ -52,6 +52,13 @@ spring:
     url: jdbc:postgresql://${POSTGRES_LOCAL_IP}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+
+service:
+  url:
+    recipe:
+      address: http://localhost
+      port: 8089
+
 ---
 spring:
   config:

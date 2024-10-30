@@ -5,7 +5,7 @@ import java.util.List;
 import nus.iss.team3.backend.entity.UserIngredient;
 
 /**
- * Interface for userAccountService, contains logic involving userAccounts.
+ * Interface for Ingredients, contains logic involving ingredient.
  *
  * @author Liu Kun
  */

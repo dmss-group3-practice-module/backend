@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import nus.iss.team3.backend.businessService.auth.AuthService;
-import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.util.EncryptionUtilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class TestAuthService {
     assertEquals(TEST_USERNAME, result.getName(), "Username should match");
     assertNull(result.getPassword(), "Password should be cleared");
 
-    verify(userAccountService).authenticate(TEST_USERNAME, TEST_PASSWORD); // 验证方法被调用
+    verify(userAccountService).authenticate(TEST_USERNAME, TEST_PASSWORD);
   }
 
   @Test

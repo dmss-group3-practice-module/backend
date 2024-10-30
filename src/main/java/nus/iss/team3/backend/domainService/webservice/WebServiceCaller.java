@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.domainService.webservice;
 
 import jakarta.annotation.PostConstruct;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,9 +22,12 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class WebServiceCaller implements IWebserviceCaller {
 
-  private static final int MAX_RETRY = 5;
-  private static final int BUFFER_BETWEEN_TRY = 2;
+  private static final int MAX_RETRY = 3;
+  private static final int BUFFER_BETWEEN_TRY = 1;
   private static final Logger logger = LogManager.getLogger(WebServiceCaller.class);
+
+  // List of HTTP status codes that are considered as error, and should be retried..
+  private static final List<Integer> retryHttpCode = List.of(HttpStatus.REQUEST_TIMEOUT.value());
 
   /** Called after the bean is initialized. Currently, no actions are taken. */
   @PostConstruct
@@ -42,7 +46,9 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             response.getStatusCode());
-        return response;
+        if (successfulCall(response)) {
+          return response;
+        }
       } catch (RestClientException e) {
         logger.error(
             "[{}/{}]Simple GET request to URL: {} failed. Error: {}",
@@ -50,11 +56,13 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             e.getMessage());
-        try {
-          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
-        } catch (InterruptedException ex) {
-          throw new RuntimeException(ex);
-        }
+        // client exception, re-trying will not help.so end here
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
+      try {
+        TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -73,7 +81,9 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             response.getStatusCode());
-        return response;
+        if (successfulCall(response)) {
+          return response;
+        }
       } catch (RestClientException e) {
         logger.error(
             "[{}/{}]GET request to URL: {} failed. Error: {}",
@@ -81,11 +91,12 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             e.getMessage());
-        try {
-          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
-        } catch (InterruptedException ex) {
-          throw new RuntimeException(ex);
-        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
+      try {
+        TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,7 +117,9 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             response.getStatusCode());
-        return response;
+        if (successfulCall(response)) {
+          return response;
+        }
       } catch (RestClientException e) {
         logger.error(
             "[{}/{}]POST request to URL: {} failed. Error: {}",
@@ -114,11 +127,12 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             e.getMessage());
-        try {
-          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
-        } catch (InterruptedException ex) {
-          throw new RuntimeException(ex);
-        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
+      try {
+        TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -139,7 +153,9 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             response.getStatusCode());
-        return response;
+        if (successfulCall(response)) {
+          return response;
+        }
       } catch (RestClientException e) {
         logger.error(
             "[{}/{}]PUT request to URL: {} failed. Error: {}",
@@ -147,11 +163,12 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             e.getMessage());
-        try {
-          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
-        } catch (InterruptedException ex) {
-          throw new RuntimeException(ex);
-        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
+      try {
+        TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -171,7 +188,9 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             response.getStatusCode());
-        return response;
+        if (successfulCall(response)) {
+          return response;
+        }
       } catch (RestClientException e) {
         logger.error(
             "[{}/{}]DELETE request to URL: {} failed. Error: {}",
@@ -179,13 +198,24 @@ public class WebServiceCaller implements IWebserviceCaller {
             MAX_RETRY,
             url,
             e.getMessage());
-        try {
-          TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
-        } catch (InterruptedException ex) {
-          throw new RuntimeException(ex);
-        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
+      try {
+        TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
+      } catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  private boolean successfulCall(ResponseEntity<?> response) {
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return true;
+    }
+    if (response.getStatusCode().is5xxServerError()) {
+      return false;
+    }
+    return !retryHttpCode.contains(response.getStatusCode().value());
   }
 }

@@ -31,7 +31,7 @@ public class UserAccountWebCaller implements IUserAccountService {
   private String servicePort;
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Recipe Service Web Caller initialized.");
   }
 
@@ -133,7 +133,7 @@ public class UserAccountWebCaller implements IUserAccountService {
     logger.info("response body is " + response.getBody());
     logger.info("response body class is " + response.getBody().getClass());
     if (response.getStatusCode().is2xxSuccessful()) {
-      if (response.getBody() instanceof UserAccount) return (UserAccount) response.getBody();
+      if (response.getBody() instanceof UserAccount) return response.getBody();
     }
 
     return null;

@@ -2,7 +2,6 @@ package nus.iss.team3.backend.businessService.ingredient;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -174,18 +173,6 @@ public class IngredientBusinessService implements IIngredientBusinessService {
     } catch (Exception e) {
       logger.error("Failed to create expiry notification for user {}", userId, e);
       throw new RuntimeException("Failed to create notification", e);
-    }
-  }
-
-  // Additional helper methods can be added here as needed
-
-  public List<UserIngredient> getExpiringIngredients(int userId, int days) {
-    logger.debug("Getting expiring ingredients for user {} within {} days", userId, days);
-    try {
-      return ingredientService.getExpiringIngredients(userId, days);
-    } catch (Exception e) {
-      logger.error("Error getting expiring ingredients for user {}", userId, e);
-      return new ArrayList<>();
     }
   }
 }

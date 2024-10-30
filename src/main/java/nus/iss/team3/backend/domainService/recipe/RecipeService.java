@@ -28,7 +28,7 @@ public class RecipeService implements IRecipeService {
   }
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Recipe Service Logic initialized.");
   }
 

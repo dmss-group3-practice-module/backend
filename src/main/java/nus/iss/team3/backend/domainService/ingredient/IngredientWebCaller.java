@@ -33,7 +33,7 @@ public class IngredientWebCaller implements IIngredientService {
   }
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Ingredient Service Web Caller initialized.");
   }
 

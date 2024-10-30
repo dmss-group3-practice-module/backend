@@ -13,7 +13,6 @@ import nus.iss.team3.backend.entity.UserIngredient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,6 @@ public class IngredientBusinessService implements IIngredientBusinessService {
   @Autowired private INotificationService notificationService;
 
   @Override
-  @Scheduled(cron = "0 0 0 * * ?") // Run at midnight every day
   @Transactional
   public void checkIngredientsExpiry() {
     logger.info("Starting daily ingredient expiry check");

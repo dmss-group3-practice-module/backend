@@ -1,8 +1,13 @@
 package nus.iss.team3.backend.domainService.ingredient;
 
 import jakarta.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
 import nus.iss.team3.backend.entity.UserIngredient;
@@ -16,7 +21,7 @@ import org.springframework.stereotype.Service;
 /**
  * Service class with logic for handling ingredient related queries
  *
- * @author liukun
+ * @author liukun, Ren Jiarui
  */
 @Service
 @Profile(ProfileConfig.PROFILE_INGREDIENT)
@@ -117,6 +122,51 @@ public class IngredientService implements IIngredientService {
     }
     if (ingredient.getExpiryDate() == null) {
       throw new IllegalArgumentException("Ingredient expiry date cannot be null");
+    }
+  }
+
+  @Override
+  public List<UserIngredient> getExpiringIngredients(Integer userId, int days) {
+    List<UserIngredient> userIngredients = getIngredientsByUser(userId);
+    LocalDate today = LocalDate.now();
+    LocalDate futureDate = today.plusDays(days);
+
+    return userIngredients.stream()
+        .filter(
+            ingredient -> {
+              LocalDate expiryDate =
+                  ingredient
+                      .getExpiryDate()
+                      .toInstant()
+                      .atZone(ZoneId.systemDefault())
+                      .toLocalDate();
+              return !expiryDate.isBefore(today) && !expiryDate.isAfter(futureDate);
+            })
+        .sorted(Comparator.comparing(UserIngredient::getExpiryDate))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<UserIngredient> getExpiringIngredientsInRange() {
+    logger.info("Fetching ingredients expiring in next 3 days");
+    try {
+      // Delegate to data access layer to perform the optimized query
+      List<UserIngredient> ingredients = ingredientDataAccess.getExpiringIngredientsInRange();
+
+      if (ingredients == null) {
+        logger.warn("No expiring ingredients found in range");
+        return new ArrayList<>();
+      }
+
+      // Sort by user ID and expiry date for consistent results
+      return ingredients.stream()
+          .sorted(
+              Comparator.comparing(UserIngredient::getUserId)
+                  .thenComparing(UserIngredient::getExpiryDate))
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      logger.error("Error fetching expiring ingredients", e);
+      return new ArrayList<>();
     }
   }
 }

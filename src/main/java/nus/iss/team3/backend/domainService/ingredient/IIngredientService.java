@@ -10,17 +10,21 @@ import nus.iss.team3.backend.entity.UserIngredient;
  * @author Liu Kun
  */
 public interface IIngredientService {
-  public boolean addIngredient(UserIngredient ingredient);
+  boolean addIngredient(UserIngredient ingredient);
 
-  public boolean updateIngredient(UserIngredient ingredient);
+  boolean updateIngredient(UserIngredient ingredient);
 
-  public boolean deleteIngredientById(Integer id);
+  boolean deleteIngredientById(Integer id);
 
-  public UserIngredient getIngredientById(Integer id);
+  UserIngredient getIngredientById(Integer id);
 
-  public List<UserIngredient> getIngredientsByName(String name);
+  List<UserIngredient> getIngredientsByName(String name);
 
-  public List<UserIngredient> getIngredientsByUser(Integer userId);
+  List<UserIngredient> getIngredientsByUser(Integer userId);
 
-  public boolean deleteIngredientsByUser(Integer userId);
+  boolean deleteIngredientsByUser(Integer userId);
+
+  List<UserIngredient> getExpiringIngredients(Integer userId, int days);
+
+  List<UserIngredient> getExpiringIngredientsInRange();
 }

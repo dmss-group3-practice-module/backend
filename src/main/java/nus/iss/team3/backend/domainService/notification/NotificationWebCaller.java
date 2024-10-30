@@ -42,8 +42,8 @@ public class NotificationWebCaller implements INotificationService {
   }
 
   @Override
-  public List<Notification> getNotificationsForUser(Integer userId, int limit) {
-    String url = getUrl("/get/" + userId + "?limit=" + limit);
+  public List<Notification> getNotificationsForUser(int userId, int limit) {
+    String url = getUrl("/" + userId + "?limit=" + limit);
     ParameterizedTypeReference<List<Notification>> typeRef = new ParameterizedTypeReference<>() {};
     ResponseEntity<List<Notification>> response = webServiceCaller.getCall(url, typeRef);
 
@@ -59,8 +59,8 @@ public class NotificationWebCaller implements INotificationService {
   }
 
   @Override
-  public int getUnreadNotificationCountForUser(Integer userId) {
-    String url = getUrl("/count/" + userId);
+  public int getUnreadNotificationCountForUser(int userId) {
+    String url = getUrl("/" + userId + "/unread-count");
     ResponseEntity<Integer> response = webServiceCaller.getCall(url, Integer.class);
 
     if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -75,9 +75,9 @@ public class NotificationWebCaller implements INotificationService {
   }
 
   @Override
-  public boolean markNotificationAsRead(Integer notificationId, Integer userId) {
-    String url = getUrl("/read/" + notificationId + "/" + userId);
-    ResponseEntity<Boolean> response = webServiceCaller.postCall(url, null, Boolean.class);
+  public boolean markNotificationAsRead(int notificationId, int userId) {
+    String url = getUrl("/" + notificationId + "/mark-read?userId=" + userId);
+    ResponseEntity<Boolean> response = webServiceCaller.putCall(url, null, Boolean.class);
 
     if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
       return response.getBody();
@@ -91,9 +91,9 @@ public class NotificationWebCaller implements INotificationService {
   }
 
   @Override
-  public boolean markAllNotificationsAsReadForUser(Integer userId) {
-    String url = getUrl("/read-all/" + userId);
-    ResponseEntity<Boolean> response = webServiceCaller.postCall(url, null, Boolean.class);
+  public boolean markAllNotificationsAsReadForUser(int userId) {
+    String url = getUrl("/" + userId + "/mark-all-read");
+    ResponseEntity<Boolean> response = webServiceCaller.putCall(url, null, Boolean.class);
 
     if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
       return response.getBody();
@@ -107,7 +107,7 @@ public class NotificationWebCaller implements INotificationService {
 
   @Override
   public boolean createNotification(Notification notification) {
-    String url = getUrl("/add");
+    String url = getUrl("/" + notification.getUserId() + "/create");
     ResponseEntity<Boolean> response = webServiceCaller.postCall(url, notification, Boolean.class);
 
     if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {

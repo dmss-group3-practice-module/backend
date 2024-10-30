@@ -7,11 +7,11 @@ public interface INotificationService {
 
   boolean createNotification(Notification notification);
 
-  List<Notification> getNotificationsForUser(Integer userId, int limit);
+  List<Notification> getNotificationsForUser(int userId, int limit);
 
-  int getUnreadNotificationCountForUser(Integer userId);
+  int getUnreadNotificationCountForUser(int userId);
 
-  boolean markNotificationAsRead(Integer notificationId, Integer userId);
+  boolean markNotificationAsRead(int notificationId, int userId);
 
-  boolean markAllNotificationsAsReadForUser(Integer userId);
+  boolean markAllNotificationsAsReadForUser(int userId);
 }

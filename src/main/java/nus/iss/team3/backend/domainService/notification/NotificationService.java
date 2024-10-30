@@ -1,15 +1,18 @@
 package nus.iss.team3.backend.domainService.notification;
 
 import java.util.List;
+import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.INotificationDataAccess;
 import nus.iss.team3.backend.entity.Notification;
 import nus.iss.team3.backend.service.util.StringUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile(ProfileConfig.PROFILE_NOTIFICATION)
 public class NotificationService implements INotificationService {
 
   private static final Logger logger = LogManager.getLogger(NotificationService.class);
@@ -17,25 +20,25 @@ public class NotificationService implements INotificationService {
   @Autowired private INotificationDataAccess notificationDataAccess;
 
   @Override
-  public List<Notification> getNotificationsForUser(Integer userId, int limit) {
+  public List<Notification> getNotificationsForUser(int userId, int limit) {
     logger.info("Fetching notifications for user ID: {} with limit: {}", userId, limit);
     return notificationDataAccess.getNotificationsForUser(userId, limit);
   }
 
   @Override
-  public int getUnreadNotificationCountForUser(Integer userId) {
+  public int getUnreadNotificationCountForUser(int userId) {
     logger.info("Getting unread notification count for user ID: {}", userId);
     return notificationDataAccess.getUnreadNotificationCountForUser(userId);
   }
 
   @Override
-  public boolean markNotificationAsRead(Integer notificationId, Integer userId) {
+  public boolean markNotificationAsRead(int notificationId, int userId) {
     logger.info("Marking notification ID: {} as read for user ID: {}", notificationId, userId);
     return notificationDataAccess.markNotificationAsRead(notificationId, userId);
   }
 
   @Override
-  public boolean markAllNotificationsAsReadForUser(Integer userId) {
+  public boolean markAllNotificationsAsReadForUser(int userId) {
     logger.info("Marking all notifications as read for user ID: {}", userId);
     return notificationDataAccess.markAllNotificationsAsReadForUser(userId);
   }

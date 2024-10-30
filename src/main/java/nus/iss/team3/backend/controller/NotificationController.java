@@ -1,7 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
-import nus.iss.team3.backend.domainService.notification.NotificationService;
+import nus.iss.team3.backend.domainService.notification.INotificationService;
 import nus.iss.team3.backend.entity.Notification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,30 +16,30 @@ public class NotificationController {
 
   private static final Logger logger = LogManager.getLogger(NotificationController.class);
 
-  @Autowired private NotificationService notificationService;
+  @Autowired private INotificationService notificationService;
 
-  @PostMapping("/create")
-  public ResponseEntity<?> createNotification(@RequestBody Notification notification) {
+  @PostMapping("/{userId}/create")
+  public ResponseEntity<?> createNotification(
+      @PathVariable int userId, @RequestBody Notification notification) {
     try {
-      logger.info(
-          "Received request to create notification for user ID: {}", notification.getUserId());
+      logger.info("Creating notification for user ID: {}", userId);
+      notification.setUserId(userId);
       boolean success = notificationService.createNotification(notification);
-      if (success) {
-        return ResponseEntity.ok().build();
-      } else {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Failed to create notification");
-      }
+      return success
+          ? ResponseEntity.status(HttpStatus.CREATED).build()
+          : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("Failed to create notification");
     } catch (Exception e) {
-      logger.error("Error creating notification for user ID: {}", notification.getUserId(), e);
+      logger.error("Error creating notification", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("Error creating notification");
     }
   }
 
-  @GetMapping
+  @GetMapping("/{userId}")
   public ResponseEntity<?> getNotifications(
-      @RequestParam int userId, @RequestParam(defaultValue = "10") int limit) {
+      @PathVariable int userId, @RequestParam(defaultValue = "10") int limit) {
+
     try {
       logger.info(
           "Received request to get notifications for user ID: {} with limit: {}", userId, limit);
@@ -52,10 +52,10 @@ public class NotificationController {
     }
   }
 
-  @GetMapping("/unread-count")
-  public ResponseEntity<?> getUnreadNotificationCount(@RequestParam int userId) {
+  @GetMapping("/{userId}/unread-count")
+  public ResponseEntity<?> getUnreadNotificationCount(@PathVariable int userId) {
     try {
-      logger.info("Received request to get unread notification count for user ID: {}", userId);
+      logger.info("Getting unread count for user ID: {}", userId);
       int count = notificationService.getUnreadNotificationCountForUser(userId);
       return ResponseEntity.ok(count);
     } catch (Exception e) {
@@ -88,8 +88,8 @@ public class NotificationController {
     }
   }
 
-  @PutMapping("/mark-all-read")
-  public ResponseEntity<?> markAllNotificationsAsRead(@RequestParam int userId) {
+  @PutMapping("/{userId}/mark-all-read")
+  public ResponseEntity<?> markAllNotificationsAsRead(@PathVariable int userId) {
     try {
       logger.info("Received request to mark all notifications as read for user ID: {}", userId);
       boolean success = notificationService.markAllNotificationsAsReadForUser(userId);

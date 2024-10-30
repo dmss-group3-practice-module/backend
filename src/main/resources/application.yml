@@ -53,12 +53,6 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
 
-service:
-  url:
-    recipe:
-      address: http://localhost
-      port: 8089
-
 ---
 spring:
   config:

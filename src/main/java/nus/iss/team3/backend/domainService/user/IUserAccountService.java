@@ -22,4 +22,6 @@ public interface IUserAccountService {
   List<UserAccount> getAllUsers();
 
   UserAccount authenticate(String username, String password);
+
+  List<Integer> getAllUserIds();
 }

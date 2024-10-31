@@ -91,7 +91,7 @@ public class TestIngredientService {
 
     // get all ingredients by userId (no ingredients)
     Integer userId = 1;
-    when(ingredientDataAccess.getIngredientsByUser(userId)).thenReturn(Arrays.asList());
+    when(ingredientDataAccess.getIngredientsByUser(userId)).thenReturn(List.of());
     List<UserIngredient> result = ingredientService.getIngredientsByUser(userId);
     assertTrue(result.isEmpty());
 

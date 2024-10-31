@@ -239,4 +239,22 @@ public class IngredientDataAccess implements IIngredientDataAccess {
     }
     return returnItem;
   }
+
+  @Override
+  public List<UserIngredient> getExpiringIngredientsInRange() {
+    List<Map<String, Object>> entityReturned =
+        postgresDataAccess.queryStatement(
+            PostgresSqlStatement.SQL_GET_EXPIRING_INGREDIENTS, new HashMap<>());
+
+    if (entityReturned == null) {
+      logger.error("No expiring ingredients found");
+      return new ArrayList<>();
+    }
+
+    List<UserIngredient> returnList = new ArrayList<>();
+    for (Map<String, Object> entity : entityReturned) {
+      returnList.add(translateDBRecordToIngredient(entity));
+    }
+    return returnList;
+  }
 }

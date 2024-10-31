@@ -38,7 +38,7 @@ public class RecipeWebCaller implements IRecipeService {
   }
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Recipe Service Web Caller initialized.");
   }
 

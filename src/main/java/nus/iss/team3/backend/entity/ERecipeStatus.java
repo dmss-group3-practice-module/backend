@@ -23,7 +23,7 @@ public enum ERecipeStatus {
 
   public final int code;
 
-  private ERecipeStatus(int code) {
+  ERecipeStatus(int code) {
     this.code = code;
   }
 

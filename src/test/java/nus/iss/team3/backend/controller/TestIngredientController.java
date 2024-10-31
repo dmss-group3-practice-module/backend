@@ -1,7 +1,7 @@
 package nus.iss.team3.backend.controller;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import nus.iss.team3.backend.businessService.ingredient.IIngredientBusinessService;
 import nus.iss.team3.backend.domainService.ingredient.IIngredientService;
 import nus.iss.team3.backend.entity.UserIngredient;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ public class TestIngredientController {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private IIngredientService ingredientService;
+  @MockBean private IIngredientBusinessService ingredientBusinessService;
 
   private ObjectMapper objectMapper;
 
@@ -198,5 +200,37 @@ public class TestIngredientController {
     Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     ingredient.setExpiryDate(date);
     return ingredient;
+  }
+
+  @Test
+  public void testGetExpiringIngredients() throws Exception {
+    // Prepare test data
+    List<UserIngredient> expiringIngredients =
+        Arrays.asList(createValidIngredient(), createValidIngredient());
+    expiringIngredients.get(0).setId(1);
+    expiringIngredients.get(1).setId(2);
+
+    // Test success with default days parameter
+    when(ingredientService.getExpiringIngredients(1, 3)).thenReturn(expiringIngredients);
+    mockMvc
+        .perform(get("/ingredient/expiring-list").param("userId", "1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[1].id").value(2));
+
+    // Test success with custom days parameter
+    when(ingredientService.getExpiringIngredients(1, 5)).thenReturn(expiringIngredients);
+    mockMvc
+        .perform(get("/ingredient/expiring-list").param("userId", "1").param("days", "5"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[1].id").value(2));
+
+    // Test when service throws exception
+    when(ingredientService.getExpiringIngredients(999, 3))
+        .thenThrow(new RuntimeException("Error getting expiring ingredients"));
+    mockMvc
+        .perform(get("/ingredient/expiring-list").param("userId", "999"))
+        .andExpect(status().isInternalServerError());
   }
 }

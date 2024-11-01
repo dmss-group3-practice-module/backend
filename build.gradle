@@ -1,8 +1,8 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.3'
+	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
-	id 'com.diffplug.spotless' version '7.0.0.BETA2'
+	id 'com.diffplug.spotless' version '7.0.0.BETA4'
 	id 'jacoco'
 }
 
@@ -27,7 +27,7 @@ dependencies {
 	implementation 'org.apache.logging.log4j:log4j-core'
 	implementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
 	implementation 'org.mindrot:jbcrypt:0.4'
 
 	modules {

@@ -1,11 +1,5 @@
 package nus.iss.team3.backend.dataaccess;
 
-import static nus.iss.team3.backend.service.util.SqlUtilities.getLongValue;
-import static nus.iss.team3.backend.service.util.SqlUtilities.getStringValue;
-
-import java.sql.Timestamp;
-import java.util.*;
-import java.util.stream.Collectors;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
@@ -15,6 +9,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static nus.iss.team3.backend.service.util.SqlUtilities.getLongValue;
+import static nus.iss.team3.backend.service.util.SqlUtilities.getStringValue;
 
 /**
  * Repository class to connect to postgres for recipe data.
@@ -337,6 +338,58 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     } catch (Exception e) {
       logger.error(
           "Exception occurred while querying recipes with creatorId: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<Recipe> getAllPublishedRecipesByDifficulty() {
+    logger.info("Querying all recipes by difficulty");
+    try {
+      // Execute the query
+      List<Map<String, Object>> result =
+              postgresDataAccess.queryStatement(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY, null);
+
+      List<Recipe> recipes = new ArrayList<>();
+      for (Map<String, Object> row : result) {
+        Recipe recipe = mapToRecipe(row);
+        // Query and set the recipe's ingredients
+        recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+        // Query and set the recipe's cooking steps
+        recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+        recipes.add(recipe); // Add to the recipe list
+      }
+
+      logger.info("Querying all recipes completed by difficulty, count: {}", recipes.size());
+      return recipes;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<Recipe> getAllPublishedRecipesByRating() {
+    logger.info("Querying all recipes by rating");
+    try {
+      // Execute the query
+      List<Map<String, Object>> result =
+              postgresDataAccess.queryStatement(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING, null);
+
+      List<Recipe> recipes = new ArrayList<>();
+      for (Map<String, Object> row : result) {
+        Recipe recipe = mapToRecipe(row);
+        // Query and set the recipe's ingredients
+        recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+        // Query and set the recipe's cooking steps
+        recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+        recipes.add(recipe); // Add to the recipe list
+      }
+
+      logger.info("Querying all recipes by rating completed, count: {}", recipes.size());
+      return recipes;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
       throw e;
     }
   }

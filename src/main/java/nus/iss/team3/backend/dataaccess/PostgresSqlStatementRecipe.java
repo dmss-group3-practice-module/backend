@@ -241,6 +241,8 @@ public class PostgresSqlStatementRecipe {
           + " = :"
           + INPUT_RECIPE_CREATOR_ID;
   public static final String SQL_RECIPE_GET_ALL = "SELECT * FROM " + TABLE_RECIPE;
+  public static final String SQL_RECIPE_GET_ALL_BY_DIFFICULTY = "SELECT * FROM " + TABLE_RECIPE + "ORDER BY difficultylevel";
+  public static final String SQL_RECIPE_GET_ALL_BY_RATING = "SELECT * FROM " + TABLE_RECIPE + "ORDER BY rating";
   public static final String SQL_RECIPE_GET_ALL_PUBLISHED =
       "SELECT * FROM "
           + TABLE_RECIPE

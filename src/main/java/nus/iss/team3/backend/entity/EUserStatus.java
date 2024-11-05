@@ -8,24 +8,27 @@ import java.util.Map;
 /**
  * User account status
  *
+ * <p>ACTIVE(1): User account is active and can perform all operations INACTIVE(2): User account is
+ * temporarily inactive BANNED(0): User account is banned from system
+ *
  * @author Desmond Tan Zhi Heng, REN JIARUI
  */
-public enum EUserAccountStatus {
+public enum EUserStatus {
   ACTIVE(1),
   INACTIVE(2),
   BANNED(0);
 
   public final int code;
 
-  private static final Map<Integer, EUserAccountStatus> BY_CODE = new HashMap<>();
+  private static final Map<Integer, EUserStatus> BY_CODE = new HashMap<>();
 
   static {
-    for (EUserAccountStatus e : values()) {
+    for (EUserStatus e : values()) {
       BY_CODE.put(e.code, e);
     }
   }
 
-  EUserAccountStatus(int code) {
+  EUserStatus(int code) {
     this.code = code;
   }
 
@@ -35,8 +38,8 @@ public enum EUserAccountStatus {
   }
 
   @JsonCreator
-  public static EUserAccountStatus fromValue(int code) {
-    for (EUserAccountStatus status : values()) {
+  public static EUserStatus fromValue(int code) {
+    for (EUserStatus status : values()) {
       if (status.code == code) {
         return status;
       }
@@ -44,8 +47,8 @@ public enum EUserAccountStatus {
     throw new IllegalArgumentException("Invalid status code: " + code);
   }
 
-  public static EUserAccountStatus valueOfCode(int code) {
-    EUserAccountStatus status = BY_CODE.get(code);
+  public static EUserStatus valueOfCode(int code) {
+    EUserStatus status = BY_CODE.get(code);
     if (status == null) {
       throw new IllegalArgumentException("Invalid user account status code: " + code);
     }

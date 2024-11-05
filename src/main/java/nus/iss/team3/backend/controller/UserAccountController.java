@@ -4,6 +4,7 @@ package nus.iss.team3.backend.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.domainService.user.IUserStatusService;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,7 @@ public class UserAccountController {
   private static final Logger logger = LogManager.getLogger(UserAccountController.class);
 
   @Autowired IUserAccountService userAccountService;
+  @Autowired IUserStatusService userStatusService;
 
   @PostMapping("/add")
   public ResponseEntity<?> addUser(@RequestBody UserAccount userAccount) {
@@ -144,5 +146,47 @@ public class UserAccountController {
       logger.error("Unexpected error during login", e);
       return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @PutMapping("/{userId}/ban")
+  public ResponseEntity<?> banUser(@PathVariable Integer userId) {
+    logger.info("Received request to ban user: {}", userId);
+    try {
+      userStatusService.banUser(userId);
+      return new ResponseEntity<>(true, HttpStatus.OK);
+    } catch (IllegalArgumentException e) {
+      logger.warn("Failed to ban user {}: {}", userId, e.getMessage());
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (IllegalStateException e) {
+      logger.warn("Cannot ban admin user {}: {}", userId, e.getMessage());
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      logger.error("Unexpected error while banning user {}", userId, e);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PutMapping("/{userId}/unban")
+  public ResponseEntity<?> unbanUser(@PathVariable Integer userId) {
+    logger.info("Received request to unban user: {}", userId);
+    try {
+      userStatusService.unbanUser(userId);
+      return new ResponseEntity<>(true, HttpStatus.OK);
+    } catch (IllegalArgumentException e) {
+      logger.warn("Failed to unban user {}: {}", userId, e.getMessage());
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (IllegalStateException e) {
+      logger.warn("Cannot unban admin user {}: {}", userId, e.getMessage());
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      logger.error("Unexpected error while unbanning user {}", userId, e);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/status/undo")
+  public ResponseEntity<Void> undoLastStatusChange() {
+    userStatusService.undoLastStatusChange();
+    return ResponseEntity.ok().build();
   }
 }

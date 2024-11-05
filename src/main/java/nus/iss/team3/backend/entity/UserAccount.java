@@ -34,7 +34,7 @@ public class UserAccount {
   private String email;
 
   @JsonView(WithoutPasswordView.class)
-  private EUserAccountStatus status;
+  private EUserStatus status;
 
   @JsonView(WithoutPasswordView.class)
   private EUserRole role;
@@ -89,11 +89,11 @@ public class UserAccount {
     this.email = email;
   }
 
-  public EUserAccountStatus getStatus() {
+  public EUserStatus getStatus() {
     return status;
   }
 
-  public void setStatus(EUserAccountStatus status) {
+  public void setStatus(EUserStatus status) {
     this.status = status;
   }
 
@@ -107,7 +107,7 @@ public class UserAccount {
 
   // Add these new methods
   public void setStatus(int statusCode) {
-    this.status = EUserAccountStatus.valueOfCode(statusCode);
+    this.status = EUserStatus.valueOfCode(statusCode);
   }
 
   public void setRole(int roleCode) {

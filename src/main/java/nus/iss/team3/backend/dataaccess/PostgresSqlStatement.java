@@ -162,6 +162,21 @@ public class PostgresSqlStatement {
           + INPUT_USER_ACCOUNT_NAME
           + ";";
 
+  public static final String SQL_USER_ACCOUNT_UPDATE_STATUS =
+      "UPDATE "
+          + TABLE_USER_ACCOUNT
+          + " SET "
+          + COLUMN_USER_ACCOUNT_STATUS
+          + " = :"
+          + INPUT_USER_ACCOUNT_STATUS
+          + ", "
+          + COLUMN_USER_ACCOUNT_UPDATE_DATETIME
+          + " = CURRENT_TIMESTAMP"
+          + " WHERE "
+          + COLUMN_USER_ACCOUNT_ID
+          + " = :"
+          + INPUT_USER_ACCOUNT_ID;
+
   public static final String SQL_USER_ACCOUNT_GET_BY_EMAIL =
       "SELECT "
           + COLUMN_USER_ACCOUNT_ID

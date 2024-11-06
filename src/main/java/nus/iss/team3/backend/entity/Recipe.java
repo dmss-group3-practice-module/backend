@@ -20,12 +20,16 @@ public class Recipe {
   private Integer cookingTimeInSec;
   private Integer difficultyLevel;
   private Double rating;
+
   private ERecipeStatus status;
+
   private Timestamp createDatetime;
   private Timestamp updateDatetime;
   private List<RecipeIngredient> ingredients;
   private List<CookingStep> cookingSteps;
   private String cuisine;
+
+  private Recipe draftRecipe;
 
   // Constructor
   public Recipe() {}
@@ -172,6 +176,14 @@ public class Recipe {
 
   public void setCuisine(String cuisine) {
     this.cuisine = cuisine;
+  }
+
+  public Recipe getDraftRecipe() {
+    return draftRecipe;
+  }
+
+  public void setDraftRecipe(Recipe draftRecipe) {
+    this.draftRecipe = draftRecipe;
   }
 
   @Override

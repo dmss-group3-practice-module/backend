@@ -1,5 +1,6 @@
 package nus.iss.team3.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,5 +30,10 @@ public enum ERecipeStatus {
 
   public static ERecipeStatus valueOfCode(int code) {
     return BY_CODE.get(code);
+  }
+
+  @JsonValue
+  public int getValue() {
+    return code;
   }
 }

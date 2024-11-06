@@ -57,7 +57,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   @Transactional
-  public boolean addRecipe(Recipe recipe) {
+  public Recipe addRecipe(Recipe recipe) {
     logger.debug("Starting to add recipe: {}", recipe.getName());
     try {
       validateRecipe(recipe);
@@ -71,7 +71,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       if (result == null || result.isEmpty()) {
         logger.warn("Failed to insert recipe, no generated ID returned");
-        return false;
+        throw new IllegalArgumentException("Failed to insert recipe");
       }
 
       // Get the generated recipe ID and set it to the recipe object
@@ -99,7 +99,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       }
 
       logger.debug("Recipe addition completed: ID={}", recipeId);
-      return true;
+
+      recipe.setId(recipeId);
+      return recipe;
     } catch (Exception e) {
       logger.error("Exception occurred while adding recipe: {}", e.getMessage(), e);
       throw e; // Rethrow the exception to trigger transaction rollback
@@ -215,6 +217,49 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipeId);
 
       logger.debug("Recipe query completed: ID={}", recipeId);
+
+      return recipe;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  /**
+   * @param draftRecipeId
+   * @return
+   */
+  @Override
+  public Recipe getRecipeByDraftId(Long draftRecipeId) {
+    logger.debug("Querying by draft recipeId: ID={}", draftRecipeId);
+    try {
+      // Execute the query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(
+              PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID,
+              Collections.singletonMap(
+                  PostgresSqlStatementRecipe.INPUT_RECIPE_DRAFT_ID, draftRecipeId));
+
+      if (result == null || result.isEmpty()) {
+        // normal to no have draft recipe record, ok not to log anything.
+        return null;
+      }
+
+      // Map the query result to a Recipe object
+      Recipe recipe = mapToRecipe(result.getFirst());
+      logger.debug(
+          "Recipe mapping successful: draft ID={}, main Id = {}", draftRecipeId, recipe.getId());
+
+      // Query and set the recipe's ingredients
+      recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+      logger.debug("Ingredients loaded successfully: Recipe ID={}", recipe.getId());
+
+      // Query and set the recipe's cooking steps
+      recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+      logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipe.getId());
+
+      logger.debug("Recipe query completed: ID={}", recipe.getId());
+
       return recipe;
     } catch (Exception e) {
       logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
@@ -385,6 +430,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     // Converts ERecipeStatus to its corresponding integer value
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS, recipe.getStatus().code);
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE, recipe.getCuisine());
+    recipeParams.put(
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID,
+        recipe.getDraftRecipe() != null ? recipe.getDraftRecipe().getId() : null);
     return recipeParams;
   }
 
@@ -442,6 +490,12 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     recipe.setUpdateDatetime(
         row.get("update_datetime") != null ? (Timestamp) row.get("update_datetime") : null);
 
+    if (row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID) != null) {
+      Recipe temp = new Recipe();
+      temp.setId(((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID)).longValue());
+      recipe.setDraftRecipe(temp);
+    }
+
     logger.debug("Recipe object mapping completed: ID={}", recipe.getId());
     return recipe;
   }
@@ -483,7 +537,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     logger.debug("Starting to insert ingredients, Recipe ID={}", recipe.getId());
 
     if (recipe.getIngredients() == null) {
-      logger.error("Ingredients are null, skipping insertion, Recipe ID={}", recipe.getId());
+      logger.debug("Ingredients are null, skipping insertion, Recipe ID={}", recipe.getId());
       return; // Return directly, do not perform insertion
     }
 
@@ -530,7 +584,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     logger.debug("Starting to insert cooking steps, Recipe ID={}", recipe.getId());
 
     if (recipe.getCookingSteps() == null) {
-      logger.error("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
+
+      logger.debug("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
+
       return; // Return directly, do not perform insertion
     }
 

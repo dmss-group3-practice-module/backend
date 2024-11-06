@@ -160,27 +160,6 @@ public class RecipeWebCaller implements IRecipeService {
   }
 
   @Override
-  public List<Recipe> getRecipesByName(String name) {
-    String url = getUrl("/recipe/search?name=" + name);
-    try {
-      ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
-      ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
-      if (response.getStatusCode().is2xxSuccessful()) {
-        return response.getBody();
-      } else {
-        logger.error(
-            "Failed to retrieve recipes by name '{}'. Status code: {}",
-            name,
-            response.getStatusCode());
-        return Collections.emptyList();
-      }
-    } catch (Exception e) {
-      logger.error("Error retrieving recipes by name '{}': {}", name, e.getMessage());
-      return Collections.emptyList();
-    }
-  }
-
-  @Override
   public List<Recipe> getRecipesByCreatorId(int creatorId) {
     String url = getUrl("/recipe/creator/" + creatorId);
     try {

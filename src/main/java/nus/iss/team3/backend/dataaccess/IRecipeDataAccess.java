@@ -10,13 +10,15 @@ import nus.iss.team3.backend.entity.Recipe;
  */
 public interface IRecipeDataAccess {
 
-  boolean addRecipe(Recipe recipe);
+  Recipe addRecipe(Recipe recipe);
 
   boolean updateRecipe(Recipe recipe);
 
   boolean deleteRecipeById(Long recipeId);
 
   Recipe getRecipeById(Long recipeId);
+
+  Recipe getRecipeByDraftId(Long draftRecipeId);
 
   List<Recipe> getAllRecipes();
 

@@ -258,27 +258,6 @@ public class RecipeWebCallerTest {
     assertEquals(expectedRecipes, actualRecipes);
   }
 
-  /** Test getRecipesByName when the operation is successful. */
-  @Test
-  @SuppressWarnings("unchecked")
-  public void testGetRecipesByName_Success() {
-    String name = "Test Recipe";
-    List<Recipe> expectedRecipes = Arrays.asList(new Recipe(), new Recipe());
-    String url = getUrl("/recipe/search?name=" + name);
-
-    ResponseEntity<List<Recipe>> responseEntity =
-        new ResponseEntity<>(expectedRecipes, HttpStatus.OK);
-
-    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
-        .thenReturn(responseEntity);
-
-    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByName(name);
-
-    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
-
-    assertEquals(expectedRecipes, actualRecipes);
-  }
-
   /** Test getRecipesByCreatorId when the operation is successful. */
   @Test
   @SuppressWarnings("unchecked")

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -173,25 +172,6 @@ public class RecipeController {
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to get all published recipes: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  /**
-   * Search for recipes by name.
-   *
-   * @param name The recipe name from the request parameter.
-   * @return Response entity containing the matching recipes.
-   */
-  @GetMapping("/search")
-  public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam String name) {
-    logger.info("Received request to search recipes: Name={}", name);
-    try {
-      List<Recipe> recipes = recipeService.getRecipesByName(name);
-      logger.info("Found {} recipes containing '{}'", recipes.size(), name);
-      return new ResponseEntity<>(recipes, HttpStatus.OK);
-    } catch (Exception e) {
-      logger.error("Failed to search recipes: {}", e.getMessage(), e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

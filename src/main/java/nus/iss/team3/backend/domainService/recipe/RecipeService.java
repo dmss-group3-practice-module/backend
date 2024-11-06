@@ -1,8 +1,6 @@
 package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
-import java.util.List;
-import java.util.Objects;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.entity.Recipe;
@@ -10,6 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Service class with logic for handling recipe-related queries.
@@ -154,6 +155,16 @@ public class RecipeService implements IRecipeService {
       logger.warn("Recipe under creator Id {} not found", creatorId);
     }
     return recipeList;
+  }
+
+  @Override
+  public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
+    return recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+  }
+
+  @Override
+  public List<Recipe> getRecipesByRating(boolean isDesc) {
+    return recipeDataAccess.getAllPublishedRecipesByRating(isDesc);
   }
 
   // Helper method: Validate the recipe

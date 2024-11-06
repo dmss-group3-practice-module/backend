@@ -1,24 +1,18 @@
 package nus.iss.team3.backend.domainService.recipe;
 
 import java.util.List;
-import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.entity.Recipe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class RecommendByRating implements RecommendStrategy {
-  private static final Logger logger = LogManager.getLogger(RecipeService.class);
-  private final IRecipeDataAccess recipeDataAccess;
-
-  public RecommendByRating(IRecipeDataAccess recipeDataAccess) {
-    this.recipeDataAccess = recipeDataAccess;
-  }
+  private static final Logger logger = LogManager.getLogger(RecommendByRating.class);
 
   @Override
-  public List<Recipe> recommendRecipes(boolean isDesc) {
-    logger.info("Getting all published recipes");
+  public List<Recipe> recommendRecipes(IRecipeService recipeService, boolean isDesc) {
+    logger.info("Getting recommend recipes by rating");
     // Get a list of all recipes order by difficult
-    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
+    List<Recipe> recipes = recipeService.getRecipesByRating(isDesc);
     logger.info("Successfully retrieved {} published recipes ", recipes.size());
     return recipes;
   }

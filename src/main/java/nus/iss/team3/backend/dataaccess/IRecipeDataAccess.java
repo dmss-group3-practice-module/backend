@@ -1,7 +1,8 @@
 package nus.iss.team3.backend.dataaccess;
 
-import java.util.List;
 import nus.iss.team3.backend.entity.Recipe;
+
+import java.util.List;
 
 /**
  * Interface class for RecipeDataAccess, should contain all functionality needed for recipe.
@@ -26,7 +27,7 @@ public interface IRecipeDataAccess {
 
   List<Recipe> getRecipeByCreatorId(int creatorId);
 
-  List<Recipe> getAllPublishedRecipesByDifficulty();
+  List<Recipe> getAllPublishedRecipesByDifficulty(boolean isDesc);
 
-  List<Recipe> getAllPublishedRecipesByRating();
+  List<Recipe> getAllPublishedRecipesByRating(boolean isDesc);
 }

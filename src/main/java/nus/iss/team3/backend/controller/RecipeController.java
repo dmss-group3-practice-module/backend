@@ -1,12 +1,10 @@
 package nus.iss.team3.backend.controller;
 
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
-import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.domainService.recipe.PreferenceCtx;
 import nus.iss.team3.backend.domainService.recipe.RecommendByDifficulty;
 import nus.iss.team3.backend.domainService.recipe.RecommendByRating;
-import nus.iss.team3.backend.entity.Preference;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.apache.logging.log4j.LogManager;
@@ -33,16 +31,11 @@ public class RecipeController {
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
   private final IRecipeReviewService recipeReviewService;
-  private final IRecipeDataAccess recipeDataAccess;
 
   @Autowired
-  public RecipeController(
-      IRecipeService recipeService,
-      IRecipeReviewService recipeReviewService,
-      IRecipeDataAccess recipeDataAccess) {
+  public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
     this.recipeService = recipeService;
     this.recipeReviewService = recipeReviewService;
-    this.recipeDataAccess = recipeDataAccess;
   }
 
   /**
@@ -268,18 +261,20 @@ public class RecipeController {
    *
    * @return Response entity containing the list of all recipes with reviews.
    */
-  @PostMapping("/recommend")
-  public ResponseEntity<List<Recipe>> getRecipesViaRecommendation(@RequestParam Preference ctx) {
+  @GetMapping("/recommend")
+  public ResponseEntity<List<Recipe>> getRecipesViaRecommendation(
+      @RequestParam boolean isByRating, @RequestParam boolean isDesc) {
     try {
       PreferenceCtx preferenceCtx = new PreferenceCtx();
       List<Recipe> recipes;
-      if (ctx.isByRating) {
-        preferenceCtx.setRecommendStrategy(new RecommendByRating(recipeDataAccess));
-
+      if (isByRating) {
+        preferenceCtx.setRecommendStrategy(new RecommendByRating());
+        logger.info("recommend by rating start");
       } else {
-        preferenceCtx.setRecommendStrategy(new RecommendByDifficulty(recipeDataAccess));
+        preferenceCtx.setRecommendStrategy(new RecommendByDifficulty());
+        logger.info("recommend by difficulty start");
       }
-      recipes = preferenceCtx.recommend(ctx.isDesc);
+      recipes = preferenceCtx.recommend(recipeService, isDesc);
       logger.info("Found {} recipes via recommendation", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {

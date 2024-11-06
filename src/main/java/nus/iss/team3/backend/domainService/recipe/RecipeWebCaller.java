@@ -1,8 +1,6 @@
 package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.Recipe;
@@ -13,6 +11,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementation of IRecipeService that calls REST APIs using IWebserviceCallerGen.
@@ -199,5 +200,15 @@ public class RecipeWebCaller implements IRecipeService {
       logger.error("Error retrieving recipes by creator ID {}: {}", creatorId, e.getMessage());
       return Collections.emptyList();
     }
+  }
+
+  @Override
+  public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
+    return List.of();
+  }
+
+  @Override
+  public List<Recipe> getRecipesByRating(boolean isDesc) {
+    return List.of();
   }
 }

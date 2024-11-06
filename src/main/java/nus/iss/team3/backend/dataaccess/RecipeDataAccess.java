@@ -1,11 +1,5 @@
 package nus.iss.team3.backend.dataaccess;
 
-import static nus.iss.team3.backend.service.util.SqlUtilities.getLongValue;
-import static nus.iss.team3.backend.service.util.SqlUtilities.getStringValue;
-
-import java.sql.Timestamp;
-import java.util.*;
-import java.util.stream.Collectors;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
@@ -15,6 +9,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static nus.iss.team3.backend.service.util.SqlUtilities.getLongValue;
+import static nus.iss.team3.backend.service.util.SqlUtilities.getStringValue;
 
 /**
  * Repository class to connect to postgres for recipe data.
@@ -342,13 +343,20 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   @Override
-  public List<Recipe> getAllPublishedRecipesByDifficulty() {
+  public List<Recipe> getAllPublishedRecipesByDifficulty(boolean isDesc) {
     logger.info("Querying all recipes by difficulty");
     try {
       // Execute the query
-      List<Map<String, Object>> result =
-          postgresDataAccess.queryStatement(
-              PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY, null);
+      List<Map<String, Object>> result;
+      if (isDesc) {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY_DESC, null);
+      } else {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY, null);
+      }
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
@@ -369,13 +377,20 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   @Override
-  public List<Recipe> getAllPublishedRecipesByRating() {
+  public List<Recipe> getAllPublishedRecipesByRating(boolean isDesc) {
     logger.info("Querying all recipes by rating");
     try {
       // Execute the query
-      List<Map<String, Object>> result =
-          postgresDataAccess.queryStatement(
-              PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING, null);
+      List<Map<String, Object>> result;
+      if (isDesc) {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING_DESC, null);
+      } else {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING, null);
+      }
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {

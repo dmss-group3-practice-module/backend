@@ -69,12 +69,13 @@ class RecipeServiceTest {
     // Arrange: Create a valid recipe object
     Recipe recipe = new Recipe();
     recipe.setName("Test Recipe");
-    recipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    recipe.setCookingTimeInMin(300); // Set cooking time in seconds
     recipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
     Recipe returnRecipe = new Recipe();
     returnRecipe.setId(1L);
     returnRecipe.setName("Test Recipe");
-    returnRecipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    returnRecipe.setCookingTimeInMin(300); // Set cooking time in seconds
+
     returnRecipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
     // Mock the data access layer to return true
@@ -135,14 +136,14 @@ class RecipeServiceTest {
     Recipe recipe = new Recipe();
     recipe.setId(1L); // Set the ID
     recipe.setName("Updated Recipe");
-    recipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    recipe.setCookingTimeInMin(300); // Set cooking time in seconds
     recipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
     // Create an existing recipe object that is different from the new recipe
     Recipe existingRecipe = new Recipe();
     existingRecipe.setId(1L); // Same ID
     existingRecipe.setName("Old Recipe");
-    existingRecipe.setCookingTimeInSec(600); // Different cooking time
+    existingRecipe.setCookingTimeInMin(600); // Different cooking time
     existingRecipe.setDifficultyLevel(3); // Different difficulty level
 
     // Mock the data access layer to return the existing recipe when fetched
@@ -232,7 +233,7 @@ class RecipeServiceTest {
     Recipe existingRecipe = new Recipe();
     existingRecipe.setId(1L); // Same ID
     existingRecipe.setName("Old Recipe");
-    existingRecipe.setCookingTimeInSec(600); // Different cooking time
+    existingRecipe.setCookingTimeInMin(600); // Different cooking time
     existingRecipe.setDifficultyLevel(3); // Different difficulty level
 
     // Mock the data access layer to return the existing recipe when fetched

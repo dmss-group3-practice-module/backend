@@ -175,7 +175,7 @@ public class RecipeService implements IRecipeService {
       logger.error("Attempted to {} a recipe with an empty name", isUpdate ? "update" : "add");
       throw new IllegalArgumentException("Recipe name cannot be empty");
     }
-    if (recipe.getCookingTimeInSec() == null || recipe.getCookingTimeInSec() <= 0) {
+    if (recipe.getCookingTimeInMin() == null || recipe.getCookingTimeInMin() <= 0) {
       logger.error(
           "Attempted to {} a recipe with invalid cooking time", isUpdate ? "update" : "add");
       throw new IllegalArgumentException("Cooking time must be greater than 0");

@@ -84,7 +84,7 @@ public class PostgresSqlStatementRecipe {
   public static final String INPUT_RECIPE_NAME = "name";
   public static final String INPUT_RECIPE_IMAGE = "image";
   public static final String INPUT_RECIPE_DESCRIPTION = "description";
-  public static final String INPUT_RECIPE_COOKING_TIME = "cookingtimeinsec";
+  public static final String INPUT_RECIPE_COOKING_TIME = "cookingtimeinmin";
   public static final String INPUT_RECIPE_DIFFICULTY_LEVEL = "difficultylevel";
   public static final String INPUT_RECIPE_RATING = "rating";
   public static final String INPUT_RECIPE_STATUS = "status";
@@ -101,7 +101,7 @@ public class PostgresSqlStatementRecipe {
   public static final String COLUMN_RECIPE_NAME = "name";
   public static final String COLUMN_RECIPE_IMAGE = "image";
   public static final String COLUMN_RECIPE_DESCRIPTION = "description";
-  public static final String COLUMN_RECIPE_COOKING_TIME = "cookingtimeinsec";
+  public static final String COLUMN_RECIPE_COOKING_TIME = "cookingtimeinmin";
   public static final String COLUMN_RECIPE_DIFFICULTY_LEVEL = "difficultylevel";
   public static final String COLUMN_RECIPE_RATING = "rating";
   public static final String COLUMN_RECIPE_STATUS = "status";

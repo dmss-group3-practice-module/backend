@@ -2,6 +2,7 @@ package nus.iss.team3.backend.businessService.auth;
 
 import jakarta.annotation.PostConstruct;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.entity.EUserStatus;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,18 +30,28 @@ public class AuthService implements IAuthService {
   public UserAccount authenticate(String username, String password)
       throws IllegalArgumentException {
     logger.debug("Attempting to authenticate user: {}", username);
+
+    // Validate input parameters
     if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
       logger.warn("Username or password is null or empty");
       throw new IllegalArgumentException("Username and password cannot be empty");
     }
 
+    // Authenticate user credentials
     UserAccount user = userAccountService.authenticate(username, password);
-    if (user != null) {
-      logger.info("User authenticated successfully: {}", username);
-      return user;
-    } else {
+    if (user == null) {
       logger.warn("Authentication failed for user: {}", username);
       return null;
     }
+
+    // Check for BANNED status
+    if (user.getStatus() == EUserStatus.BANNED) {
+      logger.warn("Login attempt by banned user: {}", username);
+      throw new IllegalArgumentException(
+          "Your account has been banned. Please contact administrator.");
+    }
+
+    logger.info("User authenticated successfully: {}", username);
+    return user;
   }
 }

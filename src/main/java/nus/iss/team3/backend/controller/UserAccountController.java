@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.domainService.user.IUserStatusService;
+import nus.iss.team3.backend.entity.EUserStatus;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
@@ -133,6 +134,13 @@ public class UserAccountController {
       UserAccount user =
           userAccountService.authenticate(loginRequest.getName(), loginRequest.getPassword());
       if (user != null) {
+        // Check for BANNED status
+        if (user.getStatus() == EUserStatus.BANNED) {
+          logger.warn("Login attempt by banned user: {}", loginRequest.getName());
+          return new ResponseEntity<>(
+              "Your account has been banned. Please contact administrator.", HttpStatus.FORBIDDEN);
+        }
+
         logger.info("User logged in successfully: {}", user.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
       } else {

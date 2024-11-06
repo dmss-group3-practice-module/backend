@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.domainService.review.IReviewService;
 import nus.iss.team3.backend.entity.RecipeReview;
 import org.apache.logging.log4j.LogManager;
@@ -29,8 +30,11 @@ public class ReviewController {
 
   private final IReviewService reviewService;
 
-  public ReviewController(IReviewService reviewService) {
+  private final IRecipeReviewService recipeReviewService;
+
+  public ReviewController(IReviewService reviewService, IRecipeReviewService recipeReviewService) {
     this.reviewService = reviewService;
+    this.recipeReviewService = recipeReviewService;
   }
 
   /**
@@ -46,7 +50,7 @@ public class ReviewController {
     review.setRecipeId(recipeId);
     logger.info("Received request to add review for recipe ID: {}", recipeId);
     try {
-      reviewService.addReview(review);
+      recipeReviewService.addReview(review);
       logger.info("Added review for recipe ID: {}", recipeId);
       return new ResponseEntity<>("Review added successfully", HttpStatus.CREATED);
     } catch (IllegalArgumentException e) {

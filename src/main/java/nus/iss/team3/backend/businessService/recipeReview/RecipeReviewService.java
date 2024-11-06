@@ -61,4 +61,26 @@ public class RecipeReviewService implements IRecipeReviewService {
     logger.info("Fetched {} recipes with reviews", recipesWithReviews.size());
     return recipesWithReviews;
   }
+
+  @Override
+  public void addReview(RecipeReview review) {
+    reviewService.addReview(review);
+
+    // update recipe rating: get all reviews for the recipe, calculate the average rating and update
+    // the recipe
+
+    // not implementing this as a domain event, cause not pub sub....
+    List<RecipeReview> reviews = reviewService.getReviewsByRecipeId(review.getRecipeId());
+
+    double totalRating = 0;
+    for (RecipeReview r : reviews) {
+      if (r.getRating() == null) {
+        continue;
+      }
+      totalRating += r.getRating();
+    }
+    double avgRating = totalRating / reviews.size();
+
+    recipeService.updateRecipeRating(review.getRecipeId(), avgRating);
+  }
 }

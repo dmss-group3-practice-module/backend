@@ -430,6 +430,17 @@ public class PostgresSqlStatementRecipe {
           + COLUMN_REVIEW_CREATOR_ID
           + " = :"
           + INPUT_REVIEW_CREATOR_ID;
+  public static final String SQL_RECIPE_UPDATE_RATING =
+      "UPDATE "
+          + TABLE_RECIPE
+          + " SET "
+          + COLUMN_RECIPE_RATING
+          + " = :"
+          + INPUT_RECIPE_RATING
+          + " WHERE "
+          + COLUMN_RECIPE_ID
+          + " = :"
+          + INPUT_RECIPE_ID;
   public static final String SQL_REVIEW_DELETE =
       "DELETE FROM "
           + TABLE_REVIEW

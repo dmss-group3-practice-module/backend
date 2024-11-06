@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import nus.iss.team3.backend.businessService.recipeReview.RecipeReviewService;
 import nus.iss.team3.backend.domainService.review.IReviewService;
 import nus.iss.team3.backend.entity.RecipeReview;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ReviewControllerTest {
 
   @Mock private IReviewService reviewService;
+  @Mock private RecipeReviewService recipeReviewService;
 
   @InjectMocks private ReviewController reviewController;
 
@@ -46,14 +48,16 @@ public class ReviewControllerTest {
 
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
     assertEquals("Review added successfully", response.getBody());
-    verify(reviewService, times(1)).addReview(any(RecipeReview.class));
+    verify(recipeReviewService, times(1)).addReview(any(RecipeReview.class));
   }
 
   @Test
   public void testAddReview_ValidationError() {
     RecipeReview review = new RecipeReview(); // Assume this causes validation error
 
-    doThrow(new IllegalArgumentException("Invalid review")).when(reviewService).addReview(any());
+    doThrow(new IllegalArgumentException("Invalid review"))
+        .when(recipeReviewService)
+        .addReview(any());
 
     ResponseEntity<String> response = reviewController.addReview(1L, review);
 

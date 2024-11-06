@@ -25,4 +25,6 @@ public interface IRecipeService {
   List<Recipe> getRecipesByName(String name);
 
   List<Recipe> getRecipesByCreatorId(int creatorId);
+
+  boolean updateRecipeRating(Long recipeId, double rating);
 }

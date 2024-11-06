@@ -17,17 +17,14 @@ public class RecipeStateContext implements IRecipeStateContext {
   private static final Logger logger = LogManager.getLogger(RecipeStateContext.class);
   @Autowired private IRecipeDataAccess recipeDataAccess;
 
-  @Qualifier(RecipeStateConfiguration.RECIPE_STATE_DRAFT)
   @Autowired
-  private IRecipeState recipeStateDraft;
+  @Qualifier(RecipeStateConfiguration.RECIPE_STATE_DRAFT) private IRecipeState recipeStateDraft;
 
-  @Qualifier(RecipeStateConfiguration.RECIPE_STATE_PUBLISHED)
   @Autowired
-  private IRecipeState recipeStatePublished;
+  @Qualifier(RecipeStateConfiguration.RECIPE_STATE_PUBLISHED) private IRecipeState recipeStatePublished;
 
-  @Qualifier(RecipeStateConfiguration.RECIPE_STATE_ARCHIVED)
   @Autowired
-  private IRecipeState recipeStateArchived;
+  @Qualifier(RecipeStateConfiguration.RECIPE_STATE_ARCHIVED) private IRecipeState recipeStateArchived;
 
   // rather than 1 state for every recipe, the state is based on the input recipe and is different
   // for each function

@@ -61,10 +61,10 @@ class RecipeDataAccessTest {
         .thenReturn(Collections.singletonList(insertResult));
 
     // Act: Call the method to add the recipe
-    boolean result = recipeDataAccess.addRecipe(recipe);
+    Recipe result = recipeDataAccess.addRecipe(recipe);
 
     // Assert: Verify that the addition was successful and that the recipe ID was set
-    assertTrue(result);
+    assertNotNull(result);
     assertEquals(1L, recipe.getId());
 
     // Verify that the SQL statement to insert the recipe was called once
@@ -115,10 +115,13 @@ class RecipeDataAccessTest {
         .thenReturn(Collections.emptyList());
 
     // Act: Call the method to add the recipe
-    boolean result = recipeDataAccess.addRecipe(recipe);
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(recipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Failed to insert recipe", exception.getMessage());
 
     // Assert: Verify that the addition failed and that the recipe ID remains null
-    assertFalse(result);
     assertNull(recipe.getId());
 
     // Verify that only the attempt to insert the recipe was made, without inserting ingredients or

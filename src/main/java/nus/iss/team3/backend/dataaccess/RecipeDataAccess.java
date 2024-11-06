@@ -57,8 +57,8 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   @Transactional
-  public boolean addRecipe(Recipe recipe) {
-    logger.info("Starting to add recipe: {}", recipe.getName());
+  public Recipe addRecipe(Recipe recipe) {
+    logger.debug("Starting to add recipe: {}", recipe.getName());
     try {
       validateRecipe(recipe);
       logger.debug("Adding recipe: Recipe validation passed");
@@ -71,7 +71,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       if (result == null || result.isEmpty()) {
         logger.warn("Failed to insert recipe, no generated ID returned");
-        return false;
+        throw new IllegalArgumentException("Failed to insert recipe");
       }
 
       // Get the generated recipe ID and set it to the recipe object
@@ -98,8 +98,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         logger.debug("No cooking steps to insert for the recipe");
       }
 
-      logger.info("Recipe addition completed: ID={}", recipeId);
-      return true;
+      logger.debug("Recipe addition completed: ID={}", recipeId);
+      recipe.setId(recipeId);
+      return recipe;
     } catch (Exception e) {
       logger.error("Exception occurred while adding recipe: {}", e.getMessage(), e);
       throw e; // Rethrow the exception to trigger transaction rollback
@@ -109,7 +110,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   @Override
   @Transactional
   public boolean updateRecipe(Recipe recipe) {
-    logger.info("Starting to update recipe: ID={}", recipe.getId());
+    logger.debug("Starting to update recipe: ID={}", recipe.getId());
     try {
       validateRecipe(recipe);
       logger.debug("Updating recipe: Recipe validation passed");
@@ -149,7 +150,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       }
       logger.debug("Cooking steps updated successfully");
 
-      logger.info("Recipe update completed: ID={}", recipe.getId());
+      logger.debug("Recipe update completed: ID={}", recipe.getId());
       return true;
     } catch (Exception e) {
       logger.error("Exception occurred while updating recipe: {}", e.getMessage(), e);
@@ -160,7 +161,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   @Override
   @Transactional
   public boolean deleteRecipeById(Long recipeId) {
-    logger.info("Starting to delete recipe: ID={}", recipeId);
+    logger.debug("Starting to delete recipe: ID={}", recipeId);
     try {
       deleteIngredients(recipeId);
       logger.debug("Ingredients deleted successfully");
@@ -175,7 +176,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
               Collections.singletonMap(PostgresSqlStatementRecipe.INPUT_RECIPE_ID, recipeId));
 
       if (deletedRows > 0) {
-        logger.info("Recipe deleted successfully: ID={}", recipeId);
+        logger.debug("Recipe deleted successfully: ID={}", recipeId);
         return true;
       } else {
         logger.warn("No recipe found with ID={} for deletion", recipeId);
@@ -189,7 +190,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   public Recipe getRecipeById(Long recipeId) {
-    logger.info("Querying recipe: ID={}", recipeId);
+    logger.debug("Querying recipe: ID={}", recipeId);
     try {
       // Execute the query
       List<Map<String, Object>> result =
@@ -214,7 +215,48 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       recipe.setCookingSteps(getCookingStepsForRecipe(recipeId));
       logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipeId);
 
-      logger.info("Recipe query completed: ID={}", recipeId);
+      logger.debug("Recipe query completed: ID={}", recipeId);
+      return recipe;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  /**
+   * @param draftRecipeId
+   * @return
+   */
+  @Override
+  public Recipe getRecipeByDraftId(Long draftRecipeId) {
+    logger.debug("Querying by draft recipeId: ID={}", draftRecipeId);
+    try {
+      // Execute the query
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(
+              PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID,
+              Collections.singletonMap(
+                  PostgresSqlStatementRecipe.INPUT_RECIPE_DRAFT_ID, draftRecipeId));
+
+      if (result == null || result.isEmpty()) {
+        // normal to no have draft recipe record, ok not to log anything.
+        return null;
+      }
+
+      // Map the query result to a Recipe object
+      Recipe recipe = mapToRecipe(result.getFirst());
+      logger.debug(
+          "Recipe mapping successful: draft ID={}, main Id = {}", draftRecipeId, recipe.getId());
+
+      // Query and set the recipe's ingredients
+      recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+      logger.debug("Ingredients loaded successfully: Recipe ID={}", recipe.getId());
+
+      // Query and set the recipe's cooking steps
+      recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+      logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipe.getId());
+
+      logger.debug("Recipe query completed: ID={}", recipe.getId());
       return recipe;
     } catch (Exception e) {
       logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
@@ -224,7 +266,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   public List<Recipe> getAllRecipes() {
-    logger.info("Querying all recipes");
+    logger.debug("Querying all recipes");
     try {
       // Execute the query
       List<Map<String, Object>> result =
@@ -240,7 +282,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         recipes.add(recipe); // Add to the recipe list
       }
 
-      logger.info("Querying all recipes completed, count: {}", recipes.size());
+      logger.debug("Querying all recipes completed, count: {}", recipes.size());
       return recipes;
     } catch (Exception e) {
       logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
@@ -250,7 +292,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   public List<Recipe> getAllPublishedRecipes() {
-    logger.info("Querying all published recipes");
+    logger.debug("Querying all published recipes");
     try {
       // Execute the query
       List<Map<String, Object>> result =
@@ -270,7 +312,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         recipes.add(recipe); // Add to the recipe list
       }
 
-      logger.info("Querying all published recipes completed, count: {} ", recipes.size());
+      logger.debug("Querying all published recipes completed, count: {} ", recipes.size());
       return recipes;
     } catch (Exception e) {
       logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
@@ -280,7 +322,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   public List<Recipe> getRecipesByName(String name) {
-    logger.info("Querying recipes by name: Name contains '{}'", name);
+    logger.debug("Querying recipes by name: Name contains '{}'", name);
     try {
       // Execute the query: use wildcard for fuzzy query
       List<Map<String, Object>> result =
@@ -299,7 +341,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         recipes.add(recipe);
       }
 
-      logger.info("Querying recipes by name completed, found {} records", recipes.size());
+      logger.debug("Querying recipes by name completed, found {} records", recipes.size());
       return recipes;
     } catch (Exception e) {
       logger.error("Exception occurred while querying recipes by name: {}", e.getMessage(), e);
@@ -309,7 +351,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   @Override
   public List<Recipe> getRecipeByCreatorId(int creatorId) {
-    logger.info("Querying recipe: creator Id={}", creatorId);
+    logger.debug("Querying recipe: creator Id={}", creatorId);
     try {
       // Execute the query
       List<Map<String, Object>> result =
@@ -332,7 +374,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         recipes.add(recipe); // Add to the recipe list
       }
 
-      logger.info("Querying recipes with creatorId completed, count: {}", recipes.size());
+      logger.debug("Querying recipes with creatorId completed, count: {}", recipes.size());
       return recipes;
     } catch (Exception e) {
       logger.error(
@@ -356,13 +398,16 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     // Converts ERecipeStatus to its corresponding integer value
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS, recipe.getStatus().code);
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE, recipe.getCuisine());
+    recipeParams.put(
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID,
+        recipe.getDraftRecipe() != null ? recipe.getDraftRecipe().getId() : null);
     return recipeParams;
   }
 
   // Helper method: Map database record to Recipe object
   private Recipe mapToRecipe(Map<String, Object> row) {
     logger.debug("Mapping database record to Recipe object");
-    logger.info("mapToRecipe: {}", row);
+    logger.debug("mapToRecipe: {}", row);
     Recipe recipe = new Recipe();
 
     recipe.setId(
@@ -413,6 +458,12 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     recipe.setUpdateDatetime(
         row.get("update_datetime") != null ? (Timestamp) row.get("update_datetime") : null);
 
+    if (row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID) != null) {
+      Recipe temp = new Recipe();
+      temp.setId(((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID)).longValue());
+      recipe.setDraftRecipe(temp);
+    }
+
     logger.debug("Recipe object mapping completed: ID={}", recipe.getId());
     return recipe;
   }
@@ -451,10 +502,10 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   // Helper method: Insert ingredients associated with the recipe
   void insertIngredients(Recipe recipe) {
-    logger.info("Starting to insert ingredients, Recipe ID={}", recipe.getId());
+    logger.debug("Starting to insert ingredients, Recipe ID={}", recipe.getId());
 
     if (recipe.getIngredients() == null) {
-      logger.info("Ingredients are null, skipping insertion, Recipe ID={}", recipe.getId());
+      logger.debug("Ingredients are null, skipping insertion, Recipe ID={}", recipe.getId());
       return; // Return directly, do not perform insertion
     }
 
@@ -476,12 +527,12 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         throw e;
       }
     }
-    logger.info("Ingredients insertion completed, Recipe ID={}", recipe.getId());
+    logger.debug("Ingredients insertion completed, Recipe ID={}", recipe.getId());
   }
 
   // Helper method: Delete ingredients associated with the recipe
   void deleteIngredients(Long recipeId) {
-    logger.info("Starting to delete ingredients, Recipe ID={}", recipeId);
+    logger.debug("Starting to delete ingredients, Recipe ID={}", recipeId);
     try {
       Map<String, Object> deleteIngredientsParams = new HashMap<>();
       deleteIngredientsParams.put(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
@@ -498,10 +549,10 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   // Helper method: Insert cooking steps associated with the recipe
   void insertCookingSteps(Recipe recipe) {
-    logger.info("Starting to insert cooking steps, Recipe ID={}", recipe.getId());
+    logger.debug("Starting to insert cooking steps, Recipe ID={}", recipe.getId());
 
     if (recipe.getCookingSteps() == null) {
-      logger.info("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
+      logger.debug("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
       return; // Return directly, do not perform insertion
     }
 
@@ -521,12 +572,12 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         throw e; // Rethrow the exception to trigger transaction rollback
       }
     }
-    logger.info("Cooking steps insertion completed, Recipe ID={}", recipe.getId());
+    logger.debug("Cooking steps insertion completed, Recipe ID={}", recipe.getId());
   }
 
   // Helper method: Delete cooking steps associated with the recipe
   void deleteCookingSteps(Long recipeId) {
-    logger.info("Starting to delete cooking steps, Recipe ID={}", recipeId);
+    logger.debug("Starting to delete cooking steps, Recipe ID={}", recipeId);
     try {
       Map<String, Object> deleteStepsParams = new HashMap<>();
       deleteStepsParams.put(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
@@ -541,7 +592,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
   }
 
   private List<RecipeIngredient> getIngredientsForRecipe(Long recipeId) {
-    logger.info("Getting ingredients, Recipe ID={}", recipeId);
+    logger.debug("Getting ingredients, Recipe ID={}", recipeId);
 
     Map<String, Object> params =
         Map.of(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
@@ -553,13 +604,13 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     List<RecipeIngredient> ingredients =
         result.stream().map(mapper::map).collect(Collectors.toList());
 
-    logger.info("Ingredients loading completed, count={}", ingredients.size());
+    logger.debug("Ingredients loading completed, count={}", ingredients.size());
     return ingredients;
   }
 
   // Helper method: Get cooking steps associated with the recipe
   private List<CookingStep> getCookingStepsForRecipe(Long recipeId) {
-    logger.info("Getting cooking steps, Recipe ID={}", recipeId);
+    logger.debug("Getting cooking steps, Recipe ID={}", recipeId);
 
     Map<String, Object> params =
         Map.of(PostgresSqlStatementRecipe.INPUT_COOKING_STEP_RECIPE_ID, recipeId);
@@ -585,7 +636,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
                         .build())
             .collect(Collectors.toList());
 
-    logger.info("Cooking steps loading completed, count={}", steps.size());
+    logger.debug("Cooking steps loading completed, count={}", steps.size());
     return steps;
   }
 }

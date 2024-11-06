@@ -22,7 +22,5 @@ public interface IRecipeService {
 
   List<Recipe> getAllPublishedRecipes();
 
-  List<Recipe> getRecipesByName(String name);
-
   List<Recipe> getRecipesByCreatorId(int creatorId);
 }

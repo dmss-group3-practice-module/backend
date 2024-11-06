@@ -1,8 +1,7 @@
 package nus.iss.team3.backend.domainService.recipe;
 
-import nus.iss.team3.backend.entity.Recipe;
-
 import java.util.List;
+import nus.iss.team3.backend.entity.Recipe;
 
 /**
  * Interface for RecipeService, contains logic involving recipe.

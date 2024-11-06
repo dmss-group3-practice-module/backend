@@ -75,6 +75,7 @@ class RecipeServiceTest {
     returnRecipe.setId(1L);
     returnRecipe.setName("Test Recipe");
     returnRecipe.setCookingTimeInMin(300); // Set cooking time in seconds
+
     returnRecipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
     // Mock the data access layer to return true

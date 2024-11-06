@@ -54,6 +54,7 @@ public class RecipeController {
      * 2. RequestBody Recipe: Bind and deserialize JSON data from the request body to the Recipe object.
      * */
     logger.info("Received request to add recipe: {}", recipe.getName());
+    logger.info("recipe : {}", recipe);
     try {
       recipeService.addRecipe(recipe);
       logger.info("Recipe added successfully: {}", recipe.getName());

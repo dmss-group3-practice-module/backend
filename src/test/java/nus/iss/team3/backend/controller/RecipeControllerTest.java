@@ -56,7 +56,7 @@ public class RecipeControllerTest {
     sampleRecipe.setName("Sample Recipe");
     sampleRecipe.setImage("https://example.com/image.png");
     sampleRecipe.setDescription("A delicious sample recipe.");
-    sampleRecipe.setCookingTimeInSec(3600);
+    sampleRecipe.setCookingTimeInMin(3600);
     sampleRecipe.setDifficultyLevel(2);
     sampleRecipe.setRating(4.5);
     sampleRecipe.setStatus(ERecipeStatus.DRAFT);

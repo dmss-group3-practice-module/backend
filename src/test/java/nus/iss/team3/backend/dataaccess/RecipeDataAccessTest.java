@@ -672,7 +672,7 @@ class RecipeDataAccessTest {
     recipe.setName("Sample Recipe");
     recipe.setImage("sample.jpg");
     recipe.setDescription("A sample recipe description.");
-    recipe.setCookingTimeInSec(3600);
+    recipe.setCookingTimeInMin(3600);
     recipe.setDifficultyLevel(2);
     recipe.setRating(4.5);
     recipe.setStatus(ERecipeStatus.DRAFT);
@@ -765,7 +765,7 @@ class RecipeDataAccessTest {
     recipe.setName("Sample Recipe");
     recipe.setImage("sample.jpg");
     recipe.setDescription("A sample recipe description.");
-    recipe.setCookingTimeInSec(3600);
+    recipe.setCookingTimeInMin(3600);
     recipe.setDifficultyLevel(2);
     recipe.setRating(4.5);
     recipe.setStatus(ERecipeStatus.DRAFT);

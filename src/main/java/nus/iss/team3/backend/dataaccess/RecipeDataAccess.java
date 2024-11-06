@@ -391,7 +391,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_IMAGE, recipe.getImage());
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION, recipe.getDescription());
     recipeParams.put(
-        PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME, recipe.getCookingTimeInSec());
+        PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME, recipe.getCookingTimeInMin());
     recipeParams.put(
         PostgresSqlStatementRecipe.COLUMN_RECIPE_DIFFICULTY_LEVEL, recipe.getDifficultyLevel());
     recipeParams.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING, recipe.getRating());
@@ -430,7 +430,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
         row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION) != null
             ? (String) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION)
             : null);
-    recipe.setCookingTimeInSec(
+    recipe.setCookingTimeInMin(
         row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME) != null
             ? ((Number) row.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME)).intValue()
             : null);
@@ -472,7 +472,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     logger.debug("Validating recipe: {}", recipe.getName());
     if (recipe.getCreatorId() == null
         || recipe.getName() == null
-        || recipe.getCookingTimeInSec() == null
+        || recipe.getCookingTimeInMin() == null
         || recipe.getDifficultyLevel() == null
         || recipe.getRating() == null
         || recipe.getStatus() == null

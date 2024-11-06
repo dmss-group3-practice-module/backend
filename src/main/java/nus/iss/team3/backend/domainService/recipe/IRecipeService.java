@@ -23,4 +23,6 @@ public interface IRecipeService {
   List<Recipe> getAllPublishedRecipes();
 
   List<Recipe> getRecipesByCreatorId(int creatorId);
+
+  boolean updateRecipeRating(Long recipeId, double rating);
 }

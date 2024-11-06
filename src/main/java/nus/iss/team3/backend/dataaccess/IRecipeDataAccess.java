@@ -27,4 +27,6 @@ public interface IRecipeDataAccess {
   List<Recipe> getRecipesByName(String name);
 
   List<Recipe> getRecipeByCreatorId(int creatorId);
+
+  boolean updateRecipeRating(Long recipeId, double rating);
 }

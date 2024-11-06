@@ -99,6 +99,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       }
 
       logger.debug("Recipe addition completed: ID={}", recipeId);
+
       recipe.setId(recipeId);
       return recipe;
     } catch (Exception e) {
@@ -216,6 +217,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipeId);
 
       logger.debug("Recipe query completed: ID={}", recipeId);
+
       return recipe;
     } catch (Exception e) {
       logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
@@ -257,6 +259,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       logger.debug("Cooking steps loaded successfully: Recipe ID={}", recipe.getId());
 
       logger.debug("Recipe query completed: ID={}", recipe.getId());
+
       return recipe;
     } catch (Exception e) {
       logger.error("Exception occurred while querying recipe: {}", e.getMessage(), e);
@@ -379,6 +382,35 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     } catch (Exception e) {
       logger.error(
           "Exception occurred while querying recipes with creatorId: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  /**
+   * @param recipeId
+   * @param rating
+   * @return
+   */
+  @Override
+  public boolean updateRecipeRating(Long recipeId, double rating) {
+    logger.info("Starting to update recipe rating: ID={}, Rating={}", recipeId, rating);
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put(PostgresSqlStatementRecipe.INPUT_RECIPE_ID, recipeId);
+      params.put(PostgresSqlStatementRecipe.INPUT_RECIPE_RATING, rating);
+
+      int updatedRows =
+          postgresDataAccess.upsertStatement(
+              PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING, params);
+
+      if (updatedRows == 0) {
+        logger.warn("No recipe found with ID={} for rating update", recipeId);
+        return false;
+      }
+      logger.info("Recipe rating updated successfully: ID={}, Rating={}", recipeId, rating);
+      return true;
+    } catch (Exception e) {
+      logger.error("Exception occurred while updating recipe rating: {}", e.getMessage(), e);
       throw e;
     }
   }
@@ -552,7 +584,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     logger.debug("Starting to insert cooking steps, Recipe ID={}", recipe.getId());
 
     if (recipe.getCookingSteps() == null) {
+
       logger.debug("Cooking steps are null, skipping insertion, Recipe ID={}", recipe.getId());
+
       return; // Return directly, do not perform insertion
     }
 

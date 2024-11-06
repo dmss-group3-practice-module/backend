@@ -161,6 +161,22 @@ public class RecipeService implements IRecipeService {
     return recipeList;
   }
 
+  /**
+   * @param recipeId
+   * @param rating
+   * @return
+   */
+  @Override
+  public boolean updateRecipeRating(Long recipeId, double rating) {
+    boolean result = recipeDataAccess.updateRecipeRating(recipeId, rating);
+    if (result) {
+      logger.info("Successfully updated recipe rating with ID: {}", recipeId);
+    } else {
+      logger.warn("Failed to update recipe rating with ID: {}", recipeId);
+    }
+    return result;
+  }
+
   // Helper method: Validate the recipe
   private void validateRecipe(Recipe recipe, boolean isUpdate) {
     if (recipe == null) {

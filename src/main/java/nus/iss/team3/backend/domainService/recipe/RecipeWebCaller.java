@@ -179,4 +179,29 @@ public class RecipeWebCaller implements IRecipeService {
       return Collections.emptyList();
     }
   }
+
+  /**
+   * @param recipeId
+   * @param rating
+   * @return
+   */
+  @Override
+  public boolean updateRecipeRating(Long recipeId, double rating) {
+    String url = getUrl("/recipe/" + recipeId + "/rating");
+    try {
+      ResponseEntity<Boolean> response = webServiceCaller.postCall(url, rating, Boolean.class);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        return Boolean.TRUE.equals(response.getBody());
+      } else {
+        logger.error(
+            "Failed to set recipe rating for recipe ID {}. Status code: {}",
+            recipeId,
+            response.getStatusCode());
+        return false;
+      }
+    } catch (Exception e) {
+      logger.error("Error setting recipes by recipe ID {}: {}", recipeId, e.getMessage());
+      return false;
+    }
+  }
 }

@@ -240,4 +240,18 @@ public class RecipeController {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @PostMapping("/{id}/rating")
+  public ResponseEntity<Boolean> postReviewRating(
+      @PathVariable Long id, @RequestBody double rating) {
+    logger.info("Received request to update a recipe {}'s rating to {}", id, rating);
+    try {
+      boolean recipesWithReviews = recipeService.updateRecipeRating(id, rating);
+      logger.info("Recipe {}'s rating updated to {}", id, rating);
+      return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Recipe {}'s rating unable to updated to {}", id, rating);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

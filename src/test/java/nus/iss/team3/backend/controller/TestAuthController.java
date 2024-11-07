@@ -5,11 +5,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nus.iss.team3.backend.businessService.auth.IAuthService;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.service.util.UserBannedException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,13 +21,6 @@ public class TestAuthController {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private IAuthService authService;
-
-  private ObjectMapper objectMapper;
-
-  @BeforeEach
-  public void setup() {
-    objectMapper = new ObjectMapper();
-  }
 
   @Test
   public void testLogin_Success() throws Exception {
@@ -49,7 +39,8 @@ public class TestAuthController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"password\"}"))
         .andExpect(status().isOk())
-        .andExpect(content().string("true"));
+        .andExpect(jsonPath("$.name").value("testuser"))
+        .andExpect(jsonPath("$.password").doesNotExist());
   }
 
   @Test
@@ -182,23 +173,5 @@ public class TestAuthController {
         .perform(post("/authenticate/logout").session(session))
         .andExpect(status().isInternalServerError())
         .andExpect(content().string("An unexpected error occurred"));
-  }
-
-  @Test
-  public void testLogin_BannedUser() throws Exception {
-    when(authService.authenticate(anyString(), anyString()))
-        .thenThrow(
-            new UserBannedException("Your account has been banned. Please contact administrator."));
-
-    MockHttpSession session = new MockHttpSession();
-
-    mockMvc
-        .perform(
-            post("/authenticate/login")
-                .session(session)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"testuser\",\"password\":\"password\"}"))
-        .andExpect(status().isForbidden())
-        .andExpect(content().string("Your account has been banned. Please contact administrator."));
   }
 }

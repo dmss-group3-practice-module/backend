@@ -33,14 +33,14 @@ public class AuthController {
       if (user != null) {
         logger.info("User logged in successfully: {}", user.getName());
         session.setAttribute("user", user);
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
       } else {
         logger.warn("Login failed for user: {}", loginRequest.getName());
         return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
       }
     } catch (UserBannedException e) {
       logger.warn("Login attempt by banned user: {}", loginRequest.getName());
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN); // 使用 403 状态码
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
     } catch (IllegalArgumentException e) {
       logger.warn("Login attempt with invalid input: {}", e.getMessage());
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

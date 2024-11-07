@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.EUserStatus;
 import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.util.UserBannedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +48,7 @@ public class AuthService implements IAuthService {
     // Check for BANNED status
     if (user.getStatus() == EUserStatus.BANNED) {
       logger.warn("Login attempt by banned user: {}", username);
-      throw new IllegalArgumentException(
-          "Your account has been banned. Please contact administrator.");
+      throw new UserBannedException("Your account has been banned. Please contact administrator.");
     }
 
     logger.info("User authenticated successfully: {}", username);

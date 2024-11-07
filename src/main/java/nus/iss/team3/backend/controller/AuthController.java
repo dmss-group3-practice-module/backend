@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import nus.iss.team3.backend.businessService.auth.IAuthService;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.util.UserBannedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +33,14 @@ public class AuthController {
       if (user != null) {
         logger.info("User logged in successfully: {}", user.getName());
         session.setAttribute("user", user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
       } else {
         logger.warn("Login failed for user: {}", loginRequest.getName());
         return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
       }
+    } catch (UserBannedException e) {
+      logger.warn("Login attempt by banned user: {}", loginRequest.getName());
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN); // 使用 403 状态码
     } catch (IllegalArgumentException e) {
       logger.warn("Login attempt with invalid input: {}", e.getMessage());
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

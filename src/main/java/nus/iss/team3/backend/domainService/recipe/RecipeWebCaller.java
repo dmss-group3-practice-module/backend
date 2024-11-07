@@ -180,6 +180,16 @@ public class RecipeWebCaller implements IRecipeService {
     }
   }
 
+  @Override
+  public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
+    return List.of();
+  }
+
+  @Override
+  public List<Recipe> getRecipesByRating(boolean isDesc) {
+    return List.of();
+  }
+
   /**
    * @param recipeId
    * @param rating

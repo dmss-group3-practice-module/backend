@@ -386,6 +386,73 @@ public class RecipeDataAccess implements IRecipeDataAccess {
     }
   }
 
+  @Override
+  public List<Recipe> getAllPublishedRecipesByDifficulty(boolean isDesc) {
+    logger.info("Querying all recipes by difficulty");
+    try {
+      // Execute the query
+      List<Map<String, Object>> result;
+      if (isDesc) {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY_DESC, null);
+      } else {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY, null);
+      }
+
+      List<Recipe> recipes = new ArrayList<>();
+      for (Map<String, Object> row : result) {
+        Recipe recipe = mapToRecipe(row);
+        // Query and set the recipe's ingredients
+        recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+        // Query and set the recipe's cooking steps
+        recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+        recipes.add(recipe); // Add to the recipe list
+      }
+
+      logger.info("Querying all recipes completed by difficulty, count: {}", recipes.size());
+      return recipes;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  @Override
+  public List<Recipe> getAllPublishedRecipesByRating(boolean isDesc) {
+    logger.info("Querying all recipes by rating");
+    try {
+      // Execute the query
+      List<Map<String, Object>> result;
+      if (isDesc) {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING_DESC, null);
+      } else {
+        result =
+            postgresDataAccess.queryStatement(
+                PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING, null);
+      }
+
+      List<Recipe> recipes = new ArrayList<>();
+      for (Map<String, Object> row : result) {
+        Recipe recipe = mapToRecipe(row);
+        // Query and set the recipe's ingredients
+        recipe.setIngredients(getIngredientsForRecipe(recipe.getId()));
+        // Query and set the recipe's cooking steps
+        recipe.setCookingSteps(getCookingStepsForRecipe(recipe.getId()));
+        recipes.add(recipe); // Add to the recipe list
+      }
+
+      logger.info("Querying all recipes by rating completed, count: {}", recipes.size());
+      return recipes;
+    } catch (Exception e) {
+      logger.error("Exception occurred while querying all recipes: {}", e.getMessage(), e);
+      throw e;
+    }
+  }
   /**
    * @param recipeId
    * @param rating
@@ -411,6 +478,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       return true;
     } catch (Exception e) {
       logger.error("Exception occurred while updating recipe rating: {}", e.getMessage(), e);
+
       throw e;
     }
   }

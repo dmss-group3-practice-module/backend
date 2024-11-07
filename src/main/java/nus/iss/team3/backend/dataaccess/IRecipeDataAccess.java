@@ -28,5 +28,9 @@ public interface IRecipeDataAccess {
 
   List<Recipe> getRecipeByCreatorId(int creatorId);
 
+  List<Recipe> getAllPublishedRecipesByDifficulty(boolean isDesc);
+
+  List<Recipe> getAllPublishedRecipesByRating(boolean isDesc);
+
   boolean updateRecipeRating(Long recipeId, double rating);
 }

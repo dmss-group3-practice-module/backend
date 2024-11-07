@@ -3,6 +3,9 @@ package nus.iss.team3.backend.controller;
 import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
+import nus.iss.team3.backend.domainService.recipe.PreferenceCtx;
+import nus.iss.team3.backend.domainService.recipe.RecommendByDifficulty;
+import nus.iss.team3.backend.domainService.recipe.RecommendByRating;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.apache.logging.log4j.LogManager;
@@ -10,14 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller class to handle web call for recipe related queries.
@@ -241,6 +237,34 @@ public class RecipeController {
     }
   }
 
+  /**
+   * Get sorted recipes order by preference.
+   *
+   * @return Response entity containing the list of all recipes with reviews.
+   */
+  @GetMapping("/recommend")
+  public ResponseEntity<List<Recipe>> getRecipesViaRecommendation(
+      @RequestParam boolean isByRating, @RequestParam boolean isDesc) {
+    try {
+      PreferenceCtx preferenceCtx = new PreferenceCtx();
+      List<Recipe> recipes;
+      if (isByRating) {
+        preferenceCtx.setRecommendStrategy(new RecommendByRating());
+        logger.info("recommend by rating start");
+      } else {
+        preferenceCtx.setRecommendStrategy(new RecommendByDifficulty());
+        logger.info("recommend by difficulty start");
+      }
+      recipes = preferenceCtx.recommend(recipeService, isDesc);
+      logger.info("Found {} recipes via recommendation", recipes.size());
+      return new ResponseEntity<>(recipes, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Failed to search recipes via recommendation: {}", e.getMessage(), e);
+    }
+
+    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
   @PostMapping("/{id}/rating")
   public ResponseEntity<Boolean> postReviewRating(
       @PathVariable Long id, @RequestBody double rating) {
@@ -251,6 +275,7 @@ public class RecipeController {
       return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Recipe {}'s rating unable to updated to {}", id, rating);
+
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

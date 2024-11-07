@@ -2,6 +2,8 @@ package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
 import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.domainService.recipe.status.IRecipeStateContext;
@@ -159,6 +161,16 @@ public class RecipeService implements IRecipeService {
       logger.warn("Recipe under creator Id {} not found", creatorId);
     }
     return recipeList;
+  }
+
+  @Override
+  public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
+    return recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+  }
+
+  @Override
+  public List<Recipe> getRecipesByRating(boolean isDesc) {
+    return recipeDataAccess.getAllPublishedRecipesByRating(isDesc);
   }
 
   /**

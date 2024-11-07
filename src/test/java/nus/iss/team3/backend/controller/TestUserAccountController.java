@@ -9,10 +9,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
-import nus.iss.team3.backend.entity.EUserAccountStatus;
-import nus.iss.team3.backend.entity.EUserRole;
-import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.domainService.user.IUserStatusService;
+import nus.iss.team3.backend.entity.EUserRole;
+import nus.iss.team3.backend.entity.EUserStatus;
+import nus.iss.team3.backend.entity.UserAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,9 @@ public class TestUserAccountController {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private IUserAccountService userAccountService;
+  @MockBean private IUserStatusService userStatusService;
 
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   @BeforeEach
   public void setup() {
@@ -247,13 +249,56 @@ public class TestUserAccountController {
         .andExpect(jsonPath("$[1].name").value("Test User"));
   }
 
+  @Test
+  public void testBanUser_Success() throws Exception {
+    doNothing().when(userStatusService).banUser(1);
+
+    mockMvc
+        .perform(put("/user/1/ban"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("true"));
+
+    verify(userStatusService).banUser(1);
+  }
+
+  @Test
+  public void testBanUser_NotFound() throws Exception {
+    doThrow(new IllegalArgumentException("User not found")).when(userStatusService).banUser(999);
+
+    mockMvc
+        .perform(put("/user/999/ban"))
+        .andExpect(status().isNotFound())
+        .andExpect(content().string("User not found"));
+  }
+
+  @Test
+  public void testUnbanUser_Success() throws Exception {
+    doNothing().when(userStatusService).unbanUser(1);
+
+    mockMvc
+        .perform(put("/user/1/unban"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("true"));
+
+    verify(userStatusService).unbanUser(1);
+  }
+
+  @Test
+  public void testUndoLastStatusChange() throws Exception {
+    doNothing().when(userStatusService).undoLastStatusChange();
+
+    mockMvc.perform(post("/user/status/undo")).andExpect(status().isOk());
+
+    verify(userStatusService).undoLastStatusChange();
+  }
+
   private UserAccount createValidUserAccount() {
     UserAccount userAccount = new UserAccount();
     userAccount.setName("Test User");
     userAccount.setPassword("password");
     userAccount.setDisplayName("Test Display Name");
     userAccount.setEmail("test@example.com");
-    userAccount.setStatus(EUserAccountStatus.ACTIVE);
+    userAccount.setStatus(EUserStatus.ACTIVE);
     userAccount.setRole(EUserRole.USER);
     return userAccount;
   }

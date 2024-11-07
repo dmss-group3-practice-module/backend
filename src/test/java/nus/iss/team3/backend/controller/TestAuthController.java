@@ -5,10 +5,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nus.iss.team3.backend.businessService.auth.IAuthService;
 import nus.iss.team3.backend.entity.UserAccount;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,13 +21,6 @@ public class TestAuthController {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private IAuthService authService;
-
-  private ObjectMapper objectMapper;
-
-  @BeforeEach
-  public void setup() {
-    objectMapper = new ObjectMapper();
-  }
 
   @Test
   public void testLogin_Success() throws Exception {

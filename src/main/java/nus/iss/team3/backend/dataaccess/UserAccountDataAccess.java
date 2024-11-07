@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nus.iss.team3.backend.dataaccess.postgres.IPostgresDataAccess;
-import nus.iss.team3.backend.entity.EUserAccountStatus;
 import nus.iss.team3.backend.entity.EUserRole;
+import nus.iss.team3.backend.entity.EUserStatus;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -36,6 +38,8 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
   @Autowired IPostgresDataAccess postgresDataAccess;
 
   @Autowired private JdbcTemplate jdbcTemplate;
+
+  @Autowired private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   @Override
   public UserAccount authenticateUser(String name, String password) {
@@ -119,6 +123,21 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
     }
   }
 
+  public boolean updateUserStatus(Integer userId, EUserStatus status) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue(INPUT_USER_ACCOUNT_ID, userId);
+    parameters.addValue(INPUT_USER_ACCOUNT_STATUS, status.getCode());
+
+    try {
+      namedParameterJdbcTemplate.update(SQL_USER_ACCOUNT_UPDATE_STATUS, parameters);
+      logger.info("Successfully updated status to {} for user {}", status, userId);
+      return true;
+    } catch (Exception e) {
+      logger.error("Error updating user status for user {}: {}", userId, e.getMessage(), e);
+      return false;
+    }
+  }
+
   @Override
   public UserAccount getUserById(Integer id) {
     try {
@@ -186,8 +205,7 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
     // returnItem.setPassword((String) entity.get(COLUMN_USER_ACCOUNT_PASSWORD));
     returnItem.setDisplayName((String) entity.get(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
     returnItem.setEmail((String) entity.get(COLUMN_USER_ACCOUNT_EMAIL));
-    returnItem.setStatus(
-        EUserAccountStatus.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_STATUS)));
+    returnItem.setStatus(EUserStatus.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_STATUS)));
     returnItem.setRole(EUserRole.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_ROLE)));
 
     if (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp timestamp) {
@@ -230,7 +248,7 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
       }
       user.setDisplayName(rs.getString(COLUMN_USER_ACCOUNT_DISPLAY_NAME));
       user.setEmail(rs.getString(COLUMN_USER_ACCOUNT_EMAIL));
-      user.setStatus(EUserAccountStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));
+      user.setStatus(EUserStatus.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_STATUS)));
       user.setRole(EUserRole.valueOfCode(rs.getInt(COLUMN_USER_ACCOUNT_ROLE)));
       user.setCreateDateTime(
           rs.getTimestamp(COLUMN_USER_ACCOUNT_CREATE_DATETIME)

@@ -8,8 +8,8 @@ import static org.mockito.Mockito.*;
 import java.util.Arrays;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IUserAccountDataAccess;
-import nus.iss.team3.backend.entity.EUserAccountStatus;
 import nus.iss.team3.backend.entity.EUserRole;
+import nus.iss.team3.backend.entity.EUserStatus;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -277,7 +277,7 @@ public class TestUserAccountService {
     userAccount.setPassword("valid");
     userAccount.setDisplayName("Valid User");
     userAccount.setEmail("valid@example.com");
-    userAccount.setStatus(EUserAccountStatus.ACTIVE);
+    userAccount.setStatus(EUserStatus.ACTIVE);
     userAccount.setRole(EUserRole.USER);
     return userAccount;
   }

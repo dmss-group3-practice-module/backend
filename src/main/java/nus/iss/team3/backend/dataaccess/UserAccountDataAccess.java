@@ -57,7 +57,7 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
     UserAccount user =
         jdbcTemplate.queryForObject(sql, new Object[] {name}, new UserAccountRowMapper(true));
     if (user != null && BCrypt.checkpw(password, user.getPassword())) {
-      user.setPassword(null); // 清除密码
+      user.setPassword(null);
       return user;
     }
     return null;
@@ -190,15 +190,11 @@ public class UserAccountDataAccess implements IUserAccountDataAccess {
         EUserAccountStatus.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_STATUS)));
     returnItem.setRole(EUserRole.valueOfCode((Integer) entity.get(COLUMN_USER_ACCOUNT_ROLE)));
 
-    if (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp) {
-      java.sql.Timestamp timestamp =
-          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME);
+    if (entity.get(COLUMN_USER_ACCOUNT_CREATE_DATETIME) instanceof java.sql.Timestamp timestamp) {
       returnItem.setCreateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
 
-    if (entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME) instanceof java.sql.Timestamp) {
-      java.sql.Timestamp timestamp =
-          (java.sql.Timestamp) entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME);
+    if (entity.get(COLUMN_USER_ACCOUNT_UPDATE_DATETIME) instanceof java.sql.Timestamp timestamp) {
       returnItem.setUpdateDateTime(timestamp.toInstant().atZone(ZoneId.systemDefault()));
     }
 

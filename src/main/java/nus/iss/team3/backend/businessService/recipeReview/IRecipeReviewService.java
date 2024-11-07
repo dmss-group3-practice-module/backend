@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.businessService.recipeReview;
 
 import java.util.List;
+import nus.iss.team3.backend.entity.RecipeReview;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
 
 public interface IRecipeReviewService {
@@ -9,4 +10,6 @@ public interface IRecipeReviewService {
   RecipeWithReviews getRecipeWithReviewsById(Long recipeId);
 
   List<RecipeWithReviews> getAllRecipesWithReviews();
+
+  void addReview(RecipeReview review);
 }

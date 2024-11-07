@@ -21,7 +21,7 @@ public class AuthService implements IAuthService {
   @Autowired private IUserAccountService userAccountService;
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Authenticate Service Logic initialized.");
   }
 

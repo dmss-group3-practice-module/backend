@@ -1,6 +1,8 @@
 package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Collections;
+import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.Recipe;
@@ -11,9 +13,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Implementation of IRecipeService that calls REST APIs using IWebserviceCallerGen.
@@ -39,7 +38,7 @@ public class RecipeWebCaller implements IRecipeService {
   }
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Recipe Service Web Caller initialized.");
   }
 
@@ -161,27 +160,6 @@ public class RecipeWebCaller implements IRecipeService {
   }
 
   @Override
-  public List<Recipe> getRecipesByName(String name) {
-    String url = getUrl("/recipe/search?name=" + name);
-    try {
-      ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
-      ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
-      if (response.getStatusCode().is2xxSuccessful()) {
-        return response.getBody();
-      } else {
-        logger.error(
-            "Failed to retrieve recipes by name '{}'. Status code: {}",
-            name,
-            response.getStatusCode());
-        return Collections.emptyList();
-      }
-    } catch (Exception e) {
-      logger.error("Error retrieving recipes by name '{}': {}", name, e.getMessage());
-      return Collections.emptyList();
-    }
-  }
-
-  @Override
   public List<Recipe> getRecipesByCreatorId(int creatorId) {
     String url = getUrl("/recipe/creator/" + creatorId);
     try {
@@ -210,5 +188,30 @@ public class RecipeWebCaller implements IRecipeService {
   @Override
   public List<Recipe> getRecipesByRating(boolean isDesc) {
     return List.of();
+  }
+
+  /**
+   * @param recipeId
+   * @param rating
+   * @return
+   */
+  @Override
+  public boolean updateRecipeRating(Long recipeId, double rating) {
+    String url = getUrl("/recipe/" + recipeId + "/rating");
+    try {
+      ResponseEntity<Boolean> response = webServiceCaller.postCall(url, rating, Boolean.class);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        return Boolean.TRUE.equals(response.getBody());
+      } else {
+        logger.error(
+            "Failed to set recipe rating for recipe ID {}. Status code: {}",
+            recipeId,
+            response.getStatusCode());
+        return false;
+      }
+    } catch (Exception e) {
+      logger.error("Error setting recipes by recipe ID {}: {}", recipeId, e.getMessage());
+      return false;
+    }
   }
 }

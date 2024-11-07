@@ -1,8 +1,7 @@
 package nus.iss.team3.backend.domainService.recipe;
 
-import nus.iss.team3.backend.entity.Recipe;
-
 import java.util.List;
+import nus.iss.team3.backend.entity.Recipe;
 
 /**
  * Interface for RecipeService, contains logic involving recipe.
@@ -23,11 +22,10 @@ public interface IRecipeService {
 
   List<Recipe> getAllPublishedRecipes();
 
-  List<Recipe> getRecipesByName(String name);
-
   List<Recipe> getRecipesByCreatorId(int creatorId);
 
   List<Recipe> getRecipesByDifficulty(boolean isDesc);
 
   List<Recipe> getRecipesByRating(boolean isDesc);
+  boolean updateRecipeRating(Long recipeId, double rating);
 }

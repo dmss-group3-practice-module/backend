@@ -31,7 +31,7 @@ public class UserAccountWebCaller implements IUserAccountService {
   private String servicePort;
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Recipe Service Web Caller initialized.");
   }
 
@@ -102,6 +102,18 @@ public class UserAccountWebCaller implements IUserAccountService {
     }
   }
 
+  @Override
+  public List<Integer> getAllUserIds() {
+    String url = getUrl("/user/getAllUserIds");
+    ParameterizedTypeReference<List<Integer>> typeRef = new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<Integer>> response = webServiceCaller.getCall(url, typeRef);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return response.getBody();
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
   /**
    * @param username The username of the user trying to authenticate
    * @param password The password of the user trying to authenticate
@@ -121,7 +133,7 @@ public class UserAccountWebCaller implements IUserAccountService {
     logger.info("response body is " + response.getBody());
     logger.info("response body class is " + response.getBody().getClass());
     if (response.getStatusCode().is2xxSuccessful()) {
-      if (response.getBody() instanceof UserAccount) return (UserAccount) response.getBody();
+      if (response.getBody() instanceof UserAccount) return response.getBody();
     }
 
     return null;

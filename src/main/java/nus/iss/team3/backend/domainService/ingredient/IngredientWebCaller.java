@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.domainService.ingredient;
 
 import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
@@ -32,7 +33,7 @@ public class IngredientWebCaller implements IIngredientService {
   }
 
   @PostConstruct
-  public void postContruct() {
+  public void postConstruct() {
     logger.info("Ingredient Service Web Caller initialized.");
   }
 
@@ -140,5 +141,36 @@ public class IngredientWebCaller implements IIngredientService {
       return response.getBody();
     }
     return false;
+  }
+
+  @Override
+  public List<UserIngredient> getExpiringIngredients(Integer userId, int days) {
+    String url = getUrl("/ingredient/expiring-list/?userId=" + userId + "&days=" + days);
+    ParameterizedTypeReference<List<UserIngredient>> typeRef =
+        new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<UserIngredient>> response = webServiceCaller.getCall(url, typeRef);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return response.getBody();
+    } else {
+      logger.error(
+          "Failed to retrieve expiring ingredients. Status code: {}", response.getStatusCode());
+      return null;
+    }
+  }
+
+  @Override
+  public List<UserIngredient> getExpiringIngredientsInRange() {
+    String url = getUrl("/ingredient/expiring-range");
+    ParameterizedTypeReference<List<UserIngredient>> typeRef =
+        new ParameterizedTypeReference<>() {};
+    ResponseEntity<List<UserIngredient>> response = webServiceCaller.getCall(url, typeRef);
+
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return response.getBody();
+    } else {
+      logger.error(
+          "Failed to retrieve expiring ingredients. Status code: {}", response.getStatusCode());
+      return new ArrayList<>();
+    }
   }
 }

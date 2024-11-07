@@ -84,12 +84,13 @@ public class PostgresSqlStatementRecipe {
   public static final String INPUT_RECIPE_NAME = "name";
   public static final String INPUT_RECIPE_IMAGE = "image";
   public static final String INPUT_RECIPE_DESCRIPTION = "description";
-  public static final String INPUT_RECIPE_COOKING_TIME = "cookingtimeinsec";
+  public static final String INPUT_RECIPE_COOKING_TIME = "cookingtimeinmin";
   public static final String INPUT_RECIPE_DIFFICULTY_LEVEL = "difficultylevel";
   public static final String INPUT_RECIPE_RATING = "rating";
   public static final String INPUT_RECIPE_STATUS = "status";
   // TODO: Notice that the name of cuisine column is cuisine
   public static final String INPUT_RECIPE_CUISINE = "cuisine";
+  public static final String INPUT_RECIPE_DRAFT_ID = "draftid";
   public static final String INPUT_RECIPE_CREATE_TIME = "create_datetime";
   public static final String INPUT_RECIPE_UPDATE_TIME = "update_datetime";
 
@@ -100,12 +101,12 @@ public class PostgresSqlStatementRecipe {
   public static final String COLUMN_RECIPE_NAME = "name";
   public static final String COLUMN_RECIPE_IMAGE = "image";
   public static final String COLUMN_RECIPE_DESCRIPTION = "description";
-  public static final String COLUMN_RECIPE_COOKING_TIME = "cookingtimeinsec";
+  public static final String COLUMN_RECIPE_COOKING_TIME = "cookingtimeinmin";
   public static final String COLUMN_RECIPE_DIFFICULTY_LEVEL = "difficultylevel";
   public static final String COLUMN_RECIPE_RATING = "rating";
   public static final String COLUMN_RECIPE_STATUS = "status";
-  // TODO: Notice that the name of cuisine column is cuisine
   public static final String COLUMN_RECIPE_CUISINE = "cuisine";
+  public static final String COLUMN_RECIPE_DRAFT_ID = "draftid";
   public static final String COLUMN_RECIPE_CREATE_TIME = "create_datetime";
   public static final String COLUMN_RECIPE_UPDATE_TIME = "update_datetime";
 
@@ -183,7 +184,8 @@ public class PostgresSqlStatementRecipe {
           + ", :"
           + INPUT_RECIPE_CUISINE
           + ", "
-          + "now(), now())";
+          + "now(), now()) RETURNING "
+          + COLUMN_RECIPE_ID;
   public static final String SQL_RECIPE_UPDATE =
       "UPDATE "
           + TABLE_RECIPE
@@ -224,6 +226,10 @@ public class PostgresSqlStatementRecipe {
           + " = :"
           + INPUT_RECIPE_CUISINE
           + ", "
+          + COLUMN_RECIPE_DRAFT_ID
+          + " = :"
+          + INPUT_RECIPE_DRAFT_ID
+          + ", "
           + COLUMN_RECIPE_UPDATE_TIME
           + " = now() WHERE "
           + COLUMN_RECIPE_ID
@@ -233,6 +239,14 @@ public class PostgresSqlStatementRecipe {
       "DELETE FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
   public static final String SQL_RECIPE_GET_BY_ID =
       "SELECT * FROM " + TABLE_RECIPE + " WHERE " + COLUMN_RECIPE_ID + " = :" + INPUT_RECIPE_ID;
+  public static final String SQL_RECIPE_GET_BY_DRAFT_ID =
+      "SELECT * FROM "
+          + TABLE_RECIPE
+          + " WHERE "
+          + COLUMN_RECIPE_DRAFT_ID
+          + " = :"
+          + INPUT_RECIPE_DRAFT_ID;
+
   public static final String SQL_RECIPE_GET_BY_CREATOR_ID =
       "SELECT * FROM "
           + TABLE_RECIPE
@@ -285,7 +299,8 @@ public class PostgresSqlStatementRecipe {
           + INPUT_INGREDIENT_QUANTITY
           + ", :"
           + INPUT_INGREDIENT_UOM
-          + ")";
+          + ") RETURNING "
+          + COLUMN_INGREDIENT_ID;
   public static final String SQL_INGREDIENT_UPDATE =
       "UPDATE "
           + TABLE_INGREDIENT
@@ -438,6 +453,17 @@ public class PostgresSqlStatementRecipe {
           + COLUMN_REVIEW_CREATOR_ID
           + " = :"
           + INPUT_REVIEW_CREATOR_ID;
+  public static final String SQL_RECIPE_UPDATE_RATING =
+      "UPDATE "
+          + TABLE_RECIPE
+          + " SET "
+          + COLUMN_RECIPE_RATING
+          + " = :"
+          + INPUT_RECIPE_RATING
+          + " WHERE "
+          + COLUMN_RECIPE_ID
+          + " = :"
+          + INPUT_RECIPE_ID;
   public static final String SQL_REVIEW_DELETE =
       "DELETE FROM "
           + TABLE_REVIEW

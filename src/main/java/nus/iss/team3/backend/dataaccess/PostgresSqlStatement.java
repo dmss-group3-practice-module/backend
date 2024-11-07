@@ -423,4 +423,11 @@ public class PostgresSqlStatement {
           + " AND "
           + COLUMN_NOTIFICATION_IS_READ
           + " = false;";
+
+  public static final String SQL_GET_EXPIRING_INGREDIENTS =
+      "SELECT i.* FROM "
+          + TABLE_INGREDIENT
+          + " i "
+          + "WHERE i.expiry_date BETWEEN CURRENT_DATE + INTERVAL '1 day' AND CURRENT_DATE + INTERVAL '3 days' "
+          + "ORDER BY i.user_id, i.expiry_date;";
 }

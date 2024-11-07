@@ -5,11 +5,13 @@ import nus.iss.team3.backend.entity.Notification;
 
 public interface INotificationService {
 
-  List<Notification> getNotificationsForUser(Integer userId, int limit);
+  boolean createNotification(Notification notification);
 
-  int getUnreadNotificationCountForUser(Integer userId);
+  List<Notification> getNotificationsForUser(int userId, int limit);
 
-  boolean markNotificationAsRead(Integer notificationId, Integer userId);
+  int getUnreadNotificationCountForUser(int userId);
 
-  boolean markAllNotificationsAsReadForUser(Integer userId);
+  boolean markNotificationAsRead(int notificationId, int userId);
+
+  boolean markAllNotificationsAsReadForUser(int userId);
 }

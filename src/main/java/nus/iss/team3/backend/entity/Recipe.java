@@ -17,15 +17,19 @@ public class Recipe {
   private String name;
   private String image;
   private String description;
-  private Integer cookingTimeInSec;
+  private Integer cookingTimeInMin;
   private Integer difficultyLevel;
   private Double rating;
+
   private ERecipeStatus status;
+
   private Timestamp createDatetime;
   private Timestamp updateDatetime;
   private List<RecipeIngredient> ingredients;
   private List<CookingStep> cookingSteps;
   private String cuisine;
+
+  private Recipe draftRecipe;
 
   // Constructor
   public Recipe() {}
@@ -36,7 +40,7 @@ public class Recipe {
       String name,
       String image,
       String description,
-      Integer cookingTimeInSec,
+      Integer cookingTimeInMin,
       Integer difficultyLevel,
       Double rating,
       ERecipeStatus status,
@@ -50,7 +54,7 @@ public class Recipe {
     this.name = name;
     this.image = image;
     this.description = description;
-    this.cookingTimeInSec = cookingTimeInSec;
+    this.cookingTimeInMin = cookingTimeInMin;
     this.difficultyLevel = difficultyLevel;
     this.rating = rating;
     this.status = status;
@@ -102,12 +106,12 @@ public class Recipe {
     this.description = description;
   }
 
-  public Integer getCookingTimeInSec() {
-    return cookingTimeInSec;
+  public Integer getCookingTimeInMin() {
+    return cookingTimeInMin;
   }
 
-  public void setCookingTimeInSec(Integer cookingTimeInSec) {
-    this.cookingTimeInSec = cookingTimeInSec;
+  public void setCookingTimeInMin(Integer cookingTimeInMin) {
+    this.cookingTimeInMin = cookingTimeInMin;
   }
 
   public Integer getDifficultyLevel() {
@@ -174,6 +178,14 @@ public class Recipe {
     this.cuisine = cuisine;
   }
 
+  public Recipe getDraftRecipe() {
+    return draftRecipe;
+  }
+
+  public void setDraftRecipe(Recipe draftRecipe) {
+    this.draftRecipe = draftRecipe;
+  }
+
   @Override
   public String toString() {
     return "Recipe{"
@@ -191,7 +203,7 @@ public class Recipe {
         + description
         + '\''
         + ", cookingTimeInSec="
-        + cookingTimeInSec
+        + cookingTimeInMin
         + ", difficultyLevel="
         + difficultyLevel
         + ", rating="
@@ -231,7 +243,7 @@ public class Recipe {
         && Objects.equals(name, recipe.name)
         && Objects.equals(image, recipe.image)
         && Objects.equals(description, recipe.description)
-        && Objects.equals(cookingTimeInSec, recipe.cookingTimeInSec)
+        && Objects.equals(cookingTimeInMin, recipe.cookingTimeInMin)
         && Objects.equals(difficultyLevel, recipe.difficultyLevel)
         && Objects.equals(rating, recipe.rating)
         && status == recipe.status
@@ -248,7 +260,7 @@ public class Recipe {
         name,
         image,
         description,
-        cookingTimeInSec,
+        cookingTimeInMin,
         difficultyLevel,
         rating,
         status,

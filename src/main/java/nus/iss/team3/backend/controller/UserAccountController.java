@@ -3,9 +3,9 @@ package nus.iss.team3.backend.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
+import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
-import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +107,17 @@ public class UserAccountController {
     try {
       List<UserAccount> users = userAccountService.getAllUsers();
       return new ResponseEntity<>(users, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Unexpected error during retrieval of all users", e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping("/getAllUserIds")
+  public ResponseEntity<List<Integer>> getAllUserIds() {
+    try {
+      List<Integer> usersIdList = userAccountService.getAllUserIds();
+      return new ResponseEntity<>(usersIdList, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Unexpected error during retrieval of all users", e);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -17,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
+import nus.iss.team3.backend.domainService.recipe.status.IRecipeStateContext;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeReview;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
  * @author Mao Weining
  */
 class RecipeServiceTest {
+  private IRecipeStateContext mockRecipeContext; // Mocked data access layer
 
   private IRecipeDataAccess mockDataAccess; // Mocked data access layer
   private RecipeService recipeService; // Service class under test
@@ -44,7 +45,8 @@ class RecipeServiceTest {
   @BeforeEach
   void setUp() {
     mockDataAccess = mock(IRecipeDataAccess.class);
-    recipeService = new RecipeService(mockDataAccess);
+    mockRecipeContext = mock(IRecipeStateContext.class);
+    recipeService = new RecipeService(mockDataAccess, mockRecipeContext);
 
     // Initialize sample Recipe object
     sampleRecipe = new Recipe();
@@ -67,18 +69,24 @@ class RecipeServiceTest {
     // Arrange: Create a valid recipe object
     Recipe recipe = new Recipe();
     recipe.setName("Test Recipe");
-    recipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    recipe.setCookingTimeInMin(300); // Set cooking time in seconds
     recipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
+    Recipe returnRecipe = new Recipe();
+    returnRecipe.setId(1L);
+    returnRecipe.setName("Test Recipe");
+    returnRecipe.setCookingTimeInMin(300); // Set cooking time in seconds
+
+    returnRecipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
     // Mock the data access layer to return true
-    when(mockDataAccess.addRecipe(recipe)).thenReturn(true);
+    when(mockRecipeContext.addRecipe(recipe)).thenReturn(returnRecipe);
 
     // Act: Call the service layer's addRecipe method
     boolean result = recipeService.addRecipe(recipe);
 
     // Assert: Verify the result is true and the data access layer was called once
     assertTrue(result);
-    verify(mockDataAccess, times(1)).addRecipe(recipe);
+    verify(mockRecipeContext, times(1)).addRecipe(recipe);
   }
 
   /**
@@ -128,20 +136,20 @@ class RecipeServiceTest {
     Recipe recipe = new Recipe();
     recipe.setId(1L); // Set the ID
     recipe.setName("Updated Recipe");
-    recipe.setCookingTimeInSec(300); // Set cooking time in seconds
+    recipe.setCookingTimeInMin(300); // Set cooking time in seconds
     recipe.setDifficultyLevel(2); // Set difficulty level (e.g., 1 to 5)
 
     // Create an existing recipe object that is different from the new recipe
     Recipe existingRecipe = new Recipe();
     existingRecipe.setId(1L); // Same ID
     existingRecipe.setName("Old Recipe");
-    existingRecipe.setCookingTimeInSec(600); // Different cooking time
+    existingRecipe.setCookingTimeInMin(600); // Different cooking time
     existingRecipe.setDifficultyLevel(3); // Different difficulty level
 
     // Mock the data access layer to return the existing recipe when fetched
     when(mockDataAccess.getRecipeById(recipe.getId())).thenReturn(existingRecipe);
     // Mock the data access layer to return true for the update
-    when(mockDataAccess.updateRecipe(recipe)).thenReturn(true);
+    when(mockRecipeContext.updateRecipe(recipe)).thenReturn(true);
 
     // Act: Call the service layer's updateRecipe method
     boolean result = recipeService.updateRecipe(recipe);
@@ -150,7 +158,7 @@ class RecipeServiceTest {
     assertTrue(result);
     verify(mockDataAccess, times(1))
         .getRecipeById(recipe.getId()); // Verify fetching existing recipe
-    verify(mockDataAccess, times(1)).updateRecipe(recipe); // Verify update was called
+    verify(mockRecipeContext, times(1)).updateRecipe(recipe); // Verify update was called
   }
 
   /**
@@ -225,7 +233,7 @@ class RecipeServiceTest {
     Recipe existingRecipe = new Recipe();
     existingRecipe.setId(1L); // Same ID
     existingRecipe.setName("Old Recipe");
-    existingRecipe.setCookingTimeInSec(600); // Different cooking time
+    existingRecipe.setCookingTimeInMin(600); // Different cooking time
     existingRecipe.setDifficultyLevel(3); // Different difficulty level
 
     // Mock the data access layer to return the existing recipe when fetched
@@ -361,85 +369,5 @@ class RecipeServiceTest {
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(mockDataAccess, times(1)).getAllRecipes();
-  }
-
-  /**
-   * Test getting recipes by name when the name is non-empty and there are matching results Verify
-   * that the service layer calls the data access layer's getRecipesByName method and returns the
-   * expected result
-   */
-  @Test
-  void getRecipesByName_Found() {
-    // Arrange: Set the search name and mock the data access layer to return a list of recipes
-    String name = "Chicken";
-    Recipe recipe = new Recipe();
-    recipe.setId(1L);
-    recipe.setName("Chicken Curry");
-
-    when(mockDataAccess.getRecipesByName(name)).thenReturn(List.of(recipe));
-
-    // Act: Call the service layer's getRecipesByName method
-    List<Recipe> result = recipeService.getRecipesByName(name);
-
-    // Assert: Verify the returned list contains the expected recipe and the data access layer was
-    // called once
-    assertNotNull(result);
-    assertEquals(1, result.size());
-    assertEquals("Chicken Curry", result.getFirst().getName());
-    verify(mockDataAccess, times(1)).getRecipesByName(name);
-  }
-
-  /**
-   * Test getting recipes by name when the name is non-empty but there are no matching results
-   * Verify that the service layer returns an empty list
-   */
-  @Test
-  void getRecipesByName_NotFound() {
-    // Arrange: Set the search name and mock the data access layer to return an empty list
-    String name = "Beef";
-    when(mockDataAccess.getRecipesByName(name)).thenReturn(Collections.emptyList());
-
-    // Act: Call the service layer's getRecipesByName method
-    List<Recipe> result = recipeService.getRecipesByName(name);
-
-    // Assert: Verify the returned list is empty and the data access layer was called once
-    assertNotNull(result);
-    assertTrue(result.isEmpty());
-    verify(mockDataAccess, times(1)).getRecipesByName(name);
-  }
-
-  /**
-   * Test getting recipes by name when an empty string is passed Verify that the service layer
-   * returns an empty list and the data access layer is not called
-   */
-  @Test
-  void getRecipesByName_EmptyName_ReturnsEmptyList() {
-    // Arrange: Set an empty string as the search name
-    String name = "   ";
-
-    // Act: Call the service layer's getRecipesByName method
-    List<Recipe> result = recipeService.getRecipesByName(name);
-
-    // Assert: Verify the returned list is empty and the data access layer's getRecipesByName method
-    // was not called
-    assertNotNull(result);
-    assertTrue(result.isEmpty());
-    verify(mockDataAccess, never()).getRecipesByName(anyString());
-  }
-
-  /**
-   * Test getting recipes by name when null is passed Verify that the service layer returns an empty
-   * list and the data access layer is not called
-   */
-  @Test
-  void getRecipesByName_NullName_ReturnsEmptyList() {
-    // Act: Call the service layer's getRecipesByName method with null
-    List<Recipe> result = recipeService.getRecipesByName(null);
-
-    // Assert: Verify the returned list is empty and the data access layer's getRecipesByName method
-    // was not called
-    assertNotNull(result);
-    assertTrue(result.isEmpty());
-    verify(mockDataAccess, never()).getRecipesByName(anyString());
   }
 }

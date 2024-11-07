@@ -252,7 +252,7 @@ public class TestUserAccountService {
 
   @Test
   public void getAllUser_emptyList() {
-    when(userAccountDataAccess.getAllUsers()).thenReturn(Arrays.asList());
+    when(userAccountDataAccess.getAllUsers()).thenReturn(List.of());
 
     List<UserAccount> result = userAccountService.getAllUsers();
     assertTrue(result.isEmpty());

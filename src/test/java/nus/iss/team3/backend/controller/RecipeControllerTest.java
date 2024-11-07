@@ -56,7 +56,7 @@ public class RecipeControllerTest {
     sampleRecipe.setName("Sample Recipe");
     sampleRecipe.setImage("https://example.com/image.png");
     sampleRecipe.setDescription("A delicious sample recipe.");
-    sampleRecipe.setCookingTimeInSec(3600);
+    sampleRecipe.setCookingTimeInMin(3600);
     sampleRecipe.setDifficultyLevel(2);
     sampleRecipe.setRating(4.5);
     sampleRecipe.setStatus(ERecipeStatus.DRAFT);
@@ -202,33 +202,5 @@ public class RecipeControllerTest {
 
     // Verify the service layer method is called once
     verify(recipeService, times(1)).getAllRecipes();
-  }
-
-  /**
-   * Test successful search for recipes by name. Verify returns 200 OK status and matching recipe
-   * list
-   */
-  @Test
-  void searchRecipes_Found() throws Exception {
-    // Arrange: Create a matching recipe list and mock the service layer to return it
-    String searchName = "Chicken";
-    Recipe recipe = new Recipe();
-    recipe.setId(1L);
-    recipe.setName("Chicken Curry");
-    List<Recipe> recipes = List.of(recipe);
-
-    when(recipeService.getRecipesByName(searchName)).thenReturn(recipes);
-
-    // Act & Assert: Send GET request and verify response status and returned JSON content
-    mockMvc
-        .perform(get("/recipe/search").param("name", searchName))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.length()", is(recipes.size())))
-        .andExpect(jsonPath("$[0].id", is(recipe.getId().intValue())))
-        .andExpect(jsonPath("$[0].name", is(recipe.getName())));
-
-    // Verify the service layer method is called once
-    verify(recipeService, times(1)).getRecipesByName(searchName);
   }
 }

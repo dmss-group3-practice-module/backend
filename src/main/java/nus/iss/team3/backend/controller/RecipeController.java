@@ -1,5 +1,6 @@
 package nus.iss.team3.backend.controller;
 
+import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
 import nus.iss.team3.backend.domainService.recipe.PreferenceCtx;
@@ -13,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * Controller class to handle web call for recipe related queries.
@@ -51,6 +50,7 @@ public class RecipeController {
      * 2. RequestBody Recipe: Bind and deserialize JSON data from the request body to the Recipe object.
      * */
     logger.info("Received request to add recipe: {}", recipe.getName());
+    logger.info("recipe : {}", recipe);
     try {
       recipeService.addRecipe(recipe);
       logger.info("Recipe added successfully: {}", recipe.getName());
@@ -174,25 +174,6 @@ public class RecipeController {
   }
 
   /**
-   * Search for recipes by name.
-   *
-   * @param name The recipe name from the request parameter.
-   * @return Response entity containing the matching recipes.
-   */
-  @GetMapping("/search")
-  public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam String name) {
-    logger.info("Received request to search recipes: Name={}", name);
-    try {
-      List<Recipe> recipes = recipeService.getRecipesByName(name);
-      logger.info("Found {} recipes containing '{}'", recipes.size(), name);
-      return new ResponseEntity<>(recipes, HttpStatus.OK);
-    } catch (Exception e) {
-      logger.error("Failed to search recipes: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  /**
    * Get all recipes from the same creator by creatorId.
    *
    * @param creatorId The recipe ID from the path variable.
@@ -279,6 +260,22 @@ public class RecipeController {
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to search recipes via recommendation: {}", e.getMessage(), e);
+    }
+
+    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @PostMapping("/{id}/rating")
+  public ResponseEntity<Boolean> postReviewRating(
+      @PathVariable Long id, @RequestBody double rating) {
+    logger.info("Received request to update a recipe {}'s rating to {}", id, rating);
+    try {
+      boolean recipesWithReviews = recipeService.updateRecipeRating(id, rating);
+      logger.info("Recipe {}'s rating updated to {}", id, rating);
+      return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Recipe {}'s rating unable to updated to {}", id, rating);
+
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

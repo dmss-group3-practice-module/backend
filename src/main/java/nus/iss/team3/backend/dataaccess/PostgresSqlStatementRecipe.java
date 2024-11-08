@@ -256,13 +256,13 @@ public class PostgresSqlStatementRecipe {
           + INPUT_RECIPE_CREATOR_ID;
   public static final String SQL_RECIPE_GET_ALL = "SELECT * FROM " + TABLE_RECIPE;
   public static final String SQL_RECIPE_GET_ALL_BY_DIFFICULTY =
-      "SELECT * FROM " + TABLE_RECIPE + " ORDER BY difficultylevel";
+          "SELECT * FROM " + TABLE_RECIPE + " ORDER BY " + INPUT_RECIPE_DIFFICULTY_LEVEL;
   public static final String SQL_RECIPE_GET_ALL_BY_RATING =
-      "SELECT * FROM " + TABLE_RECIPE + " ORDER BY rating";
+          "SELECT * FROM " + TABLE_RECIPE + " ORDER BY " + INPUT_RECIPE_RATING;
   public static final String SQL_RECIPE_GET_ALL_BY_DIFFICULTY_DESC =
-      "SELECT * FROM " + TABLE_RECIPE + " ORDER BY difficultylevel DESC";
+          "SELECT * FROM " + TABLE_RECIPE + " ORDER BY " + INPUT_RECIPE_DIFFICULTY_LEVEL + " DESC";
   public static final String SQL_RECIPE_GET_ALL_BY_RATING_DESC =
-      "SELECT * FROM " + TABLE_RECIPE + " ORDER BY rating DESC";
+          "SELECT * FROM " + TABLE_RECIPE + " ORDER BY " + INPUT_RECIPE_RATING + "DESC";
   public static final String SQL_RECIPE_GET_ALL_PUBLISHED =
       "SELECT * FROM "
           + TABLE_RECIPE

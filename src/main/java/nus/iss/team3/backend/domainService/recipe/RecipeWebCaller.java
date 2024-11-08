@@ -1,6 +1,8 @@
 package nus.iss.team3.backend.domainService.recipe;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Collections;
+import java.util.List;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.domainService.webservice.IWebserviceCaller;
 import nus.iss.team3.backend.entity.Recipe;
@@ -11,9 +13,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Implementation of IRecipeService that calls REST APIs using IWebserviceCallerGen.
@@ -183,14 +182,16 @@ public class RecipeWebCaller implements IRecipeService {
 
   @Override
   public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
-    String url = getUrl("/recommend?isDesc="+ isDesc +"&isByRating=false");
+    String url = getUrl("/recommend?isDesc=" + isDesc + "&isByRating=false");
     try {
       ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
       ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
       if (response.getStatusCode().is2xxSuccessful()) {
         return response.getBody();
       } else {
-        logger.error("Failed to retrieve all recipes by difficulty. Status code: {}", response.getStatusCode());
+        logger.error(
+            "Failed to retrieve all recipes by difficulty. Status code: {}",
+            response.getStatusCode());
         return Collections.emptyList();
       }
     } catch (Exception e) {
@@ -201,14 +202,15 @@ public class RecipeWebCaller implements IRecipeService {
 
   @Override
   public List<Recipe> getRecipesByRating(boolean isDesc) {
-    String url = getUrl("/recommend"+ isDesc +"&isByRating=true");
+    String url = getUrl("/recommend" + isDesc + "&isByRating=true");
     try {
       ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
       ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
       if (response.getStatusCode().is2xxSuccessful()) {
         return response.getBody();
       } else {
-        logger.error("Failed to retrieve all recipes by rating. Status code: {}", response.getStatusCode());
+        logger.error(
+            "Failed to retrieve all recipes by rating. Status code: {}", response.getStatusCode());
         return Collections.emptyList();
       }
     } catch (Exception e) {

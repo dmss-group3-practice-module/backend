@@ -182,7 +182,7 @@ public class RecipeWebCaller implements IRecipeService {
 
   @Override
   public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
-    String url = getUrl("/recommend?isDesc=" + isDesc + "&isByRating=false");
+    String url = getUrl("/recipe/recommend?isDesc=" + isDesc + "&isByRating=false");
     try {
       ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
       ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
@@ -202,7 +202,7 @@ public class RecipeWebCaller implements IRecipeService {
 
   @Override
   public List<Recipe> getRecipesByRating(boolean isDesc) {
-    String url = getUrl("/recommend" + isDesc + "&isByRating=true");
+    String url = getUrl("/recipe/recommend" + isDesc + "&isByRating=true");
     try {
       ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
       ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);

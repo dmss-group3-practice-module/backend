@@ -27,5 +27,6 @@ public interface IRecipeService {
   List<Recipe> getRecipesByDifficulty(boolean isDesc);
 
   List<Recipe> getRecipesByRating(boolean isDesc);
+
   boolean updateRecipeRating(Long recipeId, double rating);
 }

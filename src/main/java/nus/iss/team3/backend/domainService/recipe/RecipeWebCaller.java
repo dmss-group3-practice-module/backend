@@ -182,12 +182,41 @@ public class RecipeWebCaller implements IRecipeService {
 
   @Override
   public List<Recipe> getRecipesByDifficulty(boolean isDesc) {
-    return List.of();
+    String url = getUrl("/recipe/recommend?isDesc=" + isDesc + "&isByRating=false");
+    try {
+      ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
+      ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        return response.getBody();
+      } else {
+        logger.error(
+            "Failed to retrieve all recipes by difficulty. Status code: {}",
+            response.getStatusCode());
+        return Collections.emptyList();
+      }
+    } catch (Exception e) {
+      logger.error("Error retrieving all recipes by difficulty: {}", e.getMessage());
+      return Collections.emptyList();
+    }
   }
 
   @Override
   public List<Recipe> getRecipesByRating(boolean isDesc) {
-    return List.of();
+    String url = getUrl("/recipe/recommend" + isDesc + "&isByRating=true");
+    try {
+      ParameterizedTypeReference<List<Recipe>> typeRef = new ParameterizedTypeReference<>() {};
+      ResponseEntity<List<Recipe>> response = webServiceCaller.getCall(url, typeRef);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        return response.getBody();
+      } else {
+        logger.error(
+            "Failed to retrieve all recipes by rating. Status code: {}", response.getStatusCode());
+        return Collections.emptyList();
+      }
+    } catch (Exception e) {
+      logger.error("Error retrieving all recipes by rating: {}", e.getMessage());
+      return Collections.emptyList();
+    }
   }
 
   /**

@@ -2,10 +2,7 @@ package nus.iss.team3.backend.controller;
 
 import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
-import nus.iss.team3.backend.domainService.recipe.IRecipeService;
-import nus.iss.team3.backend.domainService.recipe.PreferenceCtx;
-import nus.iss.team3.backend.domainService.recipe.RecommendByDifficulty;
-import nus.iss.team3.backend.domainService.recipe.RecommendByRating;
+import nus.iss.team3.backend.domainService.recipe.*;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +27,8 @@ public class RecipeController {
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
   private final IRecipeReviewService recipeReviewService;
+
+  private static final int NoUser = 1;
 
   @Autowired
   public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
@@ -255,7 +254,7 @@ public class RecipeController {
         preferenceCtx.setRecommendStrategy(new RecommendByDifficulty());
         logger.info("recommend by difficulty start");
       }
-      recipes = preferenceCtx.recommend(recipeService, isDesc);
+      recipes = preferenceCtx.recommend(recipeService, NoUser, isDesc);
       logger.info("Found {} recipes via recommendation", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
@@ -278,5 +277,23 @@ public class RecipeController {
 
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @GetMapping("/recommendByReview")
+  public ResponseEntity<List<Recipe>> getRecipesViaRecommendationByreview(
+      @RequestParam int userid, @RequestParam boolean isDesc) {
+    try {
+      PreferenceCtx preferenceCtx = new PreferenceCtx();
+      List<Recipe> recipes;
+      preferenceCtx.setRecommendStrategy(new RecommendByUserReview());
+      logger.info("recommend by user's review start");
+      recipes = preferenceCtx.recommend(recipeService, userid, isDesc);
+      logger.info("Found {} recipes via recommendation by review", recipes.size());
+      return new ResponseEntity<>(recipes, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Failed to search recipes via recommendation by review: {}", e.getMessage(), e);
+    }
+
+    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

@@ -1,8 +1,7 @@
 package nus.iss.team3.backend.domainService.recipe;
 
-import nus.iss.team3.backend.entity.Recipe;
-
 import java.util.List;
+import nus.iss.team3.backend.entity.Recipe;
 
 public class PreferenceCtx {
   private RecommendStrategy recommendStrategy;
@@ -13,7 +12,7 @@ public class PreferenceCtx {
   }
 
   // apply user's preference
-  public List<Recipe> recommend(IRecipeService recipeService, boolean isDesc) {
-    return recommendStrategy.recommendRecipes(recipeService, isDesc);
+  public List<Recipe> recommend(IRecipeService recipeService, int userId, boolean isDesc) {
+    return recommendStrategy.recommendRecipes(recipeService, userId, isDesc);
   }
 }

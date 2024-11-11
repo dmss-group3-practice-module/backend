@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import java.util.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import nus.iss.team3.backend.ProfileConfig;
 import nus.iss.team3.backend.dataaccess.IRecipeDataAccess;
 import nus.iss.team3.backend.domainService.recipe.status.IRecipeStateContext;
@@ -171,6 +172,58 @@ public class RecipeService implements IRecipeService {
   @Override
   public List<Recipe> getRecipesByRating(boolean isDesc) {
     return recipeDataAccess.getAllPublishedRecipesByRating(isDesc);
+  }
+
+  @Override
+  public List<Recipe> getRecipesByUserReview(int userId, boolean isDesc) {
+    List<Recipe> recipeList = recipeDataAccess.getRecipeByCreatorId(userId);
+    List<Recipe> sortedRecipes;
+
+    if (recipeList == null || recipeList.isEmpty()) {
+      return recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+    } else {
+      Map<Long, Double> averageRatings =
+          recipeList.stream()
+              .collect(
+                  Collectors.groupingBy(
+                      Recipe::getId, Collectors.averagingDouble(Recipe::getRating)));
+
+      sortedRecipes =
+          recipeList.stream()
+              .filter(recipe -> averageRatings.containsKey(recipe.getId()))
+              .distinct()
+              .sorted(
+                  (r1, r2) -> {
+                    Double rating1 = averageRatings.get(r1.getId());
+                    Double rating2 = averageRatings.get(r2.getId());
+                    return rating2.compareTo(rating1); // DESC
+                  })
+              .collect(Collectors.toList());
+
+      logger.info("get sorted recipeList: {}", sortedRecipes);
+
+      List<Recipe> recipeListTmp = recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+
+      // use set to delete duplicate recipe
+      Set<Long> existingIds = new HashSet<>();
+      for (Recipe recipe : recipeList) {
+        if (recipe.getId() != null) {
+          existingIds.add(recipe.getId());
+        }
+      }
+
+      // merge lists
+      for (Recipe recipe : recipeListTmp) {
+        if (recipe.getId() != null && !existingIds.contains(recipe.getId())) {
+          sortedRecipes.add(recipe);
+          existingIds.add(recipe.getId());
+        }
+      }
+    }
+
+    logger.info("get merged recipeList: {}", sortedRecipes);
+
+    return sortedRecipes;
   }
 
   /**

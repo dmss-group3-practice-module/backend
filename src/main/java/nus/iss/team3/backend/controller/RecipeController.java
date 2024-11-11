@@ -2,10 +2,7 @@ package nus.iss.team3.backend.controller;
 
 import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
-import nus.iss.team3.backend.domainService.recipe.IRecipeService;
-import nus.iss.team3.backend.domainService.recipe.PreferenceCtx;
-import nus.iss.team3.backend.domainService.recipe.RecommendByDifficulty;
-import nus.iss.team3.backend.domainService.recipe.RecommendByRating;
+import nus.iss.team3.backend.domainService.recipe.*;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +27,10 @@ public class RecipeController {
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
   private final IRecipeReviewService recipeReviewService;
+
+  private static final String DEAFULT_USER = "-1";
+  private static final String DEAFULT_ISBYRATING = "false";
+  private static final String DEAFULT_ISDESC = "true";
 
   @Autowired
   public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
@@ -244,18 +245,23 @@ public class RecipeController {
    */
   @GetMapping("/recommend")
   public ResponseEntity<List<Recipe>> getRecipesViaRecommendation(
-      @RequestParam boolean isByRating, @RequestParam boolean isDesc) {
+      @RequestParam(defaultValue = DEAFULT_ISBYRATING) boolean isByRating,
+      @RequestParam(defaultValue = DEAFULT_ISDESC) boolean isDesc,
+      @RequestParam(defaultValue = DEAFULT_USER) int userId) {
     try {
       PreferenceCtx preferenceCtx = new PreferenceCtx();
       List<Recipe> recipes;
-      if (isByRating) {
+      if (userId != Integer.parseInt(DEAFULT_USER)) {
+        preferenceCtx.setRecommendStrategy(new RecommendByUserReview());
+        logger.info("recommend by user's review start");
+      } else if (isByRating) {
         preferenceCtx.setRecommendStrategy(new RecommendByRating());
         logger.info("recommend by rating start");
       } else {
         preferenceCtx.setRecommendStrategy(new RecommendByDifficulty());
         logger.info("recommend by difficulty start");
       }
-      recipes = preferenceCtx.recommend(recipeService, isDesc);
+      recipes = preferenceCtx.recommend(recipeService, userId, isDesc);
       logger.info("Found {} recipes via recommendation", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {

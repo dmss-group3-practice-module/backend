@@ -28,7 +28,9 @@ public class RecipeController {
   private final IRecipeService recipeService;
   private final IRecipeReviewService recipeReviewService;
 
-  private static final int NoUser = 1;
+  private static final String DEAFULT_USER = "-1";
+  private static final String DEAFULT_ISBYRATING = "false";
+  private static final String DEAFULT_ISDESC = "true";
 
   @Autowired
   public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
@@ -243,18 +245,23 @@ public class RecipeController {
    */
   @GetMapping("/recommend")
   public ResponseEntity<List<Recipe>> getRecipesViaRecommendation(
-      @RequestParam boolean isByRating, @RequestParam boolean isDesc) {
+      @RequestParam(defaultValue = DEAFULT_ISBYRATING) boolean isByRating,
+      @RequestParam(defaultValue = DEAFULT_ISDESC) boolean isDesc,
+      @RequestParam(defaultValue = DEAFULT_USER) int userId) {
     try {
       PreferenceCtx preferenceCtx = new PreferenceCtx();
       List<Recipe> recipes;
-      if (isByRating) {
+      if (userId != Integer.parseInt(DEAFULT_USER)) {
+        preferenceCtx.setRecommendStrategy(new RecommendByUserReview());
+        logger.info("recommend by user's review start");
+      } else if (isByRating) {
         preferenceCtx.setRecommendStrategy(new RecommendByRating());
         logger.info("recommend by rating start");
       } else {
         preferenceCtx.setRecommendStrategy(new RecommendByDifficulty());
         logger.info("recommend by difficulty start");
       }
-      recipes = preferenceCtx.recommend(recipeService, NoUser, isDesc);
+      recipes = preferenceCtx.recommend(recipeService, userId, isDesc);
       logger.info("Found {} recipes via recommendation", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
@@ -277,23 +284,5 @@ public class RecipeController {
 
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  @GetMapping("/recommendByReview")
-  public ResponseEntity<List<Recipe>> getRecipesViaRecommendationByreview(
-      @RequestParam int userid, @RequestParam boolean isDesc) {
-    try {
-      PreferenceCtx preferenceCtx = new PreferenceCtx();
-      List<Recipe> recipes;
-      preferenceCtx.setRecommendStrategy(new RecommendByUserReview());
-      logger.info("recommend by user's review start");
-      recipes = preferenceCtx.recommend(recipeService, userid, isDesc);
-      logger.info("Found {} recipes via recommendation by review", recipes.size());
-      return new ResponseEntity<>(recipes, HttpStatus.OK);
-    } catch (Exception e) {
-      logger.error("Failed to search recipes via recommendation by review: {}", e.getMessage(), e);
-    }
-
-    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

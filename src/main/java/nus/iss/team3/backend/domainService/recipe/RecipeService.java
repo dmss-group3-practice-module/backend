@@ -179,7 +179,7 @@ public class RecipeService implements IRecipeService {
     List<Recipe> recipeList = recipeDataAccess.getRecipeByCreatorId(userId);
     List<Recipe> sortedRecipes;
 
-    if (recipeList.isEmpty()) {
+    if (recipeList == null || recipeList.isEmpty()) {
       return recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
     } else {
       Map<Long, Double> averageRatings =

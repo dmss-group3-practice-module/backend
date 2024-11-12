@@ -6,24 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import nus.iss.team3.backend.dataaccess.postgres.PostgresDataAccess;
 import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
@@ -101,13 +91,89 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM"), anyMap());
   }
 
+  @Test
+  void addRecipe_ValueTest_nullIngredients_nullCookingSteps() {
+    // Arrange: Create a sample recipe object
+    Recipe recipe = createSampleRecipe();
+    recipe.setIngredients(null);
+    recipe.setCookingSteps(null);
+    Map<String, Object> insertResult = Map.of("id", 1L);
+    // Mock the insertion of the recipe to return the generated ID
+    when(postgresDataAccess.queryStatement(anyString(), anyMap()))
+        .thenReturn(Collections.singletonList(insertResult));
+
+    // Act: Call the method to add the recipe
+    Recipe result = recipeDataAccess.addRecipe(recipe);
+
+    // Assert: Verify that the addition was successful and that the recipe ID was set
+    assertNotNull(result);
+    assertEquals(1L, recipe.getId());
+
+    // Verify that the SQL statement to insert the recipe was called once
+    verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe "), anyMap());
+
+    // Confirm that no deletes operations were executed
+    verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM"), anyMap());
+  }
+
+  @Test
+  void addRecipe_ValueTest_emptyIngredients_emptyCookingSteps() {
+    // Arrange: Create a sample recipe object
+    Recipe recipe = createSampleRecipe();
+    recipe.setIngredients(new ArrayList<>());
+    recipe.setCookingSteps(new ArrayList<>());
+    Map<String, Object> insertResult = Map.of("id", 1L);
+    // Mock the insertion of the recipe to return the generated ID
+    when(postgresDataAccess.queryStatement(anyString(), anyMap()))
+        .thenReturn(Collections.singletonList(insertResult));
+
+    // Act: Call the method to add the recipe
+    Recipe result = recipeDataAccess.addRecipe(recipe);
+
+    // Assert: Verify that the addition was successful and that the recipe ID was set
+    assertNotNull(result);
+    assertEquals(1L, recipe.getId());
+
+    // Verify that the SQL statement to insert the recipe was called once
+    verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe "), anyMap());
+
+    // Confirm that no deletes operations were executed
+    verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM"), anyMap());
+  }
+
   /**
    * Test the failure case of adding a recipe when no rows are returned from inserting the recipe.
    * Verify that the method should return false and that the related INSERT statements are not
    * executed.
    */
   @Test
-  void addRecipe_Failure_InsertRecipe() {
+  void addRecipe_Failure_InsertNullRecipe() {
+    // Arrange: Create a sample recipe object
+    Recipe recipe = createSampleRecipe();
+    // Mock that inserting the recipe returns no results
+    when(postgresDataAccess.queryStatement(anyString(), anyMap())).thenReturn(null);
+
+    // Act: Call the method to add the recipe
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(recipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Failed to insert recipe", exception.getMessage());
+
+    // Assert: Verify that the addition failed and that the recipe ID remains null
+    assertNull(recipe.getId());
+
+    // Verify that only the attempt to insert the recipe was made, without inserting ingredients or
+    // cooking steps
+    verify(postgresDataAccess, times(1)).queryStatement(contains("INSERT INTO recipe"), anyMap());
+    verify(postgresDataAccess, never())
+        .queryStatement(contains("INSERT INTO recipe_ingredients"), anyMap());
+    verify(postgresDataAccess, never())
+        .queryStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
+  }
+
+  @Test
+  void addRecipe_Failure_InsertEmptyRecipe() {
     // Arrange: Create a sample recipe object
     Recipe recipe = createSampleRecipe();
     // Mock that inserting the recipe returns no results
@@ -155,6 +221,76 @@ class RecipeDataAccessTest {
     verify(postgresDataAccess, never()).upsertStatement(anyString(), anyMap());
   }
 
+  @Test
+  void addRecipe_InvalidRecipe_ThrowsException_withNullValues() {
+    // Arrange: Create an invalid recipe object missing required fields
+    Recipe invalidRecipe = new Recipe(); // Missing required fields
+    invalidRecipe.setCreatorId(1L);
+    // Act & Assert: Calling the add method should throw an exception
+    Exception exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
+
+    invalidRecipe.setName("name");
+    // Act & Assert: Calling the add method should throw an exception
+    exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
+
+    invalidRecipe.setCookingTimeInMin(120);
+    // Act & Assert: Calling the add method should throw an exception
+    exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
+
+    invalidRecipe.setDifficultyLevel(3);
+    // Act & Assert: Calling the add method should throw an exception
+    exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
+    invalidRecipe.setRating(3.2);
+    // Act & Assert: Calling the add method should throw an exception
+    exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
+    invalidRecipe.setStatus(ERecipeStatus.DRAFT);
+    // Act & Assert: Calling the add method should throw an exception
+    exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Required fields for recipe cannot be null", exception.getMessage());
+
+    invalidRecipe.setCuisine("chinese");
+    // Act & Assert: Calling the add method should throw an exception
+    exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> recipeDataAccess.addRecipe(invalidRecipe));
+
+    // Verify that the exception message is correct
+    assertEquals("Failed to insert recipe", exception.getMessage());
+
+    // Verify that there was no interaction with PostgresDataAccess
+    verify(postgresDataAccess, times(1)).queryStatement(anyString(), anyMap());
+    verify(postgresDataAccess, never()).upsertStatement(anyString(), anyMap());
+  }
+
   /**
    * Test that an exception is thrown when the database throws an exception while adding a recipe.
    * Verify that the method should throw the corresponding exception and log the error.
@@ -184,10 +320,121 @@ class RecipeDataAccessTest {
         .upsertStatement(contains("INSERT INTO recipe_cooking_step"), anyMap());
   }
 
+  @Test
+  void addRecipeWithDraft_Success() {
+    // Arrange: Create a sample recipe object
+    Recipe recipe = createSampleRecipe();
+    Recipe draftRecipe = new Recipe();
+    draftRecipe.setId(298L);
+    recipe.setDraftRecipe(draftRecipe);
+    Map<String, Object> insertResult = Map.of("id", 1L);
+    // Mock the insertion of the recipe to return the generated ID
+    when(postgresDataAccess.queryStatement(anyString(), anyMap()))
+        .thenReturn(Collections.singletonList(insertResult));
+
+    // Act: Call the method to add the recipe
+    Recipe result = recipeDataAccess.addRecipe(recipe);
+
+    // Assert: Verify that the addition was successful and that the recipe ID was set
+    assertNotNull(result);
+    assertEquals(1L, recipe.getId());
+
+    // Verify that the SQL statement to insert the recipe was called once
+    verify(postgresDataAccess, times(3)).queryStatement(contains("INSERT INTO recipe"), anyMap());
+
+    // Verify that the INSERT statement for each ingredient was called correctly
+    for (RecipeIngredient ingredient : recipe.getIngredients()) {
+      // argThat(params -> { ... }) is a parameter matcher used to verify that the parameters passed
+      // to the upsertStatement method are correct.
+      verify(postgresDataAccess, times(1))
+          .queryStatement(
+              contains("INSERT INTO recipe_ingredients"),
+              argThat(
+                  params ->
+                      Objects.equals(params.get("recipe_id"), 1L)
+                          && Objects.equals(params.get("name"), ingredient.getName())
+                          && Objects.equals(params.get("quantity"), ingredient.getQuantity())
+                          && Objects.equals(params.get("uom"), ingredient.getUom())));
+    }
+
+    // Verify that the INSERT statement for each cooking step was called correctly
+    for (CookingStep step : recipe.getCookingSteps()) {
+      verify(postgresDataAccess, times(1))
+          .queryStatement(
+              contains("INSERT INTO recipe_cooking_step"),
+              argThat(
+                  params ->
+                      Objects.equals(params.get("recipe_id"), 1L)
+                          && Objects.equals(params.get("description"), step.getDescription())
+                          && Objects.equals(params.get("image"), step.getImage())));
+    }
+
+    // Confirm that no deletes operations were executed
+    verify(postgresDataAccess, never()).upsertStatement(contains("DELETE FROM"), anyMap());
+  }
+
   /**
    * Test the successful update of a recipe. Verify that the method returns true, and that the
    * related UPDATE, DELETE, and INSERT statements are executed as expected.
    */
+  @Test
+  void updateRecipe_Success_nullIngredient_nullCookingSteps() {
+    // Arrange: Create a sample recipe object
+    Recipe recipe = createSampleRecipe();
+    recipe.setIngredients(null);
+    recipe.setCookingSteps(null);
+    recipe.setId(1L); // Set the ID for the recipe to be updated
+
+    // Mock the behavior of the database access methods
+    when(postgresDataAccess.upsertStatement(anyString(), anyMap())).thenReturn(1);
+
+    // Act: Call the method to update the recipe
+    boolean result = recipeDataAccess.updateRecipe(recipe);
+
+    // Assert: Verify that the update was successful
+    assertTrue(result);
+
+    // Verify that the SQL statement to update the recipe was called once
+    verify(postgresDataAccess, times(1))
+        .upsertStatement(
+            contains("UPDATE recipe"),
+            argThat(
+                params ->
+                    Objects.equals(params.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID), 1L)
+                        && Objects.equals(
+                            params.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME),
+                            recipe.getName())));
+  }
+
+  @Test
+  void updateRecipe_Success_emptyIngredients_emptyCookingSteps() {
+    // Arrange: Create a sample recipe object
+    Recipe recipe = createSampleRecipe();
+    recipe.setIngredients(new ArrayList<>());
+    recipe.setCookingSteps(new ArrayList<>());
+    recipe.setId(1L); // Set the ID for the recipe to be updated
+
+    // Mock the behavior of the database access methods
+    when(postgresDataAccess.upsertStatement(anyString(), anyMap())).thenReturn(1);
+
+    // Act: Call the method to update the recipe
+    boolean result = recipeDataAccess.updateRecipe(recipe);
+
+    // Assert: Verify that the update was successful
+    assertTrue(result);
+
+    // Verify that the SQL statement to update the recipe was called once
+    verify(postgresDataAccess, times(1))
+        .upsertStatement(
+            contains("UPDATE recipe"),
+            argThat(
+                params ->
+                    Objects.equals(params.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID), 1L)
+                        && Objects.equals(
+                            params.get(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME),
+                            recipe.getName())));
+  }
+
   @Test
   void updateRecipe_Success() {
     // Arrange: Create a sample recipe object
@@ -492,7 +739,32 @@ class RecipeDataAccessTest {
    * return null and that there are no queries for ingredients and cooking steps.
    */
   @Test
-  void getRecipeById_NotFound() {
+  void getRecipeById_NotFound_null() {
+    // Arrange: Set the recipe ID and mock that the query returns no results
+    Long recipeId = 1L;
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE id"), anyMap()))
+        .thenReturn(null);
+
+    // Act: Call the method to get the recipe
+    Recipe recipe = recipeDataAccess.getRecipeById(recipeId);
+
+    // Assert: Verify that the method returns null
+    assertNull(recipe);
+
+    // Verify that only the SELECT query for the recipe was executed, with no queries for
+    // ingredients and cooking steps
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            contains("SELECT * FROM recipe WHERE id"),
+            argThat(params -> Objects.equals(params.get("id"), recipeId)));
+    verify(postgresDataAccess, never())
+        .queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap());
+    verify(postgresDataAccess, never())
+        .queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap());
+  }
+
+  @Test
+  void getRecipeById_NotFound_empty() {
     // Arrange: Set the recipe ID and mock that the query returns no results
     Long recipeId = 1L;
     when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe WHERE id"), anyMap()))
@@ -548,6 +820,94 @@ class RecipeDataAccessTest {
         .queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap());
   }
 
+  @Test
+  void getRecipeByDraftId_Found() {
+    // Arrange: Set the recipe ID and mock the returned recipe data
+    Long draftRecipeId = 1L;
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID), anyMap()))
+        .thenReturn(recipeResult);
+    // Mock the query for ingredients and cooking steps data
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID), anyMap()))
+        .thenReturn(Collections.singletonList(createSampleIngredientMap()));
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID), anyMap()))
+        .thenReturn(Collections.singletonList(createSampleCookingStepMap()));
+
+    // Act: Call the method to get the recipe
+    Recipe recipe = recipeDataAccess.getRecipeByDraftId(draftRecipeId);
+
+    // Assert: Verify that the recipe object is correctly assembled
+    assertNotNull(recipe);
+    assertEquals(1L, recipe.getId());
+    assertEquals("Sample Recipe", recipe.getName());
+    assertEquals(1, recipe.getIngredients().size());
+    assertEquals(1, recipe.getCookingSteps().size());
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID),
+            argThat(params -> Objects.equals(params.get("draftid"), draftRecipeId)));
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID),
+            argThat(params -> Objects.equals(params.get("recipe_id"), draftRecipeId)));
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID),
+            argThat(params -> Objects.equals(params.get("recipe_id"), draftRecipeId)));
+  }
+
+  @Test
+  void getRecipeByDraftId_nullResult() {
+    // Arrange: Set the recipe ID and mock the returned recipe data
+    Long draftRecipeId = 1L;
+    List<Map<String, Object>> recipeResult = null;
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID), anyMap()))
+        .thenReturn(recipeResult);
+    // Mock the query for ingredients and cooking steps data
+
+    // Act: Call the method to get the recipe
+    Recipe recipe = recipeDataAccess.getRecipeByDraftId(draftRecipeId);
+
+    // Assert: Verify that the recipe object is correctly assembled
+    assertNull(recipe);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID),
+            argThat(params -> Objects.equals(params.get("draftid"), draftRecipeId)));
+  }
+
+  @Test
+  void getRecipeByDraftId_emptyResult() {
+    // Arrange: Set the recipe ID and mock the returned recipe data
+    Long draftRecipeId = 1L;
+    List<Map<String, Object>> recipeResult = new ArrayList<>();
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID), anyMap()))
+        .thenReturn(recipeResult);
+    // Mock the query for ingredients and cooking steps data
+
+    // Act: Call the method to get the recipe
+    Recipe recipe = recipeDataAccess.getRecipeByDraftId(draftRecipeId);
+
+    // Assert: Verify that the recipe object is correctly assembled
+    assertNull(recipe);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_DRAFT_ID),
+            argThat(params -> Objects.equals(params.get("draftid"), draftRecipeId)));
+  }
+
   /**
    * Test getting all recipes. Verify that the query operation is executed as expected and that the
    * recipe list is correctly assembled.
@@ -567,6 +927,109 @@ class RecipeDataAccessTest {
 
     // Act: Call the method to get all recipes
     List<Recipe> recipes = recipeDataAccess.getAllRecipes();
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNotNull(recipes);
+    assertEquals(1, recipes.size());
+    Recipe recipe = recipes.getFirst();
+    assertEquals(1L, recipe.getId());
+    assertEquals("Sample Recipe", recipe.getName());
+    assertEquals(1, recipe.getIngredients().size());
+    assertEquals(1, recipe.getCookingSteps().size());
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1)).queryStatement(contains("SELECT * FROM recipe"), isNull());
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            contains("SELECT * FROM recipe_ingredients"),
+            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            contains("SELECT * FROM recipe_cooking_step"),
+            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+  }
+
+  @Test
+  void getAllRecipes_noColumnRetrieved() {
+    // Arrange: Mock the returned data for all recipes
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    {
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_ID, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATOR_ID, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_NAME, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_IMAGE, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DESCRIPTION, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_COOKING_TIME, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DIFFICULTY_LEVEL, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_RATING, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_STATUS, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CREATE_TIME, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_UPDATE_TIME, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE, null);
+      recipeRow.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID, null);
+    }
+    List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe"), isNull()))
+        .thenReturn(recipeResult);
+    // Mock the query for ingredients and cooking steps data
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllRecipes();
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNotNull(recipes);
+    assertEquals(1, recipes.size());
+    Recipe recipe = recipes.getFirst();
+    assertNull(recipe.getId());
+    assertNull(recipe.getName());
+    assertEquals(0, recipe.getIngredients().size());
+    assertEquals(0, recipe.getCookingSteps().size());
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1)).queryStatement(contains("SELECT * FROM recipe"), isNull());
+    verify(postgresDataAccess, times(0))
+        .queryStatement(
+            contains("SELECT * FROM recipe_ingredients"),
+            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(0))
+        .queryStatement(
+            contains("SELECT * FROM recipe_cooking_step"),
+            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+  }
+
+  @Test
+  void getAllPublishedRecipes_nullResult() {
+    // Arrange: Mock the returned data for all recipes
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    List<Map<String, Object>> recipeResult = null;
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe"), isNull()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1)).queryStatement(contains("SELECT * FROM recipe"), isNull());
+  }
+
+  @Test
+  void getAllPublishedRecipes() {
+    // Arrange: Mock the returned data for all recipes
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe"), isNull()))
+        .thenReturn(recipeResult);
+    // Mock the query for ingredients and cooking steps data
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_ingredients"), anyMap()))
+        .thenReturn(Collections.singletonList(createSampleIngredientMap()));
+    when(postgresDataAccess.queryStatement(contains("SELECT * FROM recipe_cooking_step"), anyMap()))
+        .thenReturn(Collections.singletonList(createSampleCookingStepMap()));
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
 
     // Assert: Verify that the recipe list is correctly assembled
     assertNotNull(recipes);
@@ -632,6 +1095,312 @@ class RecipeDataAccessTest {
         .queryStatement(
             contains("SELECT * FROM recipe_cooking_step"),
             argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+  }
+
+  @Test
+  void getRecipesByCreatorId_Found() {
+    // Arrange: Set the search name and mock the returned recipe data
+    int creatorId = 1;
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    List<Map<String, Object>> recipeResult = Collections.singletonList(recipeRow);
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID), anyMap()))
+        .thenReturn(recipeResult);
+    // Mock the query for ingredients and cooking steps data
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID), anyMap()))
+        .thenReturn(Collections.singletonList(createSampleIngredientMap()));
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID), anyMap()))
+        .thenReturn(Collections.singletonList(createSampleCookingStepMap()));
+
+    // Act: Call the method to get recipes by name
+    List<Recipe> recipes = recipeDataAccess.getRecipeByCreatorId(creatorId);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNotNull(recipes);
+    assertEquals(1, recipes.size());
+    Recipe recipe = recipes.getFirst();
+    assertEquals("Sample Recipe", recipe.getName());
+    assertEquals(1, recipe.getIngredients().size());
+    assertEquals(1, recipe.getCookingSteps().size());
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID),
+            argThat(params -> Objects.equals(params.get("creator_id"), creatorId)));
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID),
+            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID),
+            argThat(params -> Objects.equals(params.get("recipe_id"), 1L)));
+  }
+
+  @Test
+  void getRecipesByCreatorId_NotFound_nullResult() {
+    // Arrange: Set the search name and mock the returned recipe data
+    int creatorId = 1;
+    List<Map<String, Object>> recipeResult = null;
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID), anyMap()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get recipes by name
+    List<Recipe> recipes = recipeDataAccess.getRecipeByCreatorId(creatorId);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+  }
+
+  @Test
+  void getRecipesByCreatorId_NotFound_emptyResult() {
+    // Arrange: Set the search name and mock the returned recipe data
+    int creatorId = 1;
+    List<Map<String, Object>> recipeResult = new ArrayList<>();
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_BY_CREATOR_ID), anyMap()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get recipes by name
+    List<Recipe> recipes = recipeDataAccess.getRecipeByCreatorId(creatorId);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+  }
+
+  @Test
+  void getAllPublishedRecipesByDifficulty_nullResult() {
+    boolean isDesc = true;
+    // Arrange: Mock the returned data for all recipes
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    List<Map<String, Object>> recipeResult = null;
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY_DESC), isNull()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY_DESC), isNull());
+  }
+
+  @Test
+  void getAllPublishedRecipesByDifficulty_emptyResult() {
+    boolean isDesc = false;
+    // Arrange: Mock the returned data for all recipes
+    List<Map<String, Object>> recipeResult = new ArrayList<>();
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY), isNull()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY), isNull());
+  }
+
+  @Test
+  void getAllPublishedRecipesByDifficulty_success() {
+    boolean isDesc = false;
+    // Arrange: Mock the returned data for all recipes
+    List<Map<String, Object>> recipeResult = new ArrayList<>();
+    {
+      Map<String, Object> recipeRow = createSampleRecipeMap();
+      recipeResult.add(recipeRow);
+    }
+    List<Map<String, Object>> ingredientResult = new ArrayList<>();
+    {
+      Map<String, Object> recipeRow = createSampleIngredientMap();
+      ingredientResult.add(recipeRow);
+    }
+    List<Map<String, Object>> cookingStepResult = new ArrayList<>();
+    {
+      Map<String, Object> recipeRow = createSampleCookingStepMap();
+      cookingStepResult.add(recipeRow);
+    }
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY), isNull()))
+        .thenReturn(recipeResult);
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID), any()))
+        .thenReturn(ingredientResult);
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID), any()))
+        .thenReturn(cookingStepResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNotNull(recipes);
+    assertEquals(1, recipes.size());
+    Recipe recipe = recipes.getFirst();
+    assertEquals(1L, recipe.getId());
+    assertEquals("Sample Recipe", recipe.getName());
+    assertEquals(1, recipe.getIngredients().size());
+    assertEquals(1, recipe.getCookingSteps().size());
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY), isNull());
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID), any());
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID), any());
+  }
+
+  @Test
+  void getAllPublishedRecipesByRating_nullResult() {
+    boolean isDesc = true;
+    // Arrange: Mock the returned data for all recipes
+    Map<String, Object> recipeRow = createSampleRecipeMap();
+    List<Map<String, Object>> recipeResult = null;
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING_DESC), isNull()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipesByRating(isDesc);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING_DESC), isNull());
+  }
+
+  @Test
+  void getAllPublishedRecipesByRating_emptyResult() {
+    boolean isDesc = false;
+    // Arrange: Mock the returned data for all recipes
+    List<Map<String, Object>> recipeResult = new ArrayList<>();
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING), isNull()))
+        .thenReturn(recipeResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipesByRating(isDesc);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNull(recipes);
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING), isNull());
+  }
+
+  @Test
+  void getAllPublishedRecipesByRating_success() {
+    boolean isDesc = false;
+    // Arrange: Mock the returned data for all recipes
+    List<Map<String, Object>> recipeResult = new ArrayList<>();
+    {
+      Map<String, Object> recipeRow = createSampleRecipeMap();
+      recipeResult.add(recipeRow);
+    }
+    List<Map<String, Object>> ingredientResult = new ArrayList<>();
+    {
+      Map<String, Object> recipeRow = createSampleIngredientMap();
+      ingredientResult.add(recipeRow);
+    }
+    List<Map<String, Object>> cookingStepResult = new ArrayList<>();
+    {
+      Map<String, Object> recipeRow = createSampleCookingStepMap();
+      cookingStepResult.add(recipeRow);
+    }
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING), isNull()))
+        .thenReturn(recipeResult);
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID), any()))
+        .thenReturn(ingredientResult);
+    when(postgresDataAccess.queryStatement(
+            eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID), any()))
+        .thenReturn(cookingStepResult);
+
+    // Act: Call the method to get all recipes
+    List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipesByRating(isDesc);
+
+    // Assert: Verify that the recipe list is correctly assembled
+    assertNotNull(recipes);
+    assertEquals(1, recipes.size());
+    Recipe recipe = recipes.getFirst();
+    assertEquals(1L, recipe.getId());
+    assertEquals("Sample Recipe", recipe.getName());
+    assertEquals(1, recipe.getIngredients().size());
+    assertEquals(1, recipe.getCookingSteps().size());
+
+    // Verify that the SELECT query was called correctly
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING), isNull());
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_COOKING_STEP_GET_BY_RECIPE_ID), any());
+    verify(postgresDataAccess, times(1))
+        .queryStatement(eq(PostgresSqlStatementRecipe.SQL_INGREDIENT_GET_BY_RECIPE_ID), any());
+  }
+
+  @Test
+  void updateRecipeRating_0RowsReturned() {
+    long recipeId = 1L;
+    double rating = 4.5;
+    when(postgresDataAccess.upsertStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING), anyMap()))
+        .thenReturn(0);
+
+    boolean result = recipeDataAccess.updateRecipeRating(recipeId, rating);
+
+    assertFalse(result);
+
+    verify(postgresDataAccess, times(1))
+        .upsertStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING), any());
+  }
+
+  @Test
+  void updateRecipeRating_2RowsReturned() {
+    long recipeId = 1L;
+    double rating = 4.5;
+    when(postgresDataAccess.upsertStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING), anyMap()))
+        .thenReturn(2);
+
+    boolean result = recipeDataAccess.updateRecipeRating(recipeId, rating);
+
+    assertFalse(result);
+
+    verify(postgresDataAccess, times(1))
+        .upsertStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING), any());
+  }
+
+  @Test
+  void updateRecipeRating_1RowsReturned() {
+    long recipeId = 1L;
+    double rating = 4.5;
+    when(postgresDataAccess.upsertStatement(
+            eq(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING), anyMap()))
+        .thenReturn(1);
+
+    boolean result = recipeDataAccess.updateRecipeRating(recipeId, rating);
+
+    assertTrue(result);
+
+    verify(postgresDataAccess, times(1))
+        .upsertStatement(eq(PostgresSqlStatementRecipe.SQL_RECIPE_UPDATE_RATING), any());
   }
 
   /**
@@ -726,6 +1495,8 @@ class RecipeDataAccessTest {
     map.put(
         PostgresSqlStatementRecipe.COLUMN_RECIPE_UPDATE_TIME,
         new Timestamp(System.currentTimeMillis()));
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_CUISINE, "Chinese");
+    map.put(PostgresSqlStatementRecipe.COLUMN_RECIPE_DRAFT_ID, 2L);
     return map;
   }
 

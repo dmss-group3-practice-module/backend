@@ -34,7 +34,7 @@ public class IngredientBusinessService implements IIngredientBusinessService {
       // Get all ingredients expiring in next 3 days in one query
       List<UserIngredient> expiringIngredients = ingredientService.getExpiringIngredientsInRange();
 
-      if (expiringIngredients.isEmpty()) {
+      if (expiringIngredients == null || expiringIngredients.isEmpty()) {
         logger.info("No ingredients found expiring in the next 3 days");
         return;
       }

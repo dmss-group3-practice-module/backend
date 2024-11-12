@@ -34,13 +34,13 @@ public class IngredientController {
         return new ResponseEntity<>(true, HttpStatus.CREATED);
       }
       logger.info("Creation of Ingredient: {} failed", ingredient.getName());
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     } catch (IllegalArgumentException e) {
       logger.error("Invalid status or role code", e);
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Error adding ingredient", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -52,10 +52,10 @@ public class IngredientController {
         return new ResponseEntity<>(true, HttpStatus.OK);
       }
       logger.info("Update of Ingredient: {} failed", ingredient.getName());
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Error updating ingredient", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -67,10 +67,10 @@ public class IngredientController {
         return new ResponseEntity<>(true, HttpStatus.OK);
       }
       logger.info("Deletion of Ingredient: {} failed", id);
-      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Error deleting ingredient", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -82,10 +82,10 @@ public class IngredientController {
         return new ResponseEntity<>(true, HttpStatus.OK);
       }
       logger.info("Deletion of Ingredient by user: {} failed", userId);
-      return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Error deleting ingredient", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -98,11 +98,11 @@ public class IngredientController {
         return new ResponseEntity<UserIngredient>(ingredient, HttpStatus.OK);
       } else {
         logger.info("Ingredient not found: {}", id);
-        return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
       }
     } catch (Exception e) {
       logger.error("Error getting ingredient", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -115,11 +115,11 @@ public class IngredientController {
         return new ResponseEntity<List<UserIngredient>>(ingredientList, HttpStatus.OK);
       } else {
         logger.info("Ingredient not found: {}", name);
-        return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<Boolean>(false, HttpStatus.BAD_REQUEST);
       }
     } catch (Exception e) {
       logger.error("Error getting ingredient", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -131,7 +131,7 @@ public class IngredientController {
       return new ResponseEntity<>(ingredients, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Error getting all ingredients for user", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -146,7 +146,7 @@ public class IngredientController {
       return new ResponseEntity<>(expiringIngredients, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Error getting expiring ingredients for user {}", userId, e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -158,11 +158,11 @@ public class IngredientController {
       return new ResponseEntity<>(expiringIngredients, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Error getting ingredients expiring in range", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
-  @PostMapping("/trigger-expiry-check")
+  @GetMapping("/trigger-expiry-check")
   public ResponseEntity<?> triggerExpiryCheck() {
     try {
       ingredientBusinessService.checkIngredientsExpiry();
@@ -170,7 +170,7 @@ public class IngredientController {
       return new ResponseEntity<>(true, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Error triggering expiry check", e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 }

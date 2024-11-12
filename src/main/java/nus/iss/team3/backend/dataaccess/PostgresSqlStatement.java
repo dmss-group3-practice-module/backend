@@ -32,6 +32,13 @@ public class PostgresSqlStatement {
   public static final String COLUMN_USER_ACCOUNT_CREATE_DATETIME = "create_datetime";
   public static final String COLUMN_USER_ACCOUNT_UPDATE_DATETIME = "update_datetime";
 
+  public static final String SQL_AUTHENTICATE_USER =
+      "SELECT * FROM "
+          + PostgresSqlStatement.TABLE_USER_ACCOUNT
+          + " WHERE "
+          + PostgresSqlStatement.COLUMN_USER_ACCOUNT_NAME
+          + " = :"
+          + PostgresSqlStatement.INPUT_USER_ACCOUNT_NAME;
   public static final String SQL_USER_ACCOUNT_ADD =
       "INSERT INTO "
           + TABLE_USER_ACCOUNT

@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -23,8 +22,6 @@ public class NotificationDataAccess implements INotificationDataAccess {
   private static final Logger logger = LogManager.getLogger(NotificationDataAccess.class);
 
   @Autowired IPostgresDataAccess postgresDataAccess;
-
-  @Autowired private JdbcTemplate jdbcTemplate;
 
   // view notification list
   @Override
@@ -35,7 +32,7 @@ public class NotificationDataAccess implements INotificationDataAccess {
       sqlInput.put("limit", limit);
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(SQL_NOTIFICATION_GET_FOR_USER, sqlInput);
-      if (result == null) {
+      if (result == null || result.isEmpty()) {
         logger.warn("Query returned null for user ID: {}. Returning empty list.", userId);
         return Collections.emptyList();
       }
@@ -53,7 +50,9 @@ public class NotificationDataAccess implements INotificationDataAccess {
       sqlInput.put(INPUT_NOTIFICATION_USER_ID, userId);
       List<Map<String, Object>> result =
           postgresDataAccess.queryStatement(SQL_NOTIFICATION_GET_UNREAD_COUNT, sqlInput);
-      return result.isEmpty() ? 0 : ((Number) result.getFirst().get("count")).intValue();
+      return (result == null || result.isEmpty())
+          ? 0
+          : ((Number) result.getFirst().get("count")).intValue();
     } catch (DataAccessException e) {
       logger.error("Error getting unread notification count for user ID: {}", userId, e);
       return 0;

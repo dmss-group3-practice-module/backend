@@ -108,6 +108,16 @@ public class ReviewControllerTest {
   }
 
   @Test
+  public void testDeleteReviewsByRecipeId() {
+
+    ResponseEntity<String> response = reviewController.deleteReviewsByRecipeId(1L);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals("Review deleted successfully", response.getBody());
+    verify(reviewService, times(1)).deleteReviewsByRecipeId(1L);
+  }
+
+  @Test
   public void testGetReviewByRecipeAndCreator_Found() {
     RecipeReview review = new RecipeReview();
     review.setComments("Great recipe!");
@@ -118,6 +128,17 @@ public class ReviewControllerTest {
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(review, response.getBody());
+  }
+
+  @Test
+  public void testGetReviewByRecipeAndCreator_NotFound() {
+    RecipeReview review = null;
+
+    when(reviewService.getReviewByRecipeAndCreator(1L, 1L)).thenReturn(review);
+
+    ResponseEntity<RecipeReview> response = reviewController.getReviewByRecipeAndCreator(1L, 1L);
+
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
   @Test
@@ -135,10 +156,34 @@ public class ReviewControllerTest {
   }
 
   @Test
+  public void testGetReviewsByRecipeId_ReviewNotFound() {
+    List<RecipeReview> reviews = null;
+
+    when(reviewService.getReviewsByRecipeId(1L)).thenReturn(reviews);
+
+    ResponseEntity<List<RecipeReview>> response = reviewController.getReviewsByRecipeId(1L);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(reviews, response.getBody());
+  }
+
+  @Test
   public void testGetReviewsByCreatorId() {
     RecipeReview review = new RecipeReview();
     review.setComments("Great recipe!");
     List<RecipeReview> reviews = Collections.singletonList(review);
+
+    when(reviewService.getReviewsByCreatorId(1L, 1L)).thenReturn(reviews);
+
+    ResponseEntity<List<RecipeReview>> response = reviewController.getReviewsByCreatorId(1L, 1L);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(reviews, response.getBody());
+  }
+
+  @Test
+  public void testGetReviewsByCreatorId_NotFound() {
+    List<RecipeReview> reviews = null;
 
     when(reviewService.getReviewsByCreatorId(1L, 1L)).thenReturn(reviews);
 

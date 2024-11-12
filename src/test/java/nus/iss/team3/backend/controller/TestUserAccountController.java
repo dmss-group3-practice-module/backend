@@ -7,12 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.domainService.user.IUserStatusService;
 import nus.iss.team3.backend.entity.EUserRole;
 import nus.iss.team3.backend.entity.EUserStatus;
+import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -247,6 +249,74 @@ public class TestUserAccountController {
         .andExpect(jsonPath("$[1].id").value(2))
         .andExpect(jsonPath("$[0].name").value("Test User"))
         .andExpect(jsonPath("$[1].name").value("Test User"));
+  }
+
+  @Test
+  public void testgetAllUserIds() throws Exception {
+    List<Integer> userIdList = new ArrayList<>();
+    userIdList.add(1);
+    userIdList.add(2);
+
+    when(userAccountService.getAllUserIds()).thenReturn(userIdList);
+
+    mockMvc
+        .perform(get("/user/getAllUserIds"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0]").value(1))
+        .andExpect(jsonPath("$[1]").value(2));
+  }
+
+  @Test
+  public void checkLoginCall_userNull() throws Exception {
+    LoginRequest userAccount = new LoginRequest();
+    userAccount.setName("loginName");
+    userAccount.setPassword("password");
+    UserAccount user = null;
+
+    when(userAccountService.authenticate(anyString(), anyString())).thenReturn(user);
+
+    mockMvc
+        .perform(
+            post("/user/check")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userAccount)))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  public void checkLoginCall_userBanned() throws Exception {
+    LoginRequest userAccount = new LoginRequest();
+    userAccount.setName("loginName");
+    userAccount.setPassword("password");
+    UserAccount user = createValidUserAccount();
+    user.setStatus(EUserStatus.BANNED);
+
+    when(userAccountService.authenticate(anyString(), anyString())).thenReturn(user);
+
+    mockMvc
+        .perform(
+            post("/user/check")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userAccount)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void checkLoginCall_userOk() throws Exception {
+    LoginRequest userAccount = new LoginRequest();
+    userAccount.setName("loginName");
+    userAccount.setPassword("password");
+    UserAccount user = createValidUserAccount();
+    user.setStatus(EUserStatus.ACTIVE);
+
+    when(userAccountService.authenticate(anyString(), anyString())).thenReturn(user);
+
+    mockMvc
+        .perform(
+            post("/user/check")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userAccount)))
+        .andExpect(status().isOk());
   }
 
   @Test

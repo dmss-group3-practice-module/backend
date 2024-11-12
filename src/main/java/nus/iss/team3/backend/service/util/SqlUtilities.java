@@ -16,4 +16,8 @@ public class SqlUtilities {
   public static String getStringValue(Map<String, Object> row, String column) {
     return row.get(column) != null ? (String) row.get(column) : null;
   }
+
+  public static Double getDoubleValue(Map<String, Object> row, String column) {
+    return row.get(column) != null ? ((Number) row.get(column)).doubleValue() : null;
+  }
 }

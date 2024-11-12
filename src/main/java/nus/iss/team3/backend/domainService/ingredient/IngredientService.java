@@ -96,38 +96,13 @@ public class IngredientService implements IIngredientService {
     return ingredientDataAccess.deleteIngredientsByUser(userId);
   }
 
-  /**
-   * Check whether the input Ingredient contains acceptable values
-   *
-   * @return whether boolean on whether ingredient is valid
-   */
-  private void validateIngredient(UserIngredient ingredient, boolean isUpdate) {
-    if (ingredient == null) {
-      throw new IllegalArgumentException("Ingredient cannot be null");
-    }
-    if (ingredient.getUserId() <= 0) {
-      throw new IllegalArgumentException("Ingredient userId must be valid");
-    }
-    if (isUpdate && ingredient.getId() <= 0) {
-      throw new IllegalArgumentException("Ingredient id must be valid");
-    }
-    if (StringUtilities.isStringNullOrBlank(ingredient.getName())) {
-      throw new IllegalArgumentException("Ingredient name cannot be empty or blank");
-    }
-    if (StringUtilities.isStringNullOrBlank(ingredient.getUom())) {
-      throw new IllegalArgumentException("Ingredient uom cannot be empty or blank");
-    }
-    if (ingredient.getQuantity() <= 0) {
-      throw new IllegalArgumentException("Ingredient quantity must be greater than 0");
-    }
-    if (ingredient.getExpiryDate() == null) {
-      throw new IllegalArgumentException("Ingredient expiry date cannot be null");
-    }
-  }
-
   @Override
   public List<UserIngredient> getExpiringIngredients(Integer userId, int days) {
     List<UserIngredient> userIngredients = getIngredientsByUser(userId);
+    if (userIngredients == null) {
+      logger.warn("No ingredients found for user ID: {}", userId);
+      return new ArrayList<>();
+    }
     LocalDate today = LocalDate.now();
     LocalDate futureDate = today.plusDays(days);
 
@@ -167,6 +142,35 @@ public class IngredientService implements IIngredientService {
     } catch (Exception e) {
       logger.error("Error fetching expiring ingredients", e);
       return new ArrayList<>();
+    }
+  }
+
+  /**
+   * Check whether the input Ingredient contains acceptable values
+   *
+   * @return whether boolean on whether ingredient is valid
+   */
+  private void validateIngredient(UserIngredient ingredient, boolean isUpdate) {
+    if (ingredient == null) {
+      throw new IllegalArgumentException("Ingredient cannot be null");
+    }
+    if (ingredient.getUserId() <= 0) {
+      throw new IllegalArgumentException("Ingredient userId must be valid");
+    }
+    if (isUpdate && ingredient.getId() <= 0) {
+      throw new IllegalArgumentException("Ingredient id must be valid");
+    }
+    if (StringUtilities.isStringNullOrBlank(ingredient.getName())) {
+      throw new IllegalArgumentException("Ingredient name cannot be empty or blank");
+    }
+    if (StringUtilities.isStringNullOrBlank(ingredient.getUom())) {
+      throw new IllegalArgumentException("Ingredient uom cannot be empty or blank");
+    }
+    if (ingredient.getQuantity() <= 0) {
+      throw new IllegalArgumentException("Ingredient quantity must be greater than 0");
+    }
+    if (ingredient.getExpiryDate() == null) {
+      throw new IllegalArgumentException("Ingredient expiry date cannot be null");
     }
   }
 }

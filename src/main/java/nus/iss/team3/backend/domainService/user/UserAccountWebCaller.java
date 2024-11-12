@@ -129,11 +129,8 @@ public class UserAccountWebCaller implements IUserAccountService {
 
     ResponseEntity<UserAccount> response =
         webServiceCaller.postCall(url, loginRequest, UserAccount.class);
-    logger.info("response is " + response.getStatusCode());
-    logger.info("response body is " + response.getBody());
-    logger.info("response body class is " + response.getBody().getClass());
     if (response.getStatusCode().is2xxSuccessful()) {
-      if (response.getBody() instanceof UserAccount) return response.getBody();
+      if (response.getBody() != null) return response.getBody();
     }
 
     return null;

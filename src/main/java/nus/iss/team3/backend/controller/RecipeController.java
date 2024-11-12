@@ -27,15 +27,20 @@ public class RecipeController {
   private static final Logger logger = LogManager.getLogger(RecipeController.class);
   private final IRecipeService recipeService;
   private final IRecipeReviewService recipeReviewService;
+  private final IRecipePreferenceContext recipePreferenceContext;
 
   private static final String DEAFULT_USER = "-1";
   private static final String DEAFULT_ISBYRATING = "false";
   private static final String DEAFULT_ISDESC = "true";
 
   @Autowired
-  public RecipeController(IRecipeService recipeService, IRecipeReviewService recipeReviewService) {
+  public RecipeController(
+      IRecipeService recipeService,
+      IRecipeReviewService recipeReviewService,
+      IRecipePreferenceContext recipePreferenceContext) {
     this.recipeService = recipeService;
     this.recipeReviewService = recipeReviewService;
+    this.recipePreferenceContext = recipePreferenceContext;
   }
 
   /**
@@ -61,7 +66,7 @@ public class RecipeController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Failed to add recipe: {}", e.getMessage(), e);
-      return new ResponseEntity<>("Failed to add recipe", HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>("Failed to add recipe", HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -79,7 +84,7 @@ public class RecipeController {
       recipe.setId(id);
       boolean updated = recipeService.updateRecipe(recipe);
       if (!updated) {
-        return new ResponseEntity<>("Failed to update recipe", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("Failed to update recipe", HttpStatus.BAD_REQUEST);
       }
       logger.info("Recipe updated successfully: ID={}, Name={}", id, recipe.getName());
       return new ResponseEntity<>("Recipe updated successfully", HttpStatus.OK);
@@ -88,7 +93,7 @@ public class RecipeController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Failed to update recipe: {}", e.getMessage(), e);
-      return new ResponseEntity<>("Failed to update recipe", HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>("Failed to update recipe", HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -110,7 +115,7 @@ public class RecipeController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Failed to delete recipe: {}", e.getMessage(), e);
-      return new ResponseEntity<>("Failed to delete recipe", HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>("Failed to delete recipe", HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -134,7 +139,7 @@ public class RecipeController {
       }
     } catch (Exception e) {
       logger.error("Failed to get recipe: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -152,7 +157,7 @@ public class RecipeController {
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to get all recipes: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -170,7 +175,7 @@ public class RecipeController {
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to get all published recipes: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -189,7 +194,7 @@ public class RecipeController {
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to search recipes: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -209,6 +214,7 @@ public class RecipeController {
             "Found recipe with reviews: ID={}, Name={}",
             recipeWithReviews.getRecipe().getId(),
             recipeWithReviews.getRecipe().getName());
+
         return new ResponseEntity<>(recipeWithReviews, HttpStatus.OK);
       } else {
         logger.warn("Recipe with ID {} not found ", id);
@@ -216,7 +222,7 @@ public class RecipeController {
       }
     } catch (Exception e) {
       logger.error("Failed to get recipe with reviews: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -234,7 +240,7 @@ public class RecipeController {
       return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to get all recipes with reviews: {}", e.getMessage(), e);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -249,26 +255,25 @@ public class RecipeController {
       @RequestParam(defaultValue = DEAFULT_ISDESC) boolean isDesc,
       @RequestParam(defaultValue = DEAFULT_USER) int userId) {
     try {
-      PreferenceCtx preferenceCtx = new PreferenceCtx();
       List<Recipe> recipes;
       if (userId != Integer.parseInt(DEAFULT_USER)) {
-        preferenceCtx.setRecommendStrategy(new RecommendByUserReview());
+        recipePreferenceContext.setRecommendStrategy(new RecommendByUserReview());
         logger.info("recommend by user's review start");
       } else if (isByRating) {
-        preferenceCtx.setRecommendStrategy(new RecommendByRating());
+        recipePreferenceContext.setRecommendStrategy(new RecommendByRating());
         logger.info("recommend by rating start");
       } else {
-        preferenceCtx.setRecommendStrategy(new RecommendByDifficulty());
+        recipePreferenceContext.setRecommendStrategy(new RecommendByDifficulty());
         logger.info("recommend by difficulty start");
       }
-      recipes = preferenceCtx.recommend(recipeService, userId, isDesc);
+      recipes = recipePreferenceContext.recommend(recipeService, userId, isDesc);
       logger.info("Found {} recipes via recommendation", recipes.size());
       return new ResponseEntity<>(recipes, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Failed to search recipes via recommendation: {}", e.getMessage(), e);
     }
 
-    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   }
 
   @PostMapping("/{id}/rating")
@@ -276,13 +281,13 @@ public class RecipeController {
       @PathVariable Long id, @RequestBody double rating) {
     logger.info("Received request to update a recipe {}'s rating to {}", id, rating);
     try {
-      boolean recipesWithReviews = recipeService.updateRecipeRating(id, rating);
+      boolean result = recipeService.updateRecipeRating(id, rating);
       logger.info("Recipe {}'s rating updated to {}", id, rating);
-      return new ResponseEntity<>(recipesWithReviews, HttpStatus.OK);
+      return new ResponseEntity<>(result, HttpStatus.OK);
     } catch (Exception e) {
       logger.error("Recipe {}'s rating unable to updated to {}", id, rating);
 
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 }

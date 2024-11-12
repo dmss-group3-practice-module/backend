@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.businessService.recipeReview.RecipeReviewService;
@@ -125,5 +126,203 @@ public class TestRecipeReviewService {
 
     verify(mockRecipeService, times(1)).getAllRecipes();
     verify(mockReviewService, never()).getReviewsByRecipeId(anyLong());
+  }
+
+  @Test
+  void addReview_nullRecipe() {
+    // Arrange
+    RecipeReview inputReview = null;
+    List<RecipeReview> inputRecipeReviewList = null;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, never()).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, never()).updateRecipeRating(anyLong(), anyDouble());
+  }
+
+  @Test
+  void addReview_nullRecipeId() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(null);
+    List<RecipeReview> inputRecipeReviewList = null;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, never()).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, never()).updateRecipeRating(anyLong(), anyDouble());
+  }
+
+  @Test
+  void addReview_validRecipe_nullReviews() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(1L);
+    List<RecipeReview> inputRecipeReviewList = null;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, times(1)).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, never()).updateRecipeRating(anyLong(), anyDouble());
+  }
+
+  @Test
+  void addReview_validRecipe_emptyReviews() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(1L);
+    List<RecipeReview> inputRecipeReviewList = new ArrayList<>();
+    double averageRating = 4.0;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, times(1)).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, never()).updateRecipeRating(anyLong(), eq(averageRating));
+  }
+
+  @Test
+  void addReview_validRecipe_1Review_nullRating() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(1L);
+    List<RecipeReview> inputRecipeReviewList = new ArrayList<>();
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(null);
+      inputRecipeReviewList.add(review);
+    }
+    double averageRating = 0.0;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, times(1)).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, times(1)).updateRecipeRating(anyLong(), eq(averageRating));
+  }
+
+  @Test
+  void addReview_validRecipe_1Review_validRating() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(1L);
+    List<RecipeReview> inputRecipeReviewList = new ArrayList<>();
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(4.0);
+      inputRecipeReviewList.add(review);
+    }
+    double averageRating = 4.0;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, times(1)).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, times(1)).updateRecipeRating(anyLong(), eq(averageRating));
+  }
+
+  @Test
+  void addReview_validRecipe_1Review_validRating_with_compute() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(1L);
+    List<RecipeReview> inputRecipeReviewList = new ArrayList<>();
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(4.0);
+      inputRecipeReviewList.add(review);
+    }
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(2.0);
+      inputRecipeReviewList.add(review);
+    }
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(3.0);
+      inputRecipeReviewList.add(review);
+    }
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(4.0);
+      inputRecipeReviewList.add(review);
+    }
+    double averageRating = 3.25;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, times(1)).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, times(1)).updateRecipeRating(anyLong(), eq(averageRating));
+  }
+
+  @Test
+  void addReview_validRecipe_1Review_validRating_with_compute_withNull() {
+    // Arrange
+    RecipeReview inputReview = new RecipeReview();
+    inputReview.setRecipeId(1L);
+    List<RecipeReview> inputRecipeReviewList = new ArrayList<>();
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(4.0);
+      inputRecipeReviewList.add(review);
+    }
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(2.0);
+      inputRecipeReviewList.add(review);
+    }
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(null);
+      inputRecipeReviewList.add(review);
+    }
+    {
+      RecipeReview review = new RecipeReview();
+      review.setRating(4.0);
+      inputRecipeReviewList.add(review);
+    }
+    double averageRating = 2.5;
+    when(mockReviewService.getReviewsByRecipeId(anyLong())).thenReturn(inputRecipeReviewList);
+
+    // Act
+    recipeReviewService.addReview(inputReview);
+
+    // Assert
+
+    verify(mockReviewService, times(1)).addReview(any());
+    verify(mockReviewService, times(1)).getReviewsByRecipeId(anyLong());
+    verify(mockRecipeService, times(1)).updateRecipeRating(anyLong(), eq(averageRating));
   }
 }

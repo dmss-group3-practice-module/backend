@@ -1,8 +1,5 @@
 package nus.iss.team3.backend.dataaccess;
 
-import static nus.iss.team3.backend.service.util.SqlUtilities.getLongValue;
-import static nus.iss.team3.backend.service.util.SqlUtilities.getStringValue;
-
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,6 +8,7 @@ import nus.iss.team3.backend.entity.CookingStep;
 import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeIngredient;
+import nus.iss.team3.backend.service.util.SqlUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
@@ -29,30 +27,6 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   public RecipeDataAccess(PostgresDataAccess postgresDataAccess) {
     this.postgresDataAccess = postgresDataAccess;
-  }
-
-  public static class RecipeIngredientMapper {
-    public RecipeIngredient map(Map<String, Object> row) {
-      return RecipeIngredient.builder()
-          .id(getLongValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID))
-          .recipeId(getLongValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID))
-          .name(getStringValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME))
-          .quantity(getDoubleValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY))
-          .uom(getStringValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM))
-          .build();
-    }
-
-    private Long getLongValue(Map<String, Object> row, String column) {
-      return row.get(column) != null ? ((Number) row.get(column)).longValue() : null;
-    }
-
-    private String getStringValue(Map<String, Object> row, String column) {
-      return row.get(column) != null ? (String) row.get(column) : null;
-    }
-
-    private Double getDoubleValue(Map<String, Object> row, String column) {
-      return row.get(column) != null ? ((Number) row.get(column)).doubleValue() : null;
-    }
   }
 
   @Override
@@ -401,6 +375,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
             postgresDataAccess.queryStatement(
                 PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_DIFFICULTY, null);
       }
+      if (result == null || result.isEmpty()) {
+        return null;
+      }
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
@@ -435,6 +412,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
             postgresDataAccess.queryStatement(
                 PostgresSqlStatementRecipe.SQL_RECIPE_GET_ALL_BY_RATING, null);
       }
+      if (result == null || result.isEmpty()) {
+        return null;
+      }
 
       List<Recipe> recipes = new ArrayList<>();
       for (Map<String, Object> row : result) {
@@ -453,6 +433,7 @@ public class RecipeDataAccess implements IRecipeDataAccess {
       throw e;
     }
   }
+
   /**
    * @param recipeId
    * @param rating
@@ -472,6 +453,11 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
       if (updatedRows == 0) {
         logger.warn("No recipe found with ID={} for rating update", recipeId);
+        return false;
+      }
+      if (updatedRows > 1) {
+        logger.warn(
+            "Multiple rows updated for recipe ID={}, please review selected recipe.", recipeId);
         return false;
       }
       logger.info("Recipe rating updated successfully: ID={}, Rating={}", recipeId, rating);
@@ -695,7 +681,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   private List<RecipeIngredient> getIngredientsForRecipe(Long recipeId) {
     logger.debug("Getting ingredients, Recipe ID={}", recipeId);
-
+    if (recipeId == null) {
+      return new ArrayList<>();
+    }
     Map<String, Object> params =
         Map.of(PostgresSqlStatementRecipe.INPUT_INGREDIENT_RECIPE_ID, recipeId);
     List<Map<String, Object>> result =
@@ -712,6 +700,9 @@ public class RecipeDataAccess implements IRecipeDataAccess {
 
   // Helper method: Get cooking steps associated with the recipe
   private List<CookingStep> getCookingStepsForRecipe(Long recipeId) {
+    if (recipeId == null) {
+      return new ArrayList<>();
+    }
     logger.debug("Getting cooking steps, Recipe ID={}", recipeId);
 
     Map<String, Object> params =
@@ -725,20 +716,38 @@ public class RecipeDataAccess implements IRecipeDataAccess {
             .map(
                 row ->
                     CookingStep.builder()
-                        .id(getLongValue(row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID))
+                        .id(
+                            SqlUtilities.getLongValue(
+                                row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_ID))
                         .recipeId(
-                            getLongValue(
+                            SqlUtilities.getLongValue(
                                 row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_RECIPE_ID))
                         .description(
-                            getStringValue(
+                            SqlUtilities.getStringValue(
                                 row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_DESCRIPTION))
                         .image(
-                            getStringValue(
+                            SqlUtilities.getStringValue(
                                 row, PostgresSqlStatementRecipe.COLUMN_COOKING_STEP_IMAGE))
                         .build())
             .collect(Collectors.toList());
 
     logger.debug("Cooking steps loading completed, count={}", steps.size());
     return steps;
+  }
+
+  public static class RecipeIngredientMapper {
+    public RecipeIngredient map(Map<String, Object> row) {
+      return RecipeIngredient.builder()
+          .id(SqlUtilities.getLongValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_ID))
+          .recipeId(
+              SqlUtilities.getLongValue(
+                  row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_RECIPE_ID))
+          .name(SqlUtilities.getStringValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_NAME))
+          .quantity(
+              SqlUtilities.getDoubleValue(
+                  row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_QUANTITY))
+          .uom(SqlUtilities.getStringValue(row, PostgresSqlStatementRecipe.COLUMN_INGREDIENT_UOM))
+          .build();
+    }
   }
 }

@@ -64,14 +64,22 @@ public class RecipeReviewService implements IRecipeReviewService {
 
   @Override
   public void addReview(RecipeReview review) {
+
     reviewService.addReview(review);
 
     // update recipe rating: get all reviews for the recipe, calculate the average rating and update
     // the recipe
 
     // not implementing this as a domain event, cause not pub sub....
+    if (review == null || review.getRecipeId() == null) {
+      // unable to continue do rating.
+      return;
+    }
     List<RecipeReview> reviews = reviewService.getReviewsByRecipeId(review.getRecipeId());
 
+    if (reviews == null || reviews.isEmpty()) {
+      return;
+    }
     double totalRating = 0;
     for (RecipeReview r : reviews) {
       if (r.getRating() == null) {

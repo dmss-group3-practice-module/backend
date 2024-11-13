@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.IIngredientDataAccess;
 import nus.iss.team3.backend.entity.UserIngredient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,11 @@ public class TestIngredientService {
   @InjectMocks private IngredientService ingredientService;
 
   @Mock private IIngredientDataAccess ingredientDataAccess;
+
+  @BeforeEach
+  public void setUp() {
+    ingredientService.postConstruct();
+  }
 
   @Test
   public void addIngredient() {

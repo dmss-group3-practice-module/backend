@@ -19,6 +19,8 @@ public interface IUserAccountService {
 
   UserAccount getUserById(Integer id);
 
+  UserAccount getUserByName(String userName);
+
   List<UserAccount> getAllUsers();
 
   UserAccount authenticate(String username, String password);

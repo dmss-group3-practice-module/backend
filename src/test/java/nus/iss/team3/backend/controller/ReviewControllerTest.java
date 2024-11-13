@@ -11,15 +11,24 @@ import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.RecipeReviewService;
 import nus.iss.team3.backend.domainService.review.IReviewService;
+import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.RecipeReview;
+import nus.iss.team3.backend.service.jwt.JwtRequestFilter;
+import nus.iss.team3.backend.service.jwt.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Unit test class: RecipeReviewControllerTest is used to test various endpoints of the
@@ -28,8 +37,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  *
  * @author Mao Weining
  */
-@ExtendWith(SpringExtension.class)
+@WebMvcTest(SpringExtension.class)
 public class ReviewControllerTest {
+
+  @MockBean private JwtUtil jwtUtil;
+  @MockBean private IUserAccountService userAccountService;
+  @InjectMocks private JwtRequestFilter jwtRequestFilter;
+  @Autowired private WebApplicationContext context;
+
+  @Autowired private MockMvc mockMvc; // Tool for simulating HTTP requests
 
   @Mock private IReviewService reviewService;
   @Mock private RecipeReviewService recipeReviewService;
@@ -37,7 +53,12 @@ public class ReviewControllerTest {
   @InjectMocks private ReviewController reviewController;
 
   @BeforeEach
-  public void setUp() {}
+  public void setUp() {
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(context)
+            .addFilters((OncePerRequestFilter) jwtRequestFilter)
+            .build();
+  }
 
   @Test
   public void testAddReview_Success() {

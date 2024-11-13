@@ -156,6 +156,17 @@ public class UserAccountController {
     }
   }
 
+  @GetMapping("/getByName/{name}")
+  public ResponseEntity<UserAccount> getByName(@PathVariable String name) {
+    try {
+      UserAccount userAccount = userAccountService.getUserByName(name);
+      return new ResponseEntity<>(userAccount, HttpStatus.OK);
+    } catch (Exception e) {
+      logger.error("Unexpected error during retrieval of all users", e);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @PutMapping("/{userId}/ban")
   public ResponseEntity<?> banUser(@PathVariable Integer userId) {
     logger.info("Received request to ban user: {}", userId);

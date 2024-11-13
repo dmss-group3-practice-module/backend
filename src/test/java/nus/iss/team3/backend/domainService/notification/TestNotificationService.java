@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import nus.iss.team3.backend.dataaccess.INotificationDataAccess;
+import nus.iss.team3.backend.entity.ENotificationType;
 import nus.iss.team3.backend.entity.Notification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,87 @@ public class TestNotificationService {
   @BeforeEach
   void setUp() {
     mockNotifications = Arrays.asList(new Notification(), new Notification());
+  }
+
+  @Test
+  void createNotification_Success() {
+    Notification notification = new Notification(1, "title", "content", null);
+    notification.setIsRead(true);
+
+    when(notificationDataAccess.createNotification(any())).thenReturn(true);
+
+    boolean result = notificationService.createNotification(notification);
+    assertTrue(result);
+
+    verify(notificationDataAccess, times(1)).createNotification(any());
+  }
+
+  @Test
+  void createNotification_Success_falseInsert() {
+    Notification notification = new Notification(1, "title", "content", null);
+    notification.setIsRead(false);
+
+    when(notificationDataAccess.createNotification(any())).thenReturn(false);
+
+    boolean result = notificationService.createNotification(notification);
+    assertFalse(result);
+
+    verify(notificationDataAccess, times(1)).createNotification(any());
+  }
+
+  @Test
+  void createNotification_Success_nullInsert() {
+    Notification notification = new Notification(1, "title", "content", null);
+    notification.setIsRead(null);
+
+    when(notificationDataAccess.createNotification(any())).thenReturn(false);
+
+    boolean result = notificationService.createNotification(notification);
+    assertFalse(result);
+
+    verify(notificationDataAccess, times(1)).createNotification(any());
+  }
+
+  @Test
+  void createNotification_Failure() {
+    Notification notification = null;
+    //            Notification notification = new Notification(1, "title", "content", null);
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          notificationService.createNotification(null);
+        });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          notificationService.createNotification(
+              new Notification(null, null, null, ENotificationType.INFO));
+        });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          notificationService.createNotification(
+              new Notification(1, null, null, ENotificationType.INFO));
+        });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          notificationService.createNotification(
+              new Notification(1, "", null, ENotificationType.INFO));
+        });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          notificationService.createNotification(
+              new Notification(1, "title", null, ENotificationType.INFO));
+        });
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          notificationService.createNotification(
+              new Notification(1, "title", "", ENotificationType.INFO));
+        });
   }
 
   @Test

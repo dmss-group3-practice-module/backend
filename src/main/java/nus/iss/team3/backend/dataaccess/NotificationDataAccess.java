@@ -108,12 +108,7 @@ public class NotificationDataAccess implements INotificationDataAccess {
       }
       Notification temp = translateDBRecordToNotification(result.getFirst());
 
-      logger.info("temp.return map id :" + result.getFirst().get(COLUMN_NOTIFICATION_ID));
-      logger.info(
-          "temp.return map datetime:" + result.getFirst().get(COLUMN_NOTIFICATION_CREATE_DATETIME));
       notification.setId(temp.getId());
-      logger.info("temp.getId()" + temp.getId());
-      logger.info("temp.getCreateDateTime()" + temp.getCreateDateTime());
       notification.setCreateDateTime(temp.getCreateDateTime());
 
       return notification;

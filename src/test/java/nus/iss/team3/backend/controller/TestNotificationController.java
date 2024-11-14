@@ -11,6 +11,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import nus.iss.team3.backend.businessService.notification.INotificationBusinessService;
 import nus.iss.team3.backend.domainService.notification.NotificationService;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.ENotificationType;
@@ -39,6 +40,9 @@ public class TestNotificationController {
 
   @Autowired private MockMvc mockMvc;
   @MockBean private NotificationService notificationService;
+
+  @MockBean private INotificationBusinessService notificationBusinessService;
+
   private List<Notification> mockNotifications;
   private ObjectMapper objectMapper;
 
@@ -72,7 +76,8 @@ public class TestNotificationController {
   void testCreateNotification_Success() throws Exception {
     Notification notification =
         createMockNotification(1, "Test Title", "Test Content", ENotificationType.INFO);
-    when(notificationService.createNotification(any(Notification.class))).thenReturn(true);
+    when(notificationBusinessService.createNotification(any(Notification.class)))
+        .thenReturn(notification);
 
     mockMvc
         .perform(
@@ -86,14 +91,14 @@ public class TestNotificationController {
   void testCreateNotification_Failure() throws Exception {
     Notification notification =
         createMockNotification(1, "Test Title", "Test Content", ENotificationType.INFO);
-    when(notificationService.createNotification(any(Notification.class))).thenReturn(false);
+    when(notificationBusinessService.createNotification(any(Notification.class))).thenReturn(null);
 
     mockMvc
         .perform(
             post("/notification/1/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(notification)))
-        .andExpect(status().isInternalServerError())
+        .andExpect(status().isBadRequest())
         .andExpect(content().string("Failed to create notification"));
   }
 
@@ -141,7 +146,7 @@ public class TestNotificationController {
 
   @Test
   void testMarkNotificationAsRead_Success() throws Exception {
-    when(notificationService.markNotificationAsRead(1, 1)).thenReturn(true);
+    when(notificationBusinessService.markNotificationAsRead(1, 1)).thenReturn(true);
 
     mockMvc
         .perform(put("/notification/1/mark-read").param("userId", "1"))
@@ -150,7 +155,7 @@ public class TestNotificationController {
 
   @Test
   void testMarkNotificationAsRead_NotFound() throws Exception {
-    when(notificationService.markNotificationAsRead(1, 1)).thenReturn(false);
+    when(notificationBusinessService.markNotificationAsRead(1, 1)).thenReturn(false);
 
     mockMvc
         .perform(put("/notification/1/mark-read").param("userId", "1"))
@@ -160,14 +165,14 @@ public class TestNotificationController {
 
   @Test
   void testMarkAllNotificationsAsRead_Success() throws Exception {
-    when(notificationService.markAllNotificationsAsReadForUser(1)).thenReturn(true);
+    when(notificationBusinessService.markAllNotificationsAsReadForUser(1)).thenReturn(true);
 
     mockMvc.perform(put("/notification/1/mark-all-read")).andExpect(status().isOk());
   }
 
   @Test
   void testMarkAllNotificationsAsRead_NotFound() throws Exception {
-    when(notificationService.markAllNotificationsAsReadForUser(1)).thenReturn(false);
+    when(notificationBusinessService.markAllNotificationsAsReadForUser(1)).thenReturn(false);
 
     mockMvc
         .perform(put("/notification/1/mark-all-read"))

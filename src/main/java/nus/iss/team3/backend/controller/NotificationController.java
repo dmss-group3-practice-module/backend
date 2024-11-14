@@ -1,6 +1,7 @@
 package nus.iss.team3.backend.controller;
 
 import java.util.List;
+import nus.iss.team3.backend.businessService.notification.INotificationBusinessService;
 import nus.iss.team3.backend.domainService.notification.INotificationService;
 import nus.iss.team3.backend.entity.Notification;
 import org.apache.logging.log4j.LogManager;
@@ -18,17 +19,21 @@ public class NotificationController {
 
   @Autowired private INotificationService notificationService;
 
+  @Autowired private INotificationBusinessService notificationBusinessService;
+
   @PostMapping("/{userId}/create")
   public ResponseEntity<?> createNotification(
       @PathVariable int userId, @RequestBody Notification notification) {
     try {
       logger.info("Creating notification for user ID: {}", userId);
       notification.setUserId(userId);
-      boolean success = notificationService.createNotification(notification);
-      return success
-          ? ResponseEntity.status(HttpStatus.CREATED).build()
-          : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("Failed to create notification");
+      Notification success = notificationBusinessService.createNotification(notification);
+
+      if (success != null) {
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+      } else {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create notification");
+      }
     } catch (Exception e) {
       logger.error("Error creating notification", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -73,7 +78,7 @@ public class NotificationController {
           "Received request to mark notification ID: {} as read for user ID: {}",
           notificationId,
           userId);
-      boolean success = notificationService.markNotificationAsRead(notificationId, userId);
+      boolean success = notificationBusinessService.markNotificationAsRead(notificationId, userId);
       if (success) {
         return ResponseEntity.ok().build();
       } else {
@@ -92,7 +97,7 @@ public class NotificationController {
   public ResponseEntity<?> markAllNotificationsAsRead(@PathVariable int userId) {
     try {
       logger.info("Received request to mark all notifications as read for user ID: {}", userId);
-      boolean success = notificationService.markAllNotificationsAsReadForUser(userId);
+      boolean success = notificationBusinessService.markAllNotificationsAsReadForUser(userId);
       if (success) {
         return ResponseEntity.ok().build();
       } else {

@@ -209,15 +209,16 @@ public class TestNotificationWebCaller {
     Notification notification = new Notification();
     notification.setUserId(1);
     String endingUrl = "/" + notification.getUserId() + "/create";
-    ResponseEntity<Boolean> responseEntity = new ResponseEntity<>(true, HttpStatus.OK);
+    ResponseEntity<Notification> responseEntity = new ResponseEntity<>(notification, HttpStatus.OK);
 
-    when(webServiceCaller.postCall(endsWith(endingUrl), any(Notification.class), eq(Boolean.class)))
+    when(webServiceCaller.postCall(
+            endsWith(endingUrl), any(Notification.class), eq(Notification.class)))
         .thenReturn(responseEntity);
-    boolean result = notificationWebCaller.createNotification(notification);
+    Notification result = notificationWebCaller.createNotification(notification);
 
-    assertTrue(result);
+    assertNotNull(result);
     verify(webServiceCaller, times(1))
-        .postCall(endsWith(endingUrl), any(Notification.class), eq(Boolean.class));
+        .postCall(endsWith(endingUrl), any(Notification.class), eq(Notification.class));
   }
 
   @Test
@@ -225,15 +226,16 @@ public class TestNotificationWebCaller {
     Notification notification = new Notification();
     notification.setUserId(1);
     String endingUrl = "/" + notification.getUserId() + "/create";
-    ResponseEntity<Boolean> responseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+    ResponseEntity<Notification> responseEntity = new ResponseEntity<>(null, HttpStatus.OK);
 
-    when(webServiceCaller.postCall(endsWith(endingUrl), any(Notification.class), eq(Boolean.class)))
+    when(webServiceCaller.postCall(
+            endsWith(endingUrl), any(Notification.class), eq(Notification.class)))
         .thenReturn(responseEntity);
-    boolean result = notificationWebCaller.createNotification(notification);
+    Notification result = notificationWebCaller.createNotification(notification);
 
-    assertFalse(result);
+    assertNull(result);
     verify(webServiceCaller, times(1))
-        .postCall(endsWith(endingUrl), any(Notification.class), eq(Boolean.class));
+        .postCall(endsWith(endingUrl), any(Notification.class), eq(Notification.class));
   }
 
   @Test
@@ -241,16 +243,18 @@ public class TestNotificationWebCaller {
     Notification notification = new Notification();
     notification.setUserId(1);
     String endingUrl = "/" + notification.getUserId() + "/create";
-    ResponseEntity<Boolean> responseEntity = new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+    ResponseEntity<Notification> responseEntity =
+        new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 
-    when(webServiceCaller.postCall(endsWith(endingUrl), any(Notification.class), eq(Boolean.class)))
+    when(webServiceCaller.postCall(
+            endsWith(endingUrl), any(Notification.class), eq(Notification.class)))
         .thenReturn(responseEntity);
 
-    boolean result = notificationWebCaller.createNotification(notification);
+    Notification result = notificationWebCaller.createNotification(notification);
 
-    assertFalse(result);
+    assertNull(result);
     verify(webServiceCaller, times(1))
-        .postCall(endsWith(endingUrl), any(Notification.class), eq(Boolean.class));
+        .postCall(endsWith(endingUrl), any(Notification.class), eq(Notification.class));
   }
 
   private Notification generateSampleNotification() {

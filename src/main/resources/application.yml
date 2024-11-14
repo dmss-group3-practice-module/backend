@@ -7,6 +7,8 @@ spring:
     active: development,authenticate,ingredient,notification,recipe,user,user_ingredient
   config:
     import: optional:file:.env[.properties]
+
+
 ---
 ##############################
 ### Application common settings
@@ -35,10 +37,10 @@ logging:
     nus:
       iss:
         team3:
-          backend: DEBUG
+          backend: INFO
     org:
       springframework:
-        web: DEBUG
+        web: INFO
       hibernate: ERROR
 ---
 ##############################

@@ -89,25 +89,32 @@ public class NotificationDataAccess implements INotificationDataAccess {
   }
 
   @Override
-  public boolean createNotification(Notification notification) {
+  public Notification createNotification(Notification notification) {
     try {
       Map<String, Object> sqlInput = new HashMap<>();
       sqlInput.put(INPUT_NOTIFICATION_USER_ID, notification.getUserId());
       sqlInput.put(INPUT_NOTIFICATION_TITLE, notification.getTitle());
       sqlInput.put(INPUT_NOTIFICATION_CONTENT, notification.getContent());
-      sqlInput.put(INPUT_NOTIFICATION_TYPE, notification.getType().getValue());
+      sqlInput.put(INPUT_NOTIFICATION_TYPE, notification.getType().name());
       sqlInput.put(INPUT_NOTIFICATION_IS_READ, notification.getIsRead());
 
       logger.info("SQL parameters: {}", sqlInput);
 
-      int result = postgresDataAccess.upsertStatement(SQL_NOTIFICATION_ADD, sqlInput);
-      return result == 1;
+      List<Map<String, Object>> result =
+          postgresDataAccess.queryStatement(SQL_NOTIFICATION_ADD, sqlInput);
+      if (result == null || result.isEmpty()) {
+        logger.error("Error creating notification for user ID: {}", notification.getUserId());
+        return null;
+      }
+      int resultId = (int) result.getFirst().get("id");
+      notification.setId(resultId);
+      return notification;
     } catch (DataAccessException e) {
       logger.error(
           "Error creating notification for user ID: {}, Cause: {}",
           notification.getUserId(),
           e.getCause().getMessage());
-      return false;
+      return null;
     }
   }
 

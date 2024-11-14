@@ -35,10 +35,10 @@ public class TestNotificationService {
     Notification notification = new Notification(1, "title", "content", null);
     notification.setIsRead(true);
 
-    when(notificationDataAccess.createNotification(any())).thenReturn(true);
+    when(notificationDataAccess.createNotification(any())).thenReturn(notification);
 
-    boolean result = notificationService.createNotification(notification);
-    assertTrue(result);
+    Notification result = notificationService.createNotification(notification);
+    assertNotNull(result);
 
     verify(notificationDataAccess, times(1)).createNotification(any());
   }
@@ -48,10 +48,10 @@ public class TestNotificationService {
     Notification notification = new Notification(1, "title", "content", null);
     notification.setIsRead(false);
 
-    when(notificationDataAccess.createNotification(any())).thenReturn(false);
+    when(notificationDataAccess.createNotification(any())).thenReturn(null);
 
-    boolean result = notificationService.createNotification(notification);
-    assertFalse(result);
+    Notification result = notificationService.createNotification(notification);
+    assertNull(result);
 
     verify(notificationDataAccess, times(1)).createNotification(any());
   }
@@ -61,10 +61,10 @@ public class TestNotificationService {
     Notification notification = new Notification(1, "title", "content", null);
     notification.setIsRead(null);
 
-    when(notificationDataAccess.createNotification(any())).thenReturn(false);
+    when(notificationDataAccess.createNotification(any())).thenReturn(null);
 
-    boolean result = notificationService.createNotification(notification);
-    assertFalse(result);
+    Notification result = notificationService.createNotification(notification);
+    assertNull(result);
 
     verify(notificationDataAccess, times(1)).createNotification(any());
   }

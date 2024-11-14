@@ -5,7 +5,7 @@ import nus.iss.team3.backend.entity.Notification;
 
 public interface INotificationService {
 
-  boolean createNotification(Notification notification);
+  Notification createNotification(Notification notification);
 
   List<Notification> getNotificationsForUser(int userId, int limit);
 

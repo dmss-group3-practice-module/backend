@@ -386,12 +386,13 @@ public class PostgresSqlStatement {
           + INPUT_NOTIFICATION_TITLE
           + ",:"
           + INPUT_NOTIFICATION_CONTENT
-          + ",:"
+          + ",CAST(:"
           + INPUT_NOTIFICATION_TYPE
-          + ",:"
+          + " AS notification_type) ,:"
           + INPUT_NOTIFICATION_IS_READ
           + ","
-          + "now());";
+          + "now()) RETURNING "
+          + COLUMN_NOTIFICATION_ID;
 
   public static final String SQL_NOTIFICATION_GET_FOR_USER =
       "SELECT * FROM "

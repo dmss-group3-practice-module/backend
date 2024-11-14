@@ -2,6 +2,7 @@ package nus.iss.team3.backend.controller.config;
 
 import java.util.List;
 import nus.iss.team3.backend.service.jwt.JwtRequestFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+  @Value("#{'${cors.allowed.origins}'.split(',')}")
+  private List<String> allowedOrigins;
+
   private final JwtRequestFilter jwtRequestFilter;
 
   public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
@@ -40,8 +44,6 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers("/recipe/**")
                     .authenticated()
-                    .requestMatchers("/recipe/**")
-                    .authenticated()
                     .requestMatchers("/user/**")
                     .authenticated()
                     .anyRequest()
@@ -54,10 +56,16 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+    configuration.setAllowedOrigins(allowedOrigins);
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(
-        List.of("Authorization", "Cache-Control", "Content-Type", "X-XSRF-TOKEN", "userId"));
+        List.of(
+            "Authorization",
+            "Cache-Control",
+            "Content-Type",
+            "X-XSRF-TOKEN",
+            "userId",
+            "Internal-Service-Call"));
     configuration.setAllowCredentials(true);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

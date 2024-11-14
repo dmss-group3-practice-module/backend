@@ -20,16 +20,23 @@ import java.util.List;
 import nus.iss.team3.backend.businessService.recipeReview.IRecipeReviewService;
 import nus.iss.team3.backend.domainService.recipe.IRecipePreferenceContext;
 import nus.iss.team3.backend.domainService.recipe.IRecipeService;
+import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.ERecipeStatus;
 import nus.iss.team3.backend.entity.Recipe;
 import nus.iss.team3.backend.entity.RecipeWithReviews;
+import nus.iss.team3.backend.service.jwt.JwtRequestFilter;
+import nus.iss.team3.backend.service.jwt.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Unit test class: RecipeControllerTest is used to test various endpoints of the RecipeController
@@ -37,6 +44,11 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @WebMvcTest(RecipeController.class)
 public class RecipeControllerTest {
+
+  @MockBean private JwtUtil jwtUtil;
+  @MockBean private IUserAccountService userAccountService;
+  @InjectMocks private JwtRequestFilter jwtRequestFilter;
+  @Autowired private WebApplicationContext context;
 
   @Autowired private MockMvc mockMvc; // Tool for simulating HTTP requests
 
@@ -68,6 +80,11 @@ public class RecipeControllerTest {
     sampleRecipe.setCuisine("Chinese");
     sampleRecipe.setCreateDatetime(new Timestamp(System.currentTimeMillis()));
     sampleRecipe.setUpdateDatetime(new Timestamp(System.currentTimeMillis()));
+
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(context)
+            .addFilters((OncePerRequestFilter) jwtRequestFilter)
+            .build();
   }
 
   /**

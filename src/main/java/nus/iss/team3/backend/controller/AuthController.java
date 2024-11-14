@@ -1,9 +1,12 @@
 package nus.iss.team3.backend.controller;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 import nus.iss.team3.backend.businessService.auth.IAuthService;
 import nus.iss.team3.backend.entity.LoginRequest;
 import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.jwt.JwtUtil;
 import nus.iss.team3.backend.service.util.UserBannedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,15 +28,25 @@ public class AuthController {
 
   @Autowired private IAuthService authService;
 
+  @Autowired private JwtUtil jwtUtil;
+
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
     try {
       UserAccount user =
           authService.authenticate(loginRequest.getName(), loginRequest.getPassword());
+
       if (user != null) {
         logger.info("User logged in successfully: {}", user.getName());
+
+        final String jwt = jwtUtil.generateToken(user);
+        logger.info("User logged in successfully, jwt is : {}", jwt);
+
         session.setAttribute("user", user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        response.put("jwt", jwt);
+        response.put("user", user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
       } else {
         logger.warn("Login failed for user: {}", loginRequest.getName());
         return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
@@ -46,7 +59,7 @@ public class AuthController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       logger.error("Unexpected error during login", e);
-      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>("An unexpected error occurred", HttpStatus.BAD_REQUEST);
     }
   }
 

@@ -113,6 +113,15 @@ public class UserAccountService implements IUserAccountService {
     return user;
   }
 
+  /**
+   * @param userName
+   * @return
+   */
+  @Override
+  public UserAccount getUserByName(String userName) {
+    return userAccountDataAccess.getUserByName(userName);
+  }
+
   @Override
   public List<UserAccount> getAllUsers() {
     return userAccountDataAccess.getAllUsers();

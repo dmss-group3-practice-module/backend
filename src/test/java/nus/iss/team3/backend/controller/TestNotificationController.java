@@ -12,18 +12,30 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import nus.iss.team3.backend.domainService.notification.NotificationService;
+import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.ENotificationType;
 import nus.iss.team3.backend.entity.Notification;
+import nus.iss.team3.backend.service.jwt.JwtRequestFilter;
+import nus.iss.team3.backend.service.jwt.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @WebMvcTest(NotificationController.class)
 public class TestNotificationController {
+
+  @MockBean private JwtUtil jwtUtil;
+  @MockBean private IUserAccountService userAccountService;
+  @InjectMocks private JwtRequestFilter jwtRequestFilter;
+  @Autowired private WebApplicationContext context;
 
   @Autowired private MockMvc mockMvc;
   @MockBean private NotificationService notificationService;
@@ -40,6 +52,11 @@ public class TestNotificationController {
 
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
+
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(context)
+            .addFilters((OncePerRequestFilter) jwtRequestFilter)
+            .build();
   }
 
   private Notification createMockNotification(

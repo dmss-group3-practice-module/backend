@@ -88,6 +88,20 @@ public class UserAccountWebCaller implements IUserAccountService {
   }
 
   /**
+   * @param userName
+   * @return
+   */
+  @Override
+  public UserAccount getUserByName(String userName) {
+    String url = getUrl("/user/getByName/" + userName);
+    ResponseEntity<UserAccount> response = webServiceCaller.getCall(url, UserAccount.class);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      return response.getBody();
+    }
+    return null;
+  }
+
+  /**
    * @return
    */
   @Override

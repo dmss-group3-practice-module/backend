@@ -6,21 +6,42 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import nus.iss.team3.backend.businessService.auth.IAuthService;
+import nus.iss.team3.backend.domainService.user.IUserAccountService;
 import nus.iss.team3.backend.entity.UserAccount;
+import nus.iss.team3.backend.service.jwt.JwtRequestFilter;
+import nus.iss.team3.backend.service.jwt.JwtUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @WebMvcTest(AuthController.class)
 public class TestAuthController {
 
+  @MockBean private JwtUtil jwtUtil;
+  @MockBean private IUserAccountService userAccountService;
+  @InjectMocks private JwtRequestFilter jwtRequestFilter;
+  @Autowired private WebApplicationContext context;
+
   @Autowired private MockMvc mockMvc;
 
   @MockBean private IAuthService authService;
+
+  @BeforeEach
+  void setUp() {
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(context)
+            .addFilters((OncePerRequestFilter) jwtRequestFilter)
+            .build();
+  }
 
   @Test
   public void testLogin_Success() throws Exception {
@@ -39,7 +60,7 @@ public class TestAuthController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"password\"}"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value("testuser"))
+        .andExpect(jsonPath("$.user.name").value("testuser"))
         .andExpect(jsonPath("$.password").doesNotExist());
   }
 
@@ -116,7 +137,7 @@ public class TestAuthController {
                 .session(session)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"testuser\",\"password\":\"password\"}"))
-        .andExpect(status().isInternalServerError())
+        .andExpect(status().isBadRequest())
         .andExpect(content().string("An unexpected error occurred"));
   }
 

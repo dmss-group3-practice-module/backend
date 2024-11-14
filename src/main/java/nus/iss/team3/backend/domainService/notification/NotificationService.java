@@ -19,7 +19,8 @@ public class NotificationService implements INotificationService {
   @Override
   public boolean createNotification(Notification notification) {
     // Basic verification
-    if (notification.getUserId() == null
+    if (notification == null
+        || notification.getUserId() == null
         || StringUtilities.isStringNullOrBlank(notification.getTitle())
         || StringUtilities.isStringNullOrBlank(notification.getContent())) {
       logger.error("Invalid notification data: {}", notification);

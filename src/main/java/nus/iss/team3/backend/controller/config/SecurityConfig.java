@@ -34,6 +34,8 @@ public class SecurityConfig {
                 authorizeRequests
                     .requestMatchers("/authenticate/**")
                     .permitAll()
+                    .requestMatchers("/ws")
+                    .permitAll()
                     .requestMatchers("/user/check")
                     .permitAll()
                     .requestMatchers("/expiry/**")

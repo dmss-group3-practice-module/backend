@@ -218,6 +218,24 @@ public class TestNotificationDataAccess {
   }
 
   @Test
+  public void createNotification_null() {
+    Notification input = new Notification();
+    input.setUserId(1);
+    input.setTitle("Title");
+    input.setContent("content");
+    input.setType(ENotificationType.INFO);
+    input.setIsRead(true);
+
+    List<Map<String, Object>> dbReturn = null;
+    when(postgresDataAccess.queryStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(dbReturn);
+
+    Notification result = notificationDataAccess.createNotification(input);
+
+    assertNull(result);
+    verify(postgresDataAccess, times(1)).queryStatement(eq(SQL_NOTIFICATION_ADD), any());
+  }
+
+  @Test
   public void createNotification_0Result() {
     Notification input = new Notification();
     input.setUserId(1);
@@ -226,12 +244,13 @@ public class TestNotificationDataAccess {
     input.setType(ENotificationType.INFO);
     input.setIsRead(true);
 
-    when(postgresDataAccess.upsertStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(0);
+    List<Map<String, Object>> dbReturn = new ArrayList<>();
+    when(postgresDataAccess.queryStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(dbReturn);
 
-    boolean result = notificationDataAccess.createNotification(input);
+    Notification result = notificationDataAccess.createNotification(input);
 
-    assertFalse(result);
-    verify(postgresDataAccess, times(1)).upsertStatement(eq(SQL_NOTIFICATION_ADD), any());
+    assertNull(result);
+    verify(postgresDataAccess, times(1)).queryStatement(eq(SQL_NOTIFICATION_ADD), any());
   }
 
   @Test
@@ -242,13 +261,15 @@ public class TestNotificationDataAccess {
     input.setContent("content");
     input.setType(ENotificationType.INFO);
     input.setIsRead(true);
+    List<Map<String, Object>> dbReturn = new ArrayList<>();
+    dbReturn.add(Map.of("id", 1));
 
-    when(postgresDataAccess.upsertStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(1);
+    when(postgresDataAccess.queryStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(dbReturn);
 
-    boolean result = notificationDataAccess.createNotification(input);
+    Notification result = notificationDataAccess.createNotification(input);
 
-    assertTrue(result);
-    verify(postgresDataAccess, times(1)).upsertStatement(eq(SQL_NOTIFICATION_ADD), any());
+    assertNotNull(result);
+    verify(postgresDataAccess, times(1)).queryStatement(eq(SQL_NOTIFICATION_ADD), any());
   }
 
   @Test
@@ -260,11 +281,16 @@ public class TestNotificationDataAccess {
     input.setType(ENotificationType.INFO);
     input.setIsRead(true);
 
-    when(postgresDataAccess.upsertStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(4);
+    List<Map<String, Object>> dbReturn = new ArrayList<>();
+    dbReturn.add(Map.of("id", 1));
+    dbReturn.add(Map.of("id", 2));
+    dbReturn.add(Map.of("id", 3));
+    dbReturn.add(Map.of("id", 4));
+    when(postgresDataAccess.queryStatement(eq(SQL_NOTIFICATION_ADD), any())).thenReturn(dbReturn);
 
-    boolean result = notificationDataAccess.createNotification(input);
+    Notification result = notificationDataAccess.createNotification(input);
 
-    assertFalse(result);
-    verify(postgresDataAccess, times(1)).upsertStatement(eq(SQL_NOTIFICATION_ADD), any());
+    assertNotNull(result);
+    verify(postgresDataAccess, times(1)).queryStatement(eq(SQL_NOTIFICATION_ADD), any());
   }
 }

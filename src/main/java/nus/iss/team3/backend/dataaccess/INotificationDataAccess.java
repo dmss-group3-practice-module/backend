@@ -17,5 +17,5 @@ public interface INotificationDataAccess {
   /** Marks all notifications as read for a specified user */
   boolean markAllNotificationsAsReadForUser(Integer userId);
 
-  boolean createNotification(Notification notification);
+  Notification createNotification(Notification notification);
 }

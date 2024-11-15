@@ -35,17 +35,17 @@ public class RecipeService implements IRecipeService {
 
   @PostConstruct
   public void postConstruct() {
-    logger.info("Recipe Service Logic initialized.");
+    logger.debug("Recipe Service Logic initialized.");
   }
 
   @Override
   public boolean addRecipe(Recipe recipe) {
     validateRecipe(recipe, false);
-    logger.info("Adding recipe: {}", recipe.getName());
+    logger.debug("Adding recipe: {}", recipe.getName());
     // Add recipes to the database using the Data Access Layer approach
     Recipe result = recipeStateContext.addRecipe(recipe);
     if (result != null && result.getId() != null) {
-      logger.info("Successfully added recipe with ID: {}", recipe.getId());
+      logger.debug("Successfully added recipe with ID: {}", recipe.getId());
       return true;
     } else {
       logger.warn("Failed to add recipe: {}", recipe.getName());
@@ -69,11 +69,11 @@ public class RecipeService implements IRecipeService {
       return false; // No changes to update
     }
 
-    logger.info("Updating recipe with ID: {}", recipe.getId());
+    logger.debug("Updating recipe with ID: {}", recipe.getId());
     // Updating recipes in the database using a data access layer approach
     boolean result = recipeStateContext.updateRecipe(recipe);
     if (result) {
-      logger.info("Successfully updated recipe with ID: {}", recipe.getId());
+      logger.debug("Successfully updated recipe with ID: {}", recipe.getId());
     } else {
       logger.warn("Failed to update recipe with ID: {}", recipe.getId());
     }
@@ -91,7 +91,7 @@ public class RecipeService implements IRecipeService {
       throw new IllegalArgumentException("Recipe not found");
     }
 
-    logger.info("Deleting recipe with ID: {}", recipeId);
+    logger.debug("Deleting recipe with ID: {}", recipeId);
     // Delete a recipe with a specified ID using the data access layer method
     if (existingRecipe.getDraftRecipe() != null
         && existingRecipe.getDraftRecipe().getId() != null) {
@@ -99,7 +99,7 @@ public class RecipeService implements IRecipeService {
     }
     boolean result = recipeDataAccess.deleteRecipeById(recipeId);
     if (result) {
-      logger.info("Successfully deleted recipe with ID: {}", recipeId);
+      logger.debug("Successfully deleted recipe with ID: {}", recipeId);
     } else {
       logger.warn("Failed to delete recipe with ID: {}", recipeId);
     }
@@ -110,7 +110,7 @@ public class RecipeService implements IRecipeService {
   public Recipe getRecipeById(Long recipeId) {
     // Check if the incoming recipe ID is null, if it is null then throw an exception
     Objects.requireNonNull(recipeId, "Recipe ID cannot be null");
-    logger.info("Getting recipe with ID: {}", recipeId);
+    logger.debug("Getting recipe with ID: {}", recipeId);
     // Get the recipe with the specified ID using the method of the data access layer
     Recipe recipe = recipeDataAccess.getRecipeById(recipeId);
 
@@ -118,7 +118,7 @@ public class RecipeService implements IRecipeService {
       if (recipe.getDraftRecipe() != null && recipe.getDraftRecipe().getId() != null) {
         recipe.setDraftRecipe(recipeDataAccess.getRecipeById(recipe.getDraftRecipe().getId()));
       }
-      logger.info("Successfully retrieved recipe with ID: {}", recipeId);
+      logger.debug("Successfully retrieved recipe with ID: {}", recipeId);
     } else {
       logger.warn("Recipe with ID {} not found", recipeId);
     }
@@ -127,11 +127,11 @@ public class RecipeService implements IRecipeService {
 
   @Override
   public List<Recipe> getAllRecipes() {
-    logger.info("Getting all recipes");
+    logger.debug("Getting all recipes");
     // Get a list of all recipes using the data access layer method
     List<Recipe> recipes = recipeDataAccess.getAllRecipes();
     recipes = refineRecipeListByGroupingDraftInfo(recipes);
-    logger.info("Successfully retrieved {} recipes", recipes.size());
+    logger.debug("Successfully retrieved {} recipes", recipes.size());
     return recipes;
   }
 
@@ -142,22 +142,22 @@ public class RecipeService implements IRecipeService {
    */
   @Override
   public List<Recipe> getAllPublishedRecipes() {
-    logger.info("Getting all published recipes");
+    logger.debug("Getting all published recipes");
     // Get a list of all recipes using the data access layer method
     List<Recipe> recipes = recipeDataAccess.getAllPublishedRecipes();
-    logger.info("Successfully retrieved {} published recipes ", recipes.size());
+    logger.debug("Successfully retrieved {} published recipes ", recipes.size());
     return recipes;
   }
 
   @Override
   public List<Recipe> getRecipesByCreatorId(int creatorId) {
     // Check if the incoming recipe ID is null, if it is null then throw an exception
-    logger.info("Getting recipe for creator Id: {}", creatorId);
+    logger.debug("Getting recipe for creator Id: {}", creatorId);
     // Get the recipe with the specified ID using the method of the data access layer
     List<Recipe> recipeList = recipeDataAccess.getRecipeByCreatorId(creatorId);
     recipeList = refineRecipeListByGroupingDraftInfo(recipeList);
     if (recipeList != null) {
-      logger.info("Successfully retrieved recipe under creator Id: {}", creatorId);
+      logger.debug("Successfully retrieved recipe under creator Id: {}", creatorId);
     } else {
       logger.warn("Recipe under creator Id {} not found", creatorId);
     }
@@ -200,7 +200,7 @@ public class RecipeService implements IRecipeService {
                   })
               .collect(Collectors.toList());
 
-      logger.info("get sorted recipeList: {}", sortedRecipes);
+      logger.debug("get sorted recipeList: {}", sortedRecipes);
 
       List<Recipe> recipeListTmp = recipeDataAccess.getAllPublishedRecipesByDifficulty(isDesc);
 
@@ -221,7 +221,7 @@ public class RecipeService implements IRecipeService {
       }
     }
 
-    logger.info("get merged recipeList: {}", sortedRecipes);
+    logger.debug("get merged recipeList: {}", sortedRecipes);
 
     return sortedRecipes;
   }
@@ -235,7 +235,7 @@ public class RecipeService implements IRecipeService {
   public boolean updateRecipeRating(Long recipeId, double rating) {
     boolean result = recipeDataAccess.updateRecipeRating(recipeId, rating);
     if (result) {
-      logger.info("Successfully updated recipe rating with ID: {}", recipeId);
+      logger.debug("Successfully updated recipe rating with ID: {}", recipeId);
     } else {
       logger.warn("Failed to update recipe rating with ID: {}", recipeId);
     }

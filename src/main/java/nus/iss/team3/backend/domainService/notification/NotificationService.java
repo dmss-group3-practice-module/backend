@@ -17,7 +17,7 @@ public class NotificationService implements INotificationService {
   @Autowired private INotificationDataAccess notificationDataAccess;
 
   @Override
-  public boolean createNotification(Notification notification) {
+  public Notification createNotification(Notification notification) {
     // Basic verification
     if (notification == null
         || notification.getUserId() == null

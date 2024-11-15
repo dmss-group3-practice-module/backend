@@ -106,9 +106,10 @@ public class NotificationWebCaller implements INotificationService {
   }
 
   @Override
-  public boolean createNotification(Notification notification) {
+  public Notification createNotification(Notification notification) {
     String url = getUrl("/" + notification.getUserId() + "/create");
-    ResponseEntity<Boolean> response = webServiceCaller.postCall(url, notification, Boolean.class);
+    ResponseEntity<Notification> response =
+        webServiceCaller.postCall(url, notification, Notification.class);
 
     if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
       return response.getBody();
@@ -117,6 +118,6 @@ public class NotificationWebCaller implements INotificationService {
         "Failed to create notification for user {}. Status code: {}",
         notification.getUserId(),
         response.getStatusCode());
-    return false;
+    return null;
   }
 }

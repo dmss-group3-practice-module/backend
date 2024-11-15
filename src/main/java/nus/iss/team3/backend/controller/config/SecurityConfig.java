@@ -35,7 +35,7 @@ public class SecurityConfig {
                     .requestMatchers("/authenticate/**")
                     .permitAll()
                     .requestMatchers("/ws")
-                    .authenticated()
+                    .permitAll()
                     .requestMatchers("/user/check")
                     .permitAll()
                     .requestMatchers("/expiry/**")

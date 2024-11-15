@@ -392,7 +392,10 @@ public class PostgresSqlStatement {
           + INPUT_NOTIFICATION_IS_READ
           + ","
           + "now()) RETURNING "
-          + COLUMN_NOTIFICATION_ID;
+          + COLUMN_NOTIFICATION_ID
+          + ","
+          + COLUMN_NOTIFICATION_CREATE_DATETIME
+          + ";";
 
   public static final String SQL_NOTIFICATION_GET_FOR_USER =
       "SELECT * FROM "

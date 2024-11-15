@@ -1,6 +1,12 @@
 package nus.iss.team3.backend.businessService.notification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
+import jakarta.annotation.PostConstruct;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +28,15 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
   private final Map<Integer, List<WebSocketSession>> userSessions = new ConcurrentHashMap<>();
   private final ObjectMapper objectMapper = new ObjectMapper();
 
+  @PostConstruct
+  public void postConstruct() {
+    JavaTimeModule javaTimeModule = new JavaTimeModule();
+    javaTimeModule.addSerializer(
+        ZonedDateTime.class, new ZonedDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    objectMapper.registerModule(javaTimeModule);
+    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+  }
+
   public void registerUserSession(Integer userId, WebSocketSession session) {
 
     if (!userSessions.containsKey(userId)) {
@@ -42,9 +57,11 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
     for (WebSocketSession session : sessions) {
       if (session != null && session.isOpen()) {
         try {
+
           Map<String, Object> message =
               Map.of("action", action, "payload", (notification != null ? notification : "null"));
           session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+
         } catch (Exception e) {
           logger.error("Error processing notification ", e);
         }

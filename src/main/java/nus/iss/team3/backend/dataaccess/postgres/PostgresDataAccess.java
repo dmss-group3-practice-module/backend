@@ -71,6 +71,8 @@ public class PostgresDataAccess implements IPostgresDataAccess {
         logger.error("[{}/{}]Error when executing update statement: {}", (i + 1), MAX_RETRY, sql);
         logger.error(
             "[{}/{}]Error when executing update statement: {}", (i + 1), MAX_RETRY, e.getMessage());
+        logger.error(
+            "[{}/{}]Error when executing update statement: {}", (i + 1), MAX_RETRY, e.getCause());
         try {
           TimeUnit.SECONDS.sleep(BUFFER_BETWEEN_TRY);
         } catch (InterruptedException ex) {

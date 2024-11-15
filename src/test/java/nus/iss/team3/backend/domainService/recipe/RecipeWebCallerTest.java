@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,6 +46,11 @@ public class RecipeWebCallerTest {
 
   @Value("${service.url.recipe.port}")
   private String servicePort = "8080";
+
+  @BeforeEach
+  public void setup() {
+    recipeWebCaller.postConstruct();
+  }
 
   // Helper
   private static List<RecipeWithReviews> getRecipeWithReviews() {
@@ -277,5 +282,179 @@ public class RecipeWebCallerTest {
     verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
 
     assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void testGetRecipesByCreatorId_Failure() {
+    int creatorId = 123;
+    List<Recipe> expectedRecipes = Collections.emptyList();
+    String url = getUrl("/recipe/creator/" + creatorId);
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.BAD_REQUEST);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByCreatorId(creatorId);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void getRecipesByDifficulty_Success() {
+    boolean isDesc = true;
+    List<Recipe> expectedRecipes = Arrays.asList(new Recipe(), new Recipe());
+    String url = getUrl("/recipe/recommend?isDesc=" + isDesc + "&isByRating=false");
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.OK);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByDifficulty(isDesc);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void getRecipesByDifficulty_Failure() {
+    boolean isDesc = true;
+    List<Recipe> expectedRecipes = Collections.emptyList();
+    String url = getUrl("/recipe/recommend?isDesc=" + isDesc + "&isByRating=false");
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.BAD_REQUEST);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByDifficulty(isDesc);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void getRecipesByRating_Success() {
+    boolean isDesc = true;
+    List<Recipe> expectedRecipes = Arrays.asList(new Recipe(), new Recipe());
+    String url = getUrl("/recipe/recommend?isDesc=" + isDesc + "&isByRating=true");
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.OK);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByRating(isDesc);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void getRecipesByRating_Failure() {
+    boolean isDesc = true;
+    List<Recipe> expectedRecipes = Collections.emptyList();
+    String url = getUrl("/recipe/recommend?isDesc=" + isDesc + "&isByRating=true");
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.BAD_REQUEST);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByRating(isDesc);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void getRecipesByUserReview_Success() {
+    int userId = 1;
+    boolean isDesc = true;
+    List<Recipe> expectedRecipes = Arrays.asList(new Recipe(), new Recipe());
+    String url = getUrl("/recipe/recommend" + "?isDesc=" + isDesc + "&userId=" + userId);
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.OK);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByUserReview(userId, isDesc);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void getRecipesByUserReview_Failure() {
+    int userId = 1;
+    boolean isDesc = true;
+    List<Recipe> expectedRecipes = Collections.emptyList();
+    String url = getUrl("/recipe/recommend" + "?isDesc=" + isDesc + "&userId=" + userId);
+
+    ResponseEntity<List<Recipe>> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.BAD_REQUEST);
+
+    when(webServiceCaller.getCall(eq(url), any(ParameterizedTypeReference.class)))
+        .thenReturn(responseEntity);
+
+    List<Recipe> actualRecipes = recipeWebCaller.getRecipesByUserReview(userId, isDesc);
+
+    verify(webServiceCaller, times(1)).getCall(eq(url), any(ParameterizedTypeReference.class));
+
+    assertEquals(expectedRecipes, actualRecipes);
+  }
+
+  @Test
+  public void updateRecipeRating_Success() {
+    long recipeId = 1;
+    double rating = 1.3;
+    boolean expectedRecipes = true;
+    String url = getUrl("/recipe/" + recipeId + "/rating");
+
+    ResponseEntity<Boolean> responseEntity = new ResponseEntity<>(expectedRecipes, HttpStatus.OK);
+
+    when(webServiceCaller.postCall(eq(url), anyDouble(), eq(Boolean.class)))
+        .thenReturn(responseEntity);
+
+    boolean actualRecipes = recipeWebCaller.updateRecipeRating(recipeId, rating);
+
+    verify(webServiceCaller, times(1)).postCall(eq(url), anyDouble(), eq(Boolean.class));
+
+    assertTrue(actualRecipes);
+  }
+
+  @Test
+  public void updateRecipeRating_Failure() {
+    long recipeId = 1;
+    double rating = 1.3;
+    boolean expectedRecipes = true;
+    String url = getUrl("/recipe/" + recipeId + "/rating");
+
+    ResponseEntity<Boolean> responseEntity =
+        new ResponseEntity<>(expectedRecipes, HttpStatus.BAD_REQUEST);
+
+    when(webServiceCaller.postCall(eq(url), anyDouble(), eq(Boolean.class)))
+        .thenReturn(responseEntity);
+
+    boolean actualRecipes = recipeWebCaller.updateRecipeRating(recipeId, rating);
+
+    verify(webServiceCaller, times(1)).postCall(eq(url), anyDouble(), eq(Boolean.class));
+
+    assertFalse(actualRecipes);
   }
 }

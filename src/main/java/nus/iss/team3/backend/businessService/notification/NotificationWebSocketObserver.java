@@ -51,11 +51,11 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
   public void sendMessage(String action, int userId, Notification notification) {
 
     List<WebSocketSession> sessions = userSessions.get(userId);
-    if (sessions == null || sessions.isEmpty()) {
+    if (sessions == null) {
       return;
     }
     for (WebSocketSession session : sessions) {
-      if (session != null && session.isOpen()) {
+      if (session.isOpen()) {
         try {
 
           Map<String, Object> message =
@@ -70,7 +70,8 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
   }
 
   @Override
-  public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+  public void afterConnectionEstablished(WebSocketSession session) {
+
     Integer userId = extractUserIdFromSession(session);
     if (userId != null) {
       registerUserSession(userId, session);
@@ -79,7 +80,7 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
   }
 
   @Override
-  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
 
     logger.info("WebSocket connection closed for session: {}", session.getId());
     Integer userId = extractUserIdFromSession(session);
@@ -89,11 +90,11 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
     }
   }
 
-  @Override
-  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-    logger.error("Received from frontend ???: " + message.getPayload());
-    //    session.sendMessage(message);
-  }
+  //  @Override
+  //  protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+  //    logger.error("Received from frontend ???: " + message.getPayload());
+  //    //    session.sendMessage(message);
+  //  }
 
   private Integer extractUserIdFromSession(WebSocketSession session) {
     String query = session.getUri().getQuery();

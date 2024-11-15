@@ -6,8 +6,10 @@ import static org.mockito.Mockito.*;
 
 import nus.iss.team3.backend.businessService.auth.AuthService;
 import nus.iss.team3.backend.domainService.user.IUserAccountService;
+import nus.iss.team3.backend.entity.EUserStatus;
 import nus.iss.team3.backend.entity.UserAccount;
 import nus.iss.team3.backend.service.util.EncryptionUtilities;
+import nus.iss.team3.backend.service.util.UserBannedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,7 @@ public class TestAuthService {
 
   @BeforeEach
   public void setup() {
+    authService.postConstruct();
     hashedPassword = BCrypt.hashpw(TEST_PASSWORD, BCrypt.gensalt());
   }
 
@@ -46,6 +49,21 @@ public class TestAuthService {
     assertNull(result.getPassword(), "Password should be cleared");
 
     verify(userAccountService).authenticate(TEST_USERNAME, TEST_PASSWORD);
+  }
+
+  @Test
+  public void authenticate_InvalidPassword_ReturnsBannedAccount() {
+    UserAccount user = new UserAccount();
+    user.setName(TEST_USERNAME);
+    user.setPassword(TEST_PASSWORD);
+    user.setStatus(EUserStatus.BANNED);
+
+    when(userAccountService.authenticate(TEST_USERNAME, TEST_PASSWORD)).thenReturn(user);
+    assertThrows(
+        UserBannedException.class,
+        () -> {
+          authService.authenticate(TEST_USERNAME, TEST_PASSWORD);
+        });
   }
 
   @Test

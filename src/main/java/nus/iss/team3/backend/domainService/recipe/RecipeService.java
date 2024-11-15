@@ -207,9 +207,7 @@ public class RecipeService implements IRecipeService {
       // use set to delete duplicate recipe
       Set<Long> existingIds = new HashSet<>();
       for (Recipe recipe : recipeList) {
-        if (recipe.getId() != null) {
-          existingIds.add(recipe.getId());
-        }
+        existingIds.add(recipe.getId());
       }
 
       // merge lists
@@ -257,15 +255,13 @@ public class RecipeService implements IRecipeService {
       throw new IllegalArgumentException("Recipe name cannot be empty");
     }
     if (recipe.getCookingTimeInMin() == null || recipe.getCookingTimeInMin() <= 0) {
-      logger.error(
-          "Attempted to {} a recipe with invalid cooking time", isUpdate ? "update" : "add");
+      logger.error("Attempted to upsert a recipe with invalid cooking time");
       throw new IllegalArgumentException("Cooking time must be greater than 0");
     }
     if (recipe.getDifficultyLevel() == null
         || recipe.getDifficultyLevel() <= 0
         || recipe.getDifficultyLevel() > 5) {
-      logger.error(
-          "Attempted to {} a recipe with invalid difficulty level", isUpdate ? "update" : "add");
+      logger.error("Attempted to upsert a recipe with invalid difficulty level");
       throw new IllegalArgumentException(
           "Difficulty level must be greater than 0 and less than or equal to 5");
     }

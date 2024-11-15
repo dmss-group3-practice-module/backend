@@ -95,7 +95,6 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
   //    logger.error("Received from frontend ???: " + message.getPayload());
   //    //    session.sendMessage(message);
   //  }
-
   private Integer extractUserIdFromSession(WebSocketSession session) {
     String query = session.getUri().getQuery();
     if (query != null && query.contains("userId=")) {

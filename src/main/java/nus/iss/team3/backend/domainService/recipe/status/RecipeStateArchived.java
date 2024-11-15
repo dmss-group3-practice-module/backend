@@ -69,7 +69,11 @@ public class RecipeStateArchived implements IRecipeState {
         // update the record to archive with the latest info in the input item
         return recipeDataAccess.addRecipe(recipe);
       }
-      case null, default -> {
+      case null -> {
+        logger.error(
+            "ERROR with database data, please review recipe record : {}", dbRecipe.getId());
+      }
+      default -> {
         logger.error(
             "ERROR with database data, please review recipe record : {}", dbRecipe.getId());
       }
@@ -125,7 +129,12 @@ public class RecipeStateArchived implements IRecipeState {
         logger.error("Unable to update recipe with ID: {} as it is archived", recipe.getId());
         return false;
       }
-      case null, default -> {
+      case null -> {
+        logger.error(
+            "Invalid recipe status for recipe with ID: {}, unable to update", recipe.getId());
+        return false;
+      }
+      default -> {
         logger.error(
             "Invalid recipe status for recipe with ID: {}, unable to update", recipe.getId());
         return false;

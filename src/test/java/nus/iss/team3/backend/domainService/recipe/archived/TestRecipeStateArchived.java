@@ -524,7 +524,7 @@ public class TestRecipeStateArchived {
 
   @Test
   public void updateRecipe_validInput_validRecipeId_validRecipe_nullStatus() {
-    Recipe inputRecipe = new Recipe();wa
+    Recipe inputRecipe = new Recipe();
     inputRecipe.setId(1L);
     Recipe dbRecipe = new Recipe();
     dbRecipe.setId(2L);

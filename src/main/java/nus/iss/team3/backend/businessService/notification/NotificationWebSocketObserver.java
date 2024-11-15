@@ -51,11 +51,11 @@ public class NotificationWebSocketObserver extends TextWebSocketHandler
   public void sendMessage(String action, int userId, Notification notification) {
 
     List<WebSocketSession> sessions = userSessions.get(userId);
-    if (sessions == null) {
+    if (sessions == null || sessions.isEmpty()) {
       return;
     }
     for (WebSocketSession session : sessions) {
-      if (session.isOpen()) {
+      if (session != null && session.isOpen()) {
         try {
 
           Map<String, Object> message =
